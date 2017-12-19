@@ -1,0 +1,113 @@
+https://docs.micropython.org/en/latest/esp8266/esp8266/tutorial/intro.html
+
+sudo python3 esptool.py --port /dev/ttyUSB0 erase_flash
+
+sudo python3 esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 esp8266-20171101-v1.9.3.bin
+
+sudo picocom /dev/ttyUSB0 -b115200
+
+
+import webrepl_setup
+
+wifi:
+MicroPython-0121e6
+(MicroPython-xxyyy), yyy = 1e6
+
+pass:
+micropythoN
+
+WebREPL
+pass: 12345
+12345  (developer temp pass)
+
+http://micropython.org/webrepl/
+ws://192.168.4.1:8266/
+
+or
+
+file:///home/arkadii/Documents/micropython/inst/webrepl-master/webrepl.html
+
+----
+import machine
+machine.reset()
+
+>>> machine.
+__name__        mem8            mem16           mem32
+freq            reset           reset_cause     unique_id
+idle            sleep           deepsleep       disable_irq
+enable_irq      time_pulse_us   RTC             Timer
+WDT             Pin             Signal          PWM
+ADC             UART            I2C             SPI
+DEEPSLEEP       PWRON_RESET     HARD_RESET      DEEPSLEEP_RESET
+WDT_RESET       SOFT_RESET
+
+--
+
+>>> import os
+>>> os.
+__name__        uname           urandom         dupterm
+dupterm_notify  VfsFat          ilistdir        listdir
+mkdir           rmdir           chdir           getcwd
+remove          rename          stat            statvfs
+mount           umount
+
+----
+
+----
+import socket 
+import machine
+
+
+#HTML to send to browsers
+html = """<!DOCTYPE html>
+<html>
+<head> <title>ESP8266 LED ON/OFF</title> </head>
+<center><h2>A simple webserver for turning HUZZAH Feather LED's on and off with Micropython</h2></center>
+<center><h3>(for noobs to both the ESP8266 and Micropython)</h3></center>
+<form>
+LED0: 
+<button name="LED" value="ON0" type="submit">LED ON</button>
+<button name="LED" value="OFF0" type="submit">LED OFF</button><br><br>
+LED2: 
+<button name="LED" value="ON2" type="submit">LED ON</button>
+<button name="LED" value="OFF2" type="submit">LED OFF</button>
+</form>
+</html>
+"""
+
+#Setup PINS
+LED0 = machine.Pin(0, machine.Pin.OUT)
+LED2 = machine.Pin(2, machine.Pin.OUT)
+
+#Setup Socket WebServer
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('', 80))
+s.listen(5)
+while True:
+    conn, addr = s.accept()
+    print("Got a connection from %s" % str(addr))
+    request = conn.recv(1024)
+    print("Content = %s" % str(request))
+    request = str(request)
+    LEDON0 = request.find('/?LED=ON0')
+    LEDOFF0 = request.find('/?LED=OFF0')
+    LEDON2 = request.find('/?LED=ON2')
+    LEDOFF2 = request.find('/?LED=OFF2')
+    #print("Data: " + str(LEDON0))
+    #print("Data2: " + str(LEDOFF0))
+    if LEDON0 == 6:
+        print('TURN LED0 ON')
+        LED0.low()
+    if LEDOFF0 == 6:
+        print('TURN LED0 OFF')
+        LED0.high()
+    if LEDON2 == 6:
+        print('TURN LED2 ON')
+        LED2.low()
+    if LEDOFF2 == 6:
+        print('TURN LED2 OFF')
+        LED2.high()
+    response = html
+    conn.send(response)
+    conn.close()
+----

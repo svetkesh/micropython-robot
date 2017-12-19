@@ -1,0 +1,5 @@
+
+micropythoN wifi password
+
+SSID: MicroPython-0121d7
+GW: 192.168.4.1
