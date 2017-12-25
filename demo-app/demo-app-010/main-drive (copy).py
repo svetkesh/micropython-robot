@@ -10,7 +10,6 @@ direction = 's'                                    # default direction "stop"
 command = 'run'
 # default "stop"
 
-
 def run(direction):
     try:
         if direction == 's':
