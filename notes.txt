@@ -111,3 +111,12 @@ while True:
     conn.send(response)
     conn.close()
 ----
+
+https://learn.adafruit.com/16-channel-pwm-servo-driver?view=all
+
+>>> import machine
+>>> from machine import Pin, PWM, I2C
+>>> i2c = machine.I2C(scl=machine.Pin(12), sda=machine.Pin(13), freq=400000)
+>>> i2c.scan()
+[64, 112]
+
