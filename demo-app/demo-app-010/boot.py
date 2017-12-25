@@ -3,7 +3,7 @@ import network, machine, time, math
 print('Starting boot.py')
 
 ssid = 'bolshevik'
-ssidpss = 'c8a7chc8a7ch'
+ssidpss = 'xxxxxxxx'
 
 s_timeout = 200
 l_timeout = 2000

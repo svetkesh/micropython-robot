@@ -4,7 +4,7 @@ import time, math
 print('Starting boot.py')
 
 ssid = 't4m'
-ssidpss = 'zamaha402'
+ssidpss = 'xxxxxxxx'
 
 s_timeout = 200
 l_timeout = 2000

@@ -7,7 +7,10 @@ print('robot demo-app 010 running...')
 
 directions = ['s', 'f', 'ff', 'l', 'r', 'b', 'bb', 'q']
 direction = 's'                                    # default direction "stop"
-command = 'run'                                    # default "stop"
+command = 'run'
+# default "stop"
+
+
 def run(direction):
     try:
         if direction == 's':
