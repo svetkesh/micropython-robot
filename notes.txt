@@ -120,3 +120,67 @@ https://learn.adafruit.com/16-channel-pwm-servo-driver?view=all
 >>> i2c.scan()
 [64, 112]
 
+----
+links:
+http://micropython-on-esp8266-workshop.readthedocs.io/en/latest/basics.html
+----
+4 servo + 1 DC (via H bridge)
+
+import machine
+import time
+def testservos():
+    serv12 = machine.PWM(machine.Pin(12), freq=50)
+    serv13 = machine.PWM(machine.Pin(13), freq=50)
+    serv14 = machine.PWM(machine.Pin(14), freq=50)
+    serv15 = machine.PWM(machine.Pin(15), freq=50)
+    motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+    motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+    time.sleep_ms(2000)
+    serv12.duty(60)
+    serv13.duty(60)
+    serv14.duty(60)
+    serv15.duty(60)
+    time.sleep_ms(2000)
+    serv12.duty(100)
+    serv13.duty(100)
+    serv14.duty(100)
+    serv15.duty(100)
+
+--
+import machine
+import time
+serv12 = machine.PWM(machine.Pin(12), freq=50)
+serv13 = machine.PWM(machine.Pin(13), freq=50)
+serv14 = machine.PWM(machine.Pin(14), freq=50)
+serv15 = machine.PWM(machine.Pin(15), freq=50)
+motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+serv12.duty(60)
+serv13.duty(60)
+serv14.duty(60)
+serv15.duty(60)
+
+serv12.duty(100)
+serv13.duty(100)
+serv14.duty(100)
+serv15.duty(100)
+
+#
+
+motor_a_p.duty(1000)
+motor_a_m.duty(1)
+print('Go "Forward"')
+
+motor_a_p.duty(2000)
+motor_a_m.duty(1)
+print('Go "Fast Forward"')
+
+motor_a_p.duty(1000)
+motor_a_m.duty(-1)
+print('Go "Backward"')
+
+motor_a_p.duty(0)
+motor_a_m.duty(1)
+print('Go "STOP"')
+
+
