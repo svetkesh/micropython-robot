@@ -68,9 +68,37 @@ while True:
     # re.search(r'=0.(\d+)', s).groups(0)
     # int(re.findall(r'(\d+)', s)[-1])
 
-    reqx = re.findall(r'(\d+)', request)[-1]
+    # reqx = re.findall(r'(\d+)', request)[-1]  # re.findall is not available for micropython
 
-    posx = ((int(reqx) +1)/200)*(110-70)
+    # reqx
+
+    r_number = re.compile("0\.(\d+)")
+    r_headx = re.compile("headx=0\.(\d+)")
+    m_headx = r_headx.search(request)
+
+    try:
+        print('string: {}\n    re: {}\n found: {}'.format(
+            request, str(r_headx), m_headx.group(0)))
+    except:
+        print('string: {}\n    re: {}\n found: {}'.format(
+            request, str(r_headx), "None found"))
+
+    print('\n---- looking for exact headx/handy value:')
+
+    try:
+        s_headx = str(m_headx.group(0))
+        print('source string: {}'.format(s_headx))
+        headx = r_number.search(s_headx)
+        print('  value found: {}'.format(headx.group(0)))
+        f_headx = float(headx.group(0))
+        print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))
+
+    except:
+        print('source string: {}'.format('None found'))
+        print('  value found: {}'.format('None found'))
+        print('Error searching value for headx')
+
+    posx = ((int(f_headx) +1)/200)*(110-70)
 
     print('position x : {}'.format(posx))
 
