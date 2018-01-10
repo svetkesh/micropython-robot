@@ -28,7 +28,7 @@ sta_if.active(True)  # activate the station interface
 
 sta_if.connect('<your ESSID>', '<your password>') connect to your WiFi network
 
-#
+# sta_if.connect('<t4mD>', '<>')
 
 sta_if.isconnected()  # To check if the connection is established use
 
