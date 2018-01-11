@@ -3,6 +3,7 @@ from kivy.garden.joystick import Joystick
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 import time
+import requests
 
 class DemoApp(App):
   def build(self):
@@ -22,5 +23,15 @@ class DemoApp(App):
     text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
     time.sleep(0.05)
     self.label.text = text.format(x, y, radians, magnitude, angle)
+    posx = (float(x)+1)/2
+    print('posx: {}'.format(posx))
+    #
+    # http: // 192.168.88.186 /?headx = 0.37
+    # http: // 192.168.4.1 /?headx = 0.37
+    #
+    url = 'http://192.168.88.186/'
+    payload = {'headx',posx}
+    r = requests.post(url, data=payload)
+    print(r.text)
 
 DemoApp().run()

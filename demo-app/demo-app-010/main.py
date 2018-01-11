@@ -1,6 +1,20 @@
 import socket
-import machine
-import re
+try:
+    import machine
+    print('DBG: import "machine" library - done')
+except ImportError:
+    print('DBG: Could not import "machine" library')
+
+try:
+    import ure as re
+    print('DBG: import microRE "ure" library successful')
+except ImportError:
+    try:
+        import re
+        print('DBG: import standard library RE "re" successful')
+    except ImportError:
+        print('DBG: import could not be done neither re neither micro "ure"')
+        raise SystemExit
 
 #HTML to send to browsers
 html = """<!DOCTYPE html>
@@ -33,11 +47,12 @@ sevr_head_x = machine.PWM(machine.Pin(14), freq=50)
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 80))
 s.listen(5)
+print('DBG: opened connection to port 80')
 while True:
     conn, addr = s.accept()
     print("Got a connection from %s" % str(addr))
     request = conn.recv(1024)
-    print("Content = %s" % str(request))
+    # print("Content = %s" % str(request))  # print full request
     request = str(request)
     # # LEDON0 = request.find('/?LED=ON0')
     # # LEDOFF0 = request.find('/?LED=OFF0')
@@ -97,8 +112,10 @@ while True:
         print('source string: {}'.format('None found'))
         print('  value found: {}'.format('None found'))
         print('Error searching value for headx')
+        f_headx = 0.01
 
-    posx = ((int(f_headx) +1)/200)*(110-70)
+    # posx = int(((f_headx + 1)/2) * 110 + 30)
+    posx = int(f_headx  * 75 + 40)
 
     print('position x : {}'.format(posx))
 

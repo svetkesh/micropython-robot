@@ -210,4 +210,13 @@ motor_a_p.duty(0)
 motor_a_m.duty(1)
 print('Go "STOP"')
 
+----
+Hobby servo motors can be controlled using PWM.
+They require a frequency of 50Hz and then a
+duty between about 40 and 115,
+with 77 being the centre value
 
+----
+192.168.88.186
+http://192.168.88.186/?headx=0.37
+http://192.168.4.1/?headx=0.37
