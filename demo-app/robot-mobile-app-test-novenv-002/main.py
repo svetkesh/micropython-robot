@@ -18,7 +18,8 @@ import socket
 
 # robot address
 # robot_host = '192.168.101.101'
-robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+# robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+robot_host = '192.168.4.1'  # hardcodedrobot ip t4m net
 
 class DemoApp(App):
     def build(self):
@@ -39,7 +40,7 @@ class DemoApp(App):
         # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
         # self.label.text = text.format(x, y, radians, magnitude, angle, send_status)
 
-        time.sleep(0.02)
+        time.sleep(0.4)
 
         posx = (float(x)+1)/2
         print('posx: {}'.format(posx))
@@ -56,17 +57,18 @@ class DemoApp(App):
         try:
 
             sock = socket.socket()
+            send_status = 'sock-OK '
             sock.connect((robot_host, 80))
-
+            send_status = 'connect-OK '
             soc_string = 'http://192.168.4.1/?headx=' + str(posx)
-
+            send_status = 'string-OK '
             sock.send(soc_string)
-            #
-            # data = sock.recv(1024)
+            send_status = 'send-OK '
             sock.close()
+            send_status = 'close-OK '
             send_status = 'sent ok'
         except:
-            send_status = 'error'
+            send_status += 'error'
 
         # display info
         text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
