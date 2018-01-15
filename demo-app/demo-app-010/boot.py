@@ -2,7 +2,9 @@ import network, machine, time, math
 
 print('Starting boot.py')
 
-ssid = 'KVN'
+#ssid = 'KVN'
+# ssidpss = ''
+ssid = 't4m'
 ssidpss = ''
 
 s_timeout = 200

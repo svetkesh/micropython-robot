@@ -31,7 +31,10 @@ html = """<!DOCTYPE html>
     <title>Title</title>
 </head>
 <body>
+<!-- 
 <form class="" action="http://192.168.101.102/" method="get">
+-->
+<form class="" action="http://192.168.88.186/" method="get">
     <input type="text" name="headx" id="headx" value="" placeholder="0.00">
     <input type="text" name="handy" id="handy" value="" placeholder="0.00">
     <input type="submit" value="submit position">
@@ -51,7 +54,7 @@ html = """<!DOCTYPE html>
 # motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 # serv = machine.PWM(machine.Pin(12), freq=50)
 sevr_head_x = machine.PWM(machine.Pin(14), freq=50)
-sevr_hand_y = machine.PWM(machine.Pin(12), freq=50)
+sevr_hand_y = machine.PWM(machine.Pin(13), freq=50)
 
 #Setup Socket WebServer
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -81,7 +84,7 @@ while True:
             request, m_headx.group(0), m_handy.group(0)))
     except:
         print('string: {}\n found: {}'.format(
-            request, "Posision not found"))
+            request, "Position not found"))
 
     print('\n---- looking for exact headx/handy value:')
 
@@ -91,22 +94,29 @@ while True:
         headx = r_number.search(s_headx)
         print('  value found: {}'.format(headx.group(0)))
         f_headx = float(headx.group(0))
-        print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))
+        # print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))  # testing float conversion
 
-        # <---- continue y here !!!
+        s_handy = str(m_handy.group(0))
+        print('source string: {}'.format(s_handy))
+        handy = r_number.search(s_handy)
+        print('  value found: {}'.format(handy.group(0)))
+        f_handy = float(handy.group(0))
 
     except:
         print('source string: {}'.format('None found'))
         print('  value found: {}'.format('None found'))
         print('Error searching value for headx')
-        f_headx = 0.01
+        f_headx = 0.5
+        f_handy = 0.5
 
     # posx = int(((f_headx + 1)/2) * 110 + 30)
-    posx = int(f_headx  * 75 + 40)
+    posx = int(f_headx * 75 + 40)
+    posy = int(f_handy * 75 + 40)
 
-    print('position x : {}'.format(posx))
+    print('position x,y : {} , {}'.format(posx, posy))
 
     sevr_head_x.duty(posx)
+    sevr_hand_y.duty(posy)
 
     response = html
     conn.send(response)

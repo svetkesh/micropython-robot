@@ -13,6 +13,8 @@ http://192.168.101.102/?headx=0.3&handy=0.7
 
 from kivy.app import App
 from kivy.garden.joystick import Joystick
+from  kivy.uix.anchorlayout import AnchorLayout
+from  kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 import time
@@ -37,15 +39,11 @@ import socket
 
 class DemoApp(App):
     def build(self):
-        self.root = BoxLayout()
-        self.root.padding = 10
-        joystick = Joystick()
-        joystick2 = Joystick()
-        joystick.bind(pad=self.update_coordinates)
-        self.root.add_widget(joystick)
-        self.root.add_widget(joystick2)
-        self.label = Label()
-        self.root.add_widget(self.label)
+        # self.root.add_widget(self.layout)
+        self.layout = AnchorLayout(
+            anchor_x='right', anchor_y='bottom')
+        self.btn = Button(text='Hello World')
+        self.layout.add_widget(self.btn)
 
     def update_coordinates(self, joystick, pad):
 
@@ -120,6 +118,7 @@ class DemoApp(App):
 
         # display info
         text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
+        # self.label.text = text.format(x, y, radians, magnitude, angle, send_status)
         self.label.text = text.format(x, y, radians, magnitude, angle, send_status)
 
 

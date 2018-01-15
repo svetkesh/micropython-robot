@@ -38,12 +38,10 @@ import socket
 class DemoApp(App):
     def build(self):
         self.root = BoxLayout()
-        self.root.padding = 10
+        self.root.padding = 50
         joystick = Joystick()
-        joystick2 = Joystick()
         joystick.bind(pad=self.update_coordinates)
         self.root.add_widget(joystick)
-        self.root.add_widget(joystick2)
         self.label = Label()
         self.root.add_widget(self.label)
 
@@ -66,39 +64,9 @@ class DemoApp(App):
 
         # time.sleep(0.4)
 
-        # posx = (float(x)+1)/2  # OK double float
         posx = (float(x)+1)/2
-        # print('posx: {}'.format(posx))
-
-        # posy = 1 - (float(y)+1)/2  # OK
         posy = 1 - (float(y)+1)/2
         print('posx , posy: {} , {}'.format(posx, posy))
-
-        #
-        # http://192.168.88.186/?headx=0.37
-        # http://192.168.4.1/?headx=0.37
-        #
-        # url = 'http://192.168.88.186/'
-        # payload = {'headx',posx}
-        # r = requests.post(url, data=payload)
-        # print(r.text)
-
-        # socket implementation in this def
-        # try:
-        #
-        #     sock = socket.socket()
-        #     send_status = 'sock-OK '
-        #     sock.connect((robot_host, 80))
-        #     send_status = 'connect-OK '
-        #     soc_string = 'http://192.168.4.1/?headx=' + str(posx)
-        #     send_status = 'string-OK '
-        #     sock.send(soc_string)
-        #     send_status = 'send-OK '
-        #     sock.close()
-        #     send_status = 'close-OK '
-        #     send_status = 'sent ok'
-        # except:
-        #     send_status += 'error'
 
         try:
             client_socket = socket.socket()  # instantiate
