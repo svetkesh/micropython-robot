@@ -2,6 +2,13 @@
 added socket encoding from
 main(testing raw socket connection compiled android app no gui - OK)
 
+add head left-right
+add hand up -down
+
+http://192.168.101.102/?headx=0.3&handy=0.7
+
+?headx=0.3&handy=0.7
+
 '''
 
 from kivy.app import App

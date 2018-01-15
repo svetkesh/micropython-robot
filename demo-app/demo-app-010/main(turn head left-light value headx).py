@@ -1,7 +1,7 @@
 '''
-http://192.168.101.102/?headx=0.3&handy=0.7
+http://192.168.101.102/?headx=0.3
 
-?headx=0.3&handy=0.7
+?headx=0.3
 '''
 
 
@@ -25,6 +25,7 @@ except ImportError:
 
 #HTML to send to browsers
 html = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -32,14 +33,11 @@ html = """<!DOCTYPE html>
 </head>
 <body>
 <form class="" action="http://192.168.101.102/" method="get">
-    <input type="text" name="headx" id="headx" value="" placeholder="0.00">
-    <input type="text" name="handy" id="handy" value="" placeholder="0.00">
-    <input type="submit" value="submit position">
+<input type="text" name="headx" id="headx" value="" placeholder="0.00">
+<input type="submit" value="head x">
 </form>
 </body>
-
-<!--http://192.168.101.102/?headx=0.3&handy=0.7-->
-
+<!--http://192.168.101.102/?headx=0.37-->
 </html>
 
 """
@@ -51,7 +49,6 @@ html = """<!DOCTYPE html>
 # motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 # serv = machine.PWM(machine.Pin(12), freq=50)
 sevr_head_x = machine.PWM(machine.Pin(14), freq=50)
-sevr_hand_y = machine.PWM(machine.Pin(12), freq=50)
 
 #Setup Socket WebServer
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,24 +61,49 @@ while True:
     request = conn.recv(1024)
     # print("Content = %s" % str(request))  # print full request
     request = str(request)
+    # # LEDON0 = request.find('/?LED=ON0')
+    # # LEDOFF0 = request.find('/?LED=OFF0')
+    # # LEDON2 = request.find('/?LED=ON2')
+    # # LEDOFF2 = request.find('/?LED=OFF2')
+    #
+    #
+    # #print("Data: " + str(LEDON0))
+    # #print("Data2: " + str(LEDOFF0))
+    #
+    # LEDON0 = request.find('/?LED=ON0')
+    #
+    #
+    # if LEDON0 == 6:
+    #     print('TURN LED0 ON')
+    #     LED0.low()
+    # if LEDOFF0 == 6:
+    #     print('TURN LED0 OFF')
+    #     LED0.high()
+    # if LEDON2 == 6:
+    #     print('TURN LED2 ON')
+    #     LED2.low()
+    # if LEDOFF2 == 6:
+    #     print('TURN LED2 OFF')
+    #     LED2.high()
 
-    # compile re number
+    # try head x pos
+    # re.search(r'=0.(\d+)', s).groups(0)
+    # int(re.findall(r'(\d+)', s)[-1])
+
+    # reqx = re.findall(r'(\d+)', request)[-1]  # re.findall is not available for micropython
+
+    # reqx
+
     r_number = re.compile("0\.(\d+)")
-
-    # get head position
     r_headx = re.compile("headx=0\.(\d+)")
     m_headx = r_headx.search(request)
 
-    # get hand position
-    r_handy = re.compile("handy=0\.(\d+)")  #
-    m_handy = r_handy.search(request)
-
     try:
-        print('string: {}\n found x,y: {} , {}'.format(
-            request, m_headx.group(0), m_handy.group(0)))
+        print('string: {}\n    re: {}\n found: {}'.format(
+            request, str(r_headx), m_headx.group(0)))
     except:
-        print('string: {}\n found: {}'.format(
-            request, "Posision not found"))
+        print('string: {}\n    re: {}\n found: {}'.format(
+            request, str(r_headx), "None found"))
 
     print('\n---- looking for exact headx/handy value:')
 
@@ -92,8 +114,6 @@ while True:
         print('  value found: {}'.format(headx.group(0)))
         f_headx = float(headx.group(0))
         print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))
-
-        # <---- continue y here !!!
 
     except:
         print('source string: {}'.format('None found'))
