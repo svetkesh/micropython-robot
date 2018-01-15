@@ -93,6 +93,7 @@ class DemoApp(App):
 
             client_socket.close()  # close the connection
             # sleep(3)
+            time.sleep(0.02)
             #
             print('posx {} sent'.format(message))
             send_status = 'sent ok' + str(posx)
