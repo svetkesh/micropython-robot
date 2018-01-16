@@ -27,6 +27,39 @@ or
 
 file:///home/arkadii/Documents/micropython/inst/webrepl-master/webrepl.html
 
+--
+import network
+sta_if = network.WLAN(network.STA_IF)
+ap_if = network.WLAN(network.AP_IF)
+
+You can check if the interfaces are active by:
+
+>>> sta_if.active()
+False
+>>> ap_if.active()
+True
+
+You can also check the network settings of the interface by:
+
+>>> ap_if.ifconfig()
+('192.168.4.1', '255.255.255.0', '192.168.4.1', '8.8.8.8')
+
+The returned values are: IP address, netmask, gateway, DNS.
+4.1. Configuration of the WiFi
+
+Upon a fresh install the ESP8266 is configured in access point mode, so the AP_IF interface is active and the STA_IF interface is inactive. You can configure the module to connect to your own network using the STA_IF interface.
+
+First activate the station interface:
+
+>>> sta_if.active(True)
+
+
+--
+
+
+sta_if.connect('<your ESSID>', '<your password>')
+sta_if.connect('KVN', 'c8a7chc8ach')
+
 ----
 import machine
 machine.reset()
