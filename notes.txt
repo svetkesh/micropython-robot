@@ -9,6 +9,33 @@ sudo picocom /dev/ttyUSB0 -b115200
 
 import webrepl_setup
 
+
+-- manual setup WiFi connection
+https://docs.micropython.org/en/latest/esp8266/esp8266/tutorial/network_basics.html
+
+import network
+sta_if = network.WLAN(network.STA_IF)
+# ap_if = network.WLAN(network.AP_IF)  # ap_if is for AccessPoint mode
+
+sta_if.active()  # You can check if the interfaces are active
+#  False
+#  ap_if.active()
+#  True
+# ap_if.ifconfig()  # check the network settings of the AP interface
+#('192.168.4.1', '255.255.255.0', '192.168.4.1', '8.8.8.8')  # The returned values: IP address, netmask, gateway, DNS
+
+sta_if.active(True)  # activate the station interface
+
+sta_if.connect('<your ESSID>', '<your password>') connect to your WiFi network
+
+# sta_if.connect('<t4mD>', '<>')
+
+sta_if.isconnected()  # To check if the connection is established use
+
+
+
+--
+
 wifi:
 MicroPython-0121e6
 (MicroPython-xxyyy), yyy = 1e6
@@ -216,4 +243,13 @@ motor_a_p.duty(0)
 motor_a_m.duty(1)
 print('Go "STOP"')
 
+----
+Hobby servo motors can be controlled using PWM.
+They require a frequency of 50Hz and then a
+duty between about 40 and 115,
+with 77 being the centre value
 
+----
+192.168.88.186
+http://192.168.88.186/?headx=0.37
+http://192.168.4.1/?headx=0.37
