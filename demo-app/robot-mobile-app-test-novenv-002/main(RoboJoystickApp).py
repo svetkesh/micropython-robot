@@ -140,9 +140,10 @@ class RoboPad(FloatLayout):
 
     # update coordinates for joystickrun
     # for now just print coordinates to debug label
+
     def update_coordinates_run(self, joystick, pad):
         # test for joystickrun binding test
-        print('joystickrun binded')
+        print('update_coordinates_run ...')
         x = str(pad[0])[0:5]
         y = str(pad[1])[0:5]
         radians = str(joystick.radians)[0:5]
@@ -155,9 +156,30 @@ class RoboPad(FloatLayout):
         text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
         self.debug_label_run.text = text.format(x, y, radians, magnitude, angle)
 
+        # for query http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5
+        robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+        robot_port = 80
+        turnx = (float(x) + 1) / 2
+        try:
+            client_socket = socket.socket()  # instantiate
+            client_socket.connect((robot_host, robot_port))  # connect to the server
+            message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
+            client_socket.send(message.encode())  # encode than send message
+
+            client_socket.close()  # close the connection
+            # sleep(3)
+            # time.sleep(0.02)
+            #
+            print('turnx {} sent'.format(message))
+            send_status = 'sent ok' + str(turnx)
+        except:
+            print('turnx not sent {}'.format(turnx))
+            send_status += 'error sending turnx' + str(turnx)
+
+
     def update_coordinates_hand(self, joystick, pad):
         # test for update_coordinates_hand binding test
-        print('update_coordinates_hand binded')
+        print('update_coordinates_hand running...')
         x = str(pad[0])[0:5]
         y = str(pad[1])[0:5]
         radians = str(joystick.radians)[0:5]
