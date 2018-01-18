@@ -5,7 +5,7 @@ print('Starting boot.py')
 #ssid = 'KVN'
 # ssidpss = ''
 ssid = 't4m'
-ssidpss = 'zamaha402'
+ssidpss = ''
 
 s_timeout = 200
 l_timeout = 2000

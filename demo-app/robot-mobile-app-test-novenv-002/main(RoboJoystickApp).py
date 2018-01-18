@@ -40,6 +40,10 @@ class RoboPad(FloatLayout):
         self.add_widget(self.catchbutton)
 
         # add debug Labels
+        self.debug_label = Label(size_hint=(.2, .2),
+                                     pos_hint={'x': .8, 'y': .8},
+                                     text='message ... ...',)  # multiline=True,)
+        self.add_widget(self.debug_label)
         self.debug_label_hand = Label(size_hint=(.2, .2),
                                       pos_hint={'x': .1, 'y': .8},
                                       text='message ... ...',)
@@ -52,7 +56,6 @@ class RoboPad(FloatLayout):
         # bind joystick
         self.joystickrun.bind(pad=self.update_coordinates_run)
         self.joystickhand.bind(pad=self.update_coordinates_hand)
-
         
     # def update_coordinates(self, joystick, pad):
     def update_coordinates(self, joystick, pad):  # ok copy of original update_coordinates
@@ -143,7 +146,8 @@ class RoboPad(FloatLayout):
 
     def update_coordinates_run(self, joystick, pad):
         # test for joystickrun binding test
-        print('update_coordinates_run ...')
+        # print('update_coordinates_run ...')
+        print(self, joystick, pad)
         x = str(pad[0])[0:5]
         y = str(pad[1])[0:5]
         radians = str(joystick.radians)[0:5]
@@ -155,31 +159,36 @@ class RoboPad(FloatLayout):
         # without send_status print just to debug label
         text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
         self.debug_label_run.text = text.format(x, y, radians, magnitude, angle)
+        # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
 
         # for query http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5
-        robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
-        robot_port = 80
-        turnx = (float(x) + 1) / 2
-        try:
-            client_socket = socket.socket()  # instantiate
-            client_socket.connect((robot_host, robot_port))  # connect to the server
-            message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
-            client_socket.send(message.encode())  # encode than send message
+        # robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+        # robot_port = 80
+        # turnx = (float(x) + 1) / 2
+        # try:
+        #     client_socket = socket.socket()  # instantiate
+        #     client_socket.connect((robot_host, robot_port))  # connect to the server
+        #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
+        #     client_socket.send(message.encode())  # encode than send message
+        #
+        #     client_socket.close()  # close the connection
+        #     # sleep(3)
+        #     # time.sleep(0.02)
+        #     #
+        #     print('turnx {} sent'.format(message))
+        #     send_status = 'sent ok' + str(turnx)
+        # except:
+        #     print('turnx not sent {}'.format(turnx))
+        #     send_status += 'error sending turnx' + str(turnx)
 
-            client_socket.close()  # close the connection
-            # sleep(3)
-            # time.sleep(0.02)
-            #
-            print('turnx {} sent'.format(message))
-            send_status = 'sent ok' + str(turnx)
-        except:
-            print('turnx not sent {}'.format(turnx))
-            send_status += 'error sending turnx' + str(turnx)
+        # <<<
+        self.update_fake_data(x, y)
 
 
     def update_coordinates_hand(self, joystick, pad):
         # test for update_coordinates_hand binding test
-        print('update_coordinates_hand running...')
+        # print('update_coordinates_hand running...')
+        print(self, joystick, pad)
         x = str(pad[0])[0:5]
         y = str(pad[1])[0:5]
         radians = str(joystick.radians)[0:5]
@@ -191,6 +200,15 @@ class RoboPad(FloatLayout):
         # without send_status print just to debug label
         text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
         self.debug_label_hand.text = text.format(x, y, radians, magnitude, angle)
+        # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
+
+        # <<<
+        self.update_fake_data(x, y)
+
+    def update_fake_data(self, **kwargs):
+        for arg in kwargs:
+            print(arg)
+        # self.debug_label.text = kwargs
 
 
 class RoboJoystickApp(App):
