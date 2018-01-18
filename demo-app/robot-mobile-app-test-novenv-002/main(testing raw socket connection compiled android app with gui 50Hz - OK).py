@@ -60,7 +60,7 @@ class DemoApp(App):
         posx = (float(x)+1)/2
         print('posx: {}'.format(posx))
         #
-        # http://192.168.88.186/?headx=0.37
+        # http://192.168.88.186/?headx=0.37&hand=0.99
         # http://192.168.4.1/?headx=0.37
         #
         # url = 'http://192.168.88.186/'
