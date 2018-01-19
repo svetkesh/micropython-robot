@@ -253,3 +253,20 @@ with 77 being the centre value
 192.168.88.186
 http://192.168.88.186/?headx=0.37
 http://192.168.4.1/?headx=0.37
+
+----
+>>> import ure
+>>> rh = re.compile("headx=0\.(\d+)")
+
+>>> print('not') if None != rh.search(s) else print('yes')
+not
+>>> print('not') if None != rh.search(not_s) else print('yes')
+yes
+
+>>> s
+'http://192.168.101.102/?headx=0.5'
+>>> not_s
+'http://192.168.101.102/?handy=0.5'
+>>> rh
+<re 3fff0af0>
+>>>

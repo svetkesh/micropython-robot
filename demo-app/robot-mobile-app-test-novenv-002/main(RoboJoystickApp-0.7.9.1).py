@@ -1,7 +1,11 @@
 # import kivy
 # kivy.require('1.10.0') # replace with your current kivy version !
 
-'''basic kivy layout examples -03
+''' Testing 2 joysticks sending commands
+should match main.py (ESP8266 autoloaded v. 0.7.9.1)
+
+manages via
+headx, handy, turnx, runy
 
 '''
 
@@ -27,7 +31,8 @@ class RoboPad(FloatLayout):
 
         # joystickhand and joystickrun
         self.joystickhand = Joystick(size_hint=(.4, .4),
-                                     pos_hint={'x':0.0, 'y':.2})
+                                     pos_hint={'x':0.0, 'y':.2},
+                                     sticky=True)
         self.add_widget(self.joystickhand)
         self.joystickrun = Joystick(size_hint=(.4, .4),
                                     pos_hint={'x':0.6, 'y':.2})
@@ -182,7 +187,7 @@ class RoboPad(FloatLayout):
         #     send_status += 'error sending turnx' + str(turnx)
 
         # <<<
-        self.update_fake_data(x, y)
+        self.update_fake_data(turnx=x, runy=y)
 
 
     def update_coordinates_hand(self, joystick, pad):
@@ -203,12 +208,61 @@ class RoboPad(FloatLayout):
         # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
 
         # <<<
-        self.update_fake_data(x, y)
+        self.update_fake_data(headx=x, handy=y)
 
-    def update_fake_data(self, **kwargs):
-        for arg in kwargs:
-            print(arg)
+    # def update_fake_data(self, *args,**kwargs):
+    def update_fake_data(self, headx='z', handy='z', turnx='z', runy='z'):
+        # for arg in kwargs:
+        #     print(arg)
         # self.debug_label.text = kwargs
+        print('update_fake_data running')
+        self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\n'.format(headx, handy, turnx, runy)
+
+        dict_commands = {'headx':headx, 'handy':handy, 'turnx':turnx, 'runy':runy}
+        print(dict_commands)
+
+        str_commands = 'http://192.168.4.1/?'
+
+        for item in dict_commands:
+            print(item,
+                  dict_commands[item],
+                  type(dict_commands[item])
+                  )
+            # if dict_commands[item] !='z':
+            #     str_commands += item +\
+            #                     '=' + \
+            #                     dict_commands[item] + \
+            #                     '&'
+
+            # add normalization
+            if dict_commands[item] !='z':
+                str_commands += item +\
+                                '=' + \
+                                str((float(dict_commands[item]) + 1) / 2) +\
+                                '&'
+        print('str_commands: {}'.format(str_commands))
+
+        # for query http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5
+        robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+        robot_port = 80
+        # turnx = (float(x) + 1) / 2
+        try:
+            client_socket = socket.socket()  # instantiate
+            client_socket.connect((robot_host, robot_port))  # connect to the server
+        #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
+            client_socket.send(str_commands.encode())  # encode than send message
+        #
+            client_socket.close()  # close the connection
+        #     # sleep(3)
+        #     # time.sleep(0.02)
+        #     #
+            print('sent OK {} sent'.format(str_commands))
+            # send_status = 'sent ok' + str(turnx)
+        except:
+            print('turnx not sent {}'.format(turnx))
+        #     send_status += 'error sending turnx' + str(turnx)
+
+
 
 
 class RoboJoystickApp(App):
