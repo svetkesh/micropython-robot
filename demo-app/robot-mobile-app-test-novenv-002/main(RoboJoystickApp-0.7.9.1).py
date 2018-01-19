@@ -221,7 +221,7 @@ class RoboPad(FloatLayout):
         dict_commands = {'headx':headx, 'handy':handy, 'turnx':turnx, 'runy':runy}
         print(dict_commands)
 
-        str_commands = 'http://192.168.4.1/?'
+        str_commands = 'http://192.168.88.186/?'
 
         for item in dict_commands:
             print(item,
