@@ -17,7 +17,8 @@ Not requires all
 yes
 
 
-ver 0.7.9.1 - accepting separate commands
+ver 0.7.9.2 - accepting separate commands
+0.7.9.2 - version for SuperBuggy 0.7.9.2
 '''
 
 
@@ -48,21 +49,15 @@ html = """<!DOCTYPE html>
 </head>
 <body>
 <!-- 
-<form class="" action="http://192.168.101.102/" method="get">
+<form class="" action="http://192.168.4.1/" method="get">
 -->
-<form class="" action="http://192.168.88.186/" method="get">
+<form class="" action="http://192.168.4.1/" method="get">
     <input type="text" name="headx" id="headx" value="" placeholder="0.00">
     <input type="text" name="handy" id="handy" value="" placeholder="0.00">
-    <br>
-    <input type="text" name="turnx" id="turnx" value="" placeholder="0.00">
-    <input type="text" name="runy" id="runy" value="" placeholder="0.00">
     <input type="submit" value="submit position">
 </form>
 </body>
-
-<!--http://192.168.101.102/?headx=0.3&handy=0.7-->
 <!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5-->
-
 </html>
 
 """
@@ -73,8 +68,8 @@ html = """<!DOCTYPE html>
 motor_a_p = machine.PWM(machine.Pin(5), freq=50)
 motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 serv_direction = machine.PWM(machine.Pin(12), freq=50)
-sevr_head_x = machine.PWM(machine.Pin(14), freq=50)
-sevr_hand_y = machine.PWM(machine.Pin(13), freq=50)
+# sevr_head_x = machine.PWM(machine.Pin(14), freq=50)
+# sevr_hand_y = machine.PWM(machine.Pin(13), freq=50)
 
 #Setup Socket WebServer
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -91,13 +86,13 @@ while True:
     # compile re number
     r_number = re.compile("0\.(\d+)")
 
-    # get head position
-    r_headx = re.compile("headx=0\.(\d+)")
-    m_headx = r_headx.search(request)
-
-    # get hand position
-    r_handy = re.compile("handy=0\.(\d+)")  #
-    m_handy = r_handy.search(request)
+    # # get head position
+    # r_headx = re.compile("headx=0\.(\d+)")
+    # m_headx = r_headx.search(request)
+    #
+    # # get hand position
+    # r_handy = re.compile("handy=0\.(\d+)")  #
+    # m_handy = r_handy.search(request)
 
     # get body direction turnx
     r_turnx = re.compile("turnx=0\.(\d+)")  #
@@ -107,20 +102,20 @@ while True:
     r_runy = re.compile("runy=0\.(\d+)")  #
     m_runy = r_runy.search(request)
 
-    try:
-        print('string: {}\n found x,y: {} , {}'.format(
-            request, m_headx.group(0), m_handy.group(0)))
-    except:
-        print('string: {}\n found: {}'.format(
-            request, "Position not found"))
+    # try:
+    #     print('string: {}\n found x,y: {} , {}'.format(
+    #         request, m_headx.group(0), m_handy.group(0)))
+    # except:
+    #     print('string: {}\n found: {}'.format(
+    #         request, "Position not found"))
 
-    print('\n---- looking for exact headx/handy value'
-          '\n---- and direction and speed       ---- :')
+    # print('\n---- looking for exact headx/handy value'
+    #       '\n---- and direction and speed       ---- :')
 
     try:
         # default values for positions and speed and direction
-        f_headx = 0.5
-        f_handy = 0.5
+        # f_headx = 0.5
+        # f_handy = 0.5
         f_turnx = 0.5
         f_runy = 0.5
 
@@ -128,41 +123,41 @@ while True:
         # >>> print('not') if None != re_compiled.search(search_string) else print('yes')
         # not
 
-        if r_headx.search(request) != None:
-
-            s_headx = str(m_headx.group(0))
-            print('source string: {}'.format(s_headx))
-            headx = r_number.search(s_headx)
-            print('  value found: {}'.format(headx.group(0)))
-            f_headx = float(headx.group(0))
-            # print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))  # testing float conversion
-            posx = int(f_headx * 75 + 40)
-            sevr_head_x.duty(posx)
-
-            print('got position from joystick hand x,y : {} , {}\n'
-                  'got position from joystick run turn : {} \n'
-                  'direction , speed : {} , {}'.format(posx,
-                                                       '-',
-                                                       '-',
-                                                       '-',
-                                                       '-'))
-
-        if r_handy.search(request) != None:
-            s_handy = str(m_handy.group(0))
-            print('source string: {}'.format(s_handy))
-            handy = r_number.search(s_handy)
-            print('  value found: {}'.format(handy.group(0)))
-            f_handy = float(handy.group(0))
-            posy = int(f_handy * 75 + 40)
-            sevr_hand_y.duty(posy)
-
-            print('got position from joystick hand x,y : {} , {}'
-                  'got position from joystick run turn : {} \n'
-                  'direction , speed : {} , {}'.format('-',
-                                                       posy,
-                                                       '-',
-                                                       '-',
-                                                       '-'))
+        # if r_headx.search(request) != None:
+        #
+        #     s_headx = str(m_headx.group(0))
+        #     print('source string: {}'.format(s_headx))
+        #     headx = r_number.search(s_headx)
+        #     print('  value found: {}'.format(headx.group(0)))
+        #     f_headx = float(headx.group(0))
+        #     # print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))  # testing float conversion
+        #     posx = int(f_headx * 75 + 40)
+        #     sevr_head_x.duty(posx)
+        #
+        #     print('got position from joystick hand x,y : {} , {}\n'
+        #           'got position from joystick run turn : {} \n'
+        #           'direction , speed : {} , {}'.format(posx,
+        #                                                '-',
+        #                                                '-',
+        #                                                '-',
+        #                                                '-'))
+        #
+        # if r_handy.search(request) != None:
+        #     s_handy = str(m_handy.group(0))
+        #     print('source string: {}'.format(s_handy))
+        #     handy = r_number.search(s_handy)
+        #     print('  value found: {}'.format(handy.group(0)))
+        #     f_handy = float(handy.group(0))
+        #     posy = int(f_handy * 75 + 40)
+        #     sevr_hand_y.duty(posy)
+        #
+        #     print('got position from joystick hand x,y : {} , {}'
+        #           'got position from joystick run turn : {} \n'
+        #           'direction , speed : {} , {}'.format('-',
+        #                                                posy,
+        #                                                '-',
+        #                                                '-',
+        #                                                '-'))
 
         if r_turnx.search(request) != None:
             # &turnx=0.5
