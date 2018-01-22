@@ -111,9 +111,6 @@ html = """<!DOCTYPE html>
     <input type="text" name="runy" id="runy" value="" placeholder="0.0 speed">
     <input type="submit" value="submit position">
 </form>
-<form class="" action="http://""" + robot_ip + """/catch" method="get">
-    <input type="button" value="catch-relase">
-</form>
 </body>
 <!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5-->
 </html>
@@ -128,7 +125,6 @@ motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 serv_direction = machine.PWM(machine.Pin(12), freq=50)
 sevr_head_x = machine.PWM(machine.Pin(14), freq=50)
 sevr_hand_y = machine.PWM(machine.Pin(13), freq=50)
-sevr_catch = machine.PWM(machine.Pin(15), freq=50)
 
 networkpin = machine.Pin(2, machine.Pin.OUT)
 # networkpin.on()

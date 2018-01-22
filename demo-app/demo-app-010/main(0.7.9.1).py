@@ -21,10 +21,6 @@ ver 0.7.9.1 - accepting separate commands
 0.7.9.1 - version for RoboHand 0.7.9.1
 
 ver 0.7.9.1 + minor fix for y axis for hand - joystick
-
-ver 0.7.9.3 reply html with current IP
-ver 0.7.9.4 add catch
-
 '''
 
 
@@ -48,51 +44,12 @@ except ImportError:
 import utime as time
 import sys
 
-import network
-
-
 LONG_SLEEP = 10
 SHORT_SLEEP = 1
 BLINK_SLEEP = 0.3
 
-robot_ip = '192.168.4.1'
-
-sta_if = network.WLAN(network.STA_IF)
-
-if sta_if.active():
-    print('sta_if: {}, {}, {}'.format(sta_if.active(), type(sta_if.ifconfig()), sta_if.ifconfig()))
-    robot_ip = sta_if.ifconfig()[0]
-    print('robot_ip : {}'. format(robot_ip))
-
 
 #HTML to send to browsers
-
-# hardcoded ip address html reply
-
-# html = """<!DOCTYPE html>
-# <html lang="en">
-# <head>
-#     <meta charset="UTF-8">
-#     <title>Title</title>
-# </head>
-# <body>
-# <!--
-# <form class="" action="http://192.168.4.1/" method="get">
-# -->
-# <form class="" action="http://192.168.4.1/" method="get">
-#     <input type="text" name="headx" id="headx" value="" placeholder="0.0 hand x">
-#     <input type="text" name="handy" id="handy" value="" placeholder="0.0 hand y">
-#     <br>
-#     <input type="text" name="turnx" id="turnx" value="" placeholder="0.0 turn">
-#     <input type="text" name="runy" id="runy" value="" placeholder="0.0 speed">
-#     <input type="submit" value="submit position">
-# </form>
-# </body>
-# <!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5-->
-# </html>
-#
-# """
-
 html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,18 +58,15 @@ html = """<!DOCTYPE html>
 </head>
 <body>
 <!-- 
-<form class="" action="http://""" + robot_ip + """/" method="get">
+<form class="" action="http://192.168.4.1/" method="get">
 -->
-<form class="" action="http://""" + robot_ip + """/" method="get">
+<form class="" action="http://192.168.4.1/" method="get">
     <input type="text" name="headx" id="headx" value="" placeholder="0.0 hand x">
     <input type="text" name="handy" id="handy" value="" placeholder="0.0 hand y">
     <br>
     <input type="text" name="turnx" id="turnx" value="" placeholder="0.0 turn">
     <input type="text" name="runy" id="runy" value="" placeholder="0.0 speed">
     <input type="submit" value="submit position">
-</form>
-<form class="" action="http://""" + robot_ip + """/catch" method="get">
-    <input type="button" value="catch-relase">
 </form>
 </body>
 <!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5-->
@@ -128,6 +82,7 @@ motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 serv_direction = machine.PWM(machine.Pin(12), freq=50)
 sevr_head_x = machine.PWM(machine.Pin(14), freq=50)
 sevr_hand_y = machine.PWM(machine.Pin(13), freq=50)
+
 sevr_catch = machine.PWM(machine.Pin(15), freq=50)
 
 networkpin = machine.Pin(2, machine.Pin.OUT)

@@ -7,6 +7,8 @@ should match main.py (ESP8266 autoloaded v. 0.7.9.1)
 manages via
 headx, handy, turnx, runy
 
+added delay 0.05 s after sending commands
+
 '''
 
 from kivy.app import App
@@ -21,6 +23,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 
 import socket
+import time
 
 
 class RoboPad(FloatLayout):
@@ -212,16 +215,15 @@ class RoboPad(FloatLayout):
 
     # def update_fake_data(self, *args,**kwargs):
     def update_fake_data(self, headx='z', handy='z', turnx='z', runy='z'):
-        # for arg in kwargs:
-        #     print(arg)
-        # self.debug_label.text = kwargs
+        robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+        robot_port = 80
         print('update_fake_data running')
         self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\n'.format(headx, handy, turnx, runy)
 
         dict_commands = {'headx':headx, 'handy':handy, 'turnx':turnx, 'runy':runy}
         print(dict_commands)
 
-        str_commands = 'http://192.168.88.186/?'
+        str_commands = 'http://'+str(robot_host)+'/?'
 
         for item in dict_commands:
             print(item,
@@ -235,16 +237,16 @@ class RoboPad(FloatLayout):
             #                     '&'
 
             # add normalization
-            if dict_commands[item] !='z':
+            if dict_commands[item] != 'z':
                 str_commands += item +\
                                 '=' + \
-                                str((float(dict_commands[item]) + 1) / 2) +\
+                                str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) +\
                                 '&'
+                                # str((float(dict_commands[item]) + 1) / 2) +\
         print('str_commands: {}'.format(str_commands))
 
         # for query http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5
-        robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
-        robot_port = 80
+
         # turnx = (float(x) + 1) / 2
         try:
             client_socket = socket.socket()  # instantiate
@@ -256,6 +258,7 @@ class RoboPad(FloatLayout):
         #     # sleep(3)
         #     # time.sleep(0.02)
         #     #
+            time.sleep(0.05)
             print('sent OK {} sent'.format(str_commands))
             # send_status = 'sent ok' + str(turnx)
         except:
