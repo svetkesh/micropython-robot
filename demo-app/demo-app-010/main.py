@@ -23,7 +23,7 @@ ver 0.7.9.1 - accepting separate commands
 ver 0.7.9.1 + minor fix for y axis for hand - joystick
 
 ver 0.7.9.3 reply html with current IP
-ver 0.7.9.4 add catch
+ver 0.7.9.4 add catch (now testing ...)
 
 '''
 
@@ -109,13 +109,14 @@ html = """<!DOCTYPE html>
     <br>
     <input type="text" name="turnx" id="turnx" value="" placeholder="0.0 turn">
     <input type="text" name="runy" id="runy" value="" placeholder="0.0 speed">
+    <br>
+    <input type="checkbox" name="catch" value="catch">catch-release
+    <br>
     <input type="submit" value="submit position">
-</form>
-<form class="" action="http://""" + robot_ip + """/catch" method="get">
-    <input type="button" value="catch-relase">
-</form>
+</form>>
 </body>
-<!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5-->
+<!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5&catch=catch -->
+<!-- hold-on -->
 </html>
 
 """
@@ -153,6 +154,8 @@ try:
     r_turnx = re.compile("turnx=0\.(\d+)")  #
     # get body speed runy
     r_runy = re.compile("runy=0\.(\d+)")  #
+    #  get catch-relase trigger
+    r_catch = re.compile("catch=catch")  #
 except:
     print('DBG: error compiling regex')
     blink_report(4)
@@ -191,6 +194,10 @@ try:
             # get body speed runy
             # r_runy = re.compile("runy=0\.(\d+)")  #
             m_runy = r_runy.search(request)
+
+            # get catch-release trigger
+            # r_catch = re.compile("catch=catch")  #
+            m_catch = r_catch.search(request)
 
             # try:
             #     print('string: {}\n found x,y: {} , {}'.format(
@@ -291,6 +298,15 @@ try:
                     motor_a_m.duty(m_duty)
                     networkpin.off()
 
+                if r_catch.search(request) is not None:
+                    print('DBG sevr_catch.duty() : {}'.format(
+                        sevr_catch.duty()))
+
+                    if sevr_catch.duty() < 75:
+                        sevr_catch.duty(110)
+                    else:
+                        sevr_catch.duty(40)
+
 
 
             except:
@@ -300,22 +316,22 @@ try:
 
             networkpin.off()
 
-            posx = int(f_headx * 75 + 40)
+            # posx = int(f_headx * 75 + 40)
             # posy = int(f_handy * 75 + 40)  # original reversing joystick
-            posy = int((1-f_handy) * 75 + 40)
-            directionx = int(f_turnx * 75 + 40)
-            speedy = int(f_runy * 75 + 40)
+            # posy = int((1-f_handy) * 75 + 40)
+            # directionx = int(f_turnx * 75 + 40)
+            # speedy = int(f_runy * 75 + 40)
 
             # calculate direction and speed "speedy"
             # motor_a_p.duty( -1000 .. 2000) # need to recalculate
             # motor_a_m.duty(-1 .. 1)
             #
-            if f_runy < 0.5:
-                m_duty = -1
-            else:
-                m_duty = 1
-
-            p_duty = int(abs(f_runy * 3000) - 1500)
+            # if f_runy < 0.5:
+            #     m_duty = -1
+            # else:
+            #     m_duty = 1
+            #
+            # p_duty = int(abs(f_runy * 3000) - 1500)
 
             # print('got position from joystick hand x,y : {} , {}\n'
             #       'got position from joystick run turn : {} \n'
@@ -325,13 +341,13 @@ try:
             #                                            m_duty,
             #                                            p_duty))
 
-            sevr_head_x.duty(posx)
-            sevr_hand_y.duty(posy)
+            # sevr_head_x.duty(posx)
+            # sevr_hand_y.duty(posy)
 
-            serv_direction.duty(directionx)
+            # serv_direction.duty(directionx)
             # place here speed
-            motor_a_p.duty(p_duty)
-            motor_a_m.duty(m_duty)
+            # motor_a_p.duty(p_duty)
+            # motor_a_m.duty(m_duty)
 
             networkpin.off()
 
