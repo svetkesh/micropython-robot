@@ -8,17 +8,26 @@
 <!--
 <form class="" action="http://""" + robot_ip + """/" method="get">
 -->
-<form class="" action="http://127.0.0.1/" method="get">
+<form class="" action="http://192.168.88.186/" method="get">
     <input type="text" name="headx" id="headx" value="" placeholder="0.0 hand x">
     <input type="text" name="handy" id="handy" value="" placeholder="0.0 hand y">
     <br>
     <input type="text" name="turnx" id="turnx" value="" placeholder="0.0 turn">
     <input type="text" name="runy" id="runy" value="" placeholder="0.0 speed">
     <br>
+    <!--
+    <input type="checkbox" name="catch" value="catch">catch-release
+    -->
+    <br>
+    <input type="submit" value="submit position">
+</form>
+
+<form>
     <input type="checkbox" name="catch" value="catch">catch-release
     <br>
     <input type="submit" value="submit position">
 </form>
 </body>
-<!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5-->
+<!--http://192.168.101.102/?headx=0.5&handy=0.5&turnx=0.5&runy=0.5&catch=catch -->
+<!-- hold-on -->
 </html>

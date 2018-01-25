@@ -23,7 +23,7 @@ ver 0.7.9.1 - accepting separate commands
 ver 0.7.9.1 + minor fix for y axis for hand - joystick
 
 ver 0.7.9.3 reply html with current IP
-ver 0.7.9.4 add catch (catch-release is working)
+ver 0.7.9.4 add catch (now testing ...)
 
 '''
 
