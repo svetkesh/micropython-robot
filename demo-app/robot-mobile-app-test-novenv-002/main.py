@@ -2,7 +2,7 @@
 # kivy.require('1.10.0') # replace with your current kivy version !
 
 ''' Testing SuperBuggy
-should match main.py (ESP8266 autoloaded v. 0.7.9.2 SuperBuggy)
+should match main(0.7.9.4. testing).py (ESP8266 autoloaded v. 0.7.9.2 SuperBuggy)
 
 manages via
 headx, handy, turnx, runy

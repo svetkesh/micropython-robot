@@ -2,7 +2,7 @@
 # kivy.require('1.10.0') # replace with your current kivy version !
 
 ''' Testing 2 joysticks sending commands
-should match main.py (ESP8266 autoloaded v. 0.7.9.1)
+should match main(0.7.9.4. testing).py (ESP8266 autoloaded v. 0.7.9.1)
 
 manages via
 headx, handy, turnx, runy
@@ -215,7 +215,8 @@ class RoboPad(FloatLayout):
 
     # def update_fake_data(self, *args,**kwargs):
     def update_fake_data(self, headx='z', handy='z', turnx='z', runy='z'):
-        robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+        # robot_host = '192.168.88.186'  # hardcodedrobot ip t4m net
+        robot_host = '192.168.4.1'  # hardcodedrobot ip t4m net
         robot_port = 80
         print('update_fake_data running')
         self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\n'.format(headx, handy, turnx, runy)

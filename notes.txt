@@ -85,7 +85,7 @@ First activate the station interface:
 
 
 sta_if.connect('<your ESSID>', '<your password>')
-sta_if.connect('KVN', 'c8a7chc8ach')
+sta_if.connect('KVN', 'cccccccc')
 
 ----
 import machine
@@ -270,3 +270,48 @@ yes
 >>> rh
 <re 3fff0af0>
 >>>
+
+----
+config template
+
+ssid = 'KVN'
+ssidpss = 'cccccccc'
+
+write to:
+{'ssid':'KVN','ssidpss':'cccccccc','trick':'demo'}
+
+--
+>>> f = open('config.txt', 'w')
+>>> f.write("{'ssid':'KVN','ssidpss':'cccccccc','trick':'demo'}")
+
+>>> string = '{"ssid":"KVN","ssidpss":"cccccccc","trick":"demo"}'
+>>> parced = json.loads(string)
+>>> parced
+{'ssid': 'KVN', 'ssidpss': 'cccccccc', 'trick': 'demo'}
+>>> type(parced)
+<class 'dict'>
+>>> print(parced['ssid'])
+KVN
+>>> print(parced['ssidpss'])
+cccccccc
+>>> print(parced['trick'])
+demo
+>>> # ok
+
+
+>>> f = open('config.txt', 'w')
+>>> f.write('{"ssid":"KVN","ssidpss":"cccccccc","trick":"demo"}')
+53
+>>> f.close()
+>>> file = open('config.txt')
+>>> text = file.read()
+>>> text
+'{"ssid":"KVN","ssidpss":"cccccccc","trick":"demo"}'
+>>> parced = ujson.loads(text)
+>>> parced
+{'ssid': 'KVN', 'ssidpss': 'cccccccc', 'trick': 'demo'}
+>>> parced['ssid']
+'KVN'
+>>> 
+
+
