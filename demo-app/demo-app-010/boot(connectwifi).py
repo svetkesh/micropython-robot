@@ -1,7 +1,7 @@
 import network, machine
 import time, math
 
-print('Starting boot.py')
+print('Starting boot(try to store wifi).py')
 
 ssid = 't4m'
 ssidpss = 'xxxxxxxx'
@@ -46,4 +46,4 @@ else:
         networkpin.off()
         print('AP connected')
 
-print('End boot.py')
+print('End boot(try to store wifi).py')
