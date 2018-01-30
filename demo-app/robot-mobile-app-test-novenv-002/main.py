@@ -179,6 +179,7 @@ class RoboPad(FloatLayout):
 class RoboJoystickApp(App):
     def build(self):
         print('BasicApp.running build()')
+        self.icon = 'robot256.png'
         return RoboPad()  # goes how ?
 
 

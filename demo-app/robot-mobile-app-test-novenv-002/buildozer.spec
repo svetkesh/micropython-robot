@@ -1,10 +1,12 @@
 [app]
 
 # (str) Title of your application
-title = My Application
+title = RoboJoystick
+title = RoboJoystick
 
 # (str) Package name
-package.name = myapp
+#package.name = myapp
+package.name = RoboJoystick
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
@@ -17,6 +19,7 @@ source.include_exts = py,png,jpg,kv,atlas
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
+source.include_patterns = assets/*,images/*.png
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec
@@ -47,12 +50,15 @@ garden_requirements = joystick
 
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/data/presplash.png
+presplash.filename = %(source.dir)s/data/robot256.png
 
 # (str) Icon of the application
 #icon.filename = %(source.dir)s/data/icon.png
+self.icon =  %(source.dir)s/data/robot256.png
+self.icon =  robot256.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
-orientation = all
+orientation = landscape
 
 # (list) List of service to declare
 #services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT2_TO_PY
@@ -83,6 +89,7 @@ fullscreen = 0
 # darkgray, grey, lightgrey, darkgrey, aqua, fuchsia, lime, maroon, navy,
 # olive, purple, silver, teal.
 #android.presplash_color = #FFFFFF
+android.presplash_color = #00FF00
 
 # (list) Permissions
 android.permissions = INTERNET
@@ -92,6 +99,7 @@ android.permissions = INTERNET
 
 # (int) Minimum API required
 #android.minapi = 9
+android.minapi = 13
 
 # (int) Android SDK version to use
 #android.sdk = 20
