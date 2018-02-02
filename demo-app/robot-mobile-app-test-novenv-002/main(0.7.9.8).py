@@ -40,11 +40,11 @@ class RoboPad(FloatLayout):
 
         # joystickhand and joystickrun
         self.joystickhand = Joystick(size_hint=(.4, .4),
-                                     pos_hint={'x':0.0, 'y':.2},
+                                     pos_hint={'x': 0.0, 'y': .2},
                                      sticky=True)
         self.add_widget(self.joystickhand)
         self.joystickrun = Joystick(size_hint=(.4, .4),
-                                    pos_hint={'x':0.6, 'y':.2})
+                                    pos_hint={'x': 0.6, 'y': .2})
         self.add_widget(self.joystickrun)
 
         # add some buttons
@@ -66,7 +66,7 @@ class RoboPad(FloatLayout):
         #                              pos_hint={'x': .5, 'y': .8},
         #                              text='message ... ...',)  # multiline=True,)
         # self.add_widget(self.debug_label_run)
-        
+
         # bind joystick
         self.joystickrun.bind(pad=self.update_coordinates_run)
         self.joystickhand.bind(pad=self.update_coordinates_hand)
@@ -91,7 +91,6 @@ class RoboPad(FloatLayout):
         # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle)
         # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
         self.send_command_data(turnx=x, runy=y)
-
 
     def update_coordinates_hand(self, joystick, pad):
         # test for update_coordinates_hand binding test
@@ -131,7 +130,7 @@ class RoboPad(FloatLayout):
         dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch}
         # print(dict_commands)
 
-        str_commands = 'http://'+str(robot_host)+'/?'
+        str_commands = 'http://' + str(robot_host) + '/?'
 
         for item in dict_commands:
             # print(item,
@@ -147,27 +146,27 @@ class RoboPad(FloatLayout):
             # add normalization
             if dict_commands[item] != 'z':
                 if dict_commands[item] != 'catch':
-                    str_commands += item +\
+                    str_commands += item + \
                                     '=' + \
-                                    str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) +\
+                                    str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) + \
                                     '&'
                 else:
-                    str_commands += item +\
+                    str_commands += item + \
                                     '=' + \
-                                    'catch' +\
+                                    'catch' + \
                                     '&'
         # print('str_commands: {}'.format(str_commands))
 
         try:
             client_socket = socket.socket()  # instantiate
             client_socket.connect((robot_host, robot_port))  # connect to the server
-        #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
+            #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
             client_socket.send(str_commands.encode())  # encode than send message
-        #
+            #
             client_socket.close()  # close the connection
-        #     # sleep(3)
-        #     # time.sleep(0.02)
-        #     #
+            #     # sleep(3)
+            #     # time.sleep(0.02)
+            #     #
             time.sleep(0.05)
             # print('sent OK {} sent'.format(str_commands))
             # send_status = 'sent ok' + str(turnx)
@@ -179,6 +178,7 @@ class RoboPad(FloatLayout):
 class RoboJoystickApp(App):
     def build(self):
         print('BasicApp.running build()')
+        self.icon = 'robot256.png'
         return RoboPad()  # goes how ?
 
 

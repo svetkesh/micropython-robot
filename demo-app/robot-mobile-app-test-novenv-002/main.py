@@ -15,6 +15,8 @@ ver 0.7.9.4 add catch (catch-release is working)
 
 ver 0.7.9.7 -dev variant of (0.7.9.4) - preparation for exhibition version (0.7.9.8)
 ver 0.7.9.8 - exhibition version, disabled wifi station, just access point
+
+ver 0.7.9.8 debug version
 '''
 
 from kivy.app import App
@@ -168,7 +170,7 @@ class RoboPad(FloatLayout):
         #     # sleep(3)
         #     # time.sleep(0.02)
         #     #
-            time.sleep(0.05)
+        #     time.sleep(0.05)
             # print('sent OK {} sent'.format(str_commands))
             # send_status = 'sent ok' + str(turnx)
         except:

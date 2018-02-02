@@ -26,9 +26,10 @@ ver 0.7.9.3 reply html with current IP
 ver 0.7.9.4 add catch (catch-release is working)
 ver 0.7.9.7 -dev variant of (0.7.9.4) - preparation for exhibition version (0.7.9.8)
 ver 0.7.9.8 - exhibition version, disabled wifi station, just access point
+ver 0.7.9.8 debug version
 
 '''
-print('DBG: starting main.py')
+print('DBG: starting main.py ver 0.7.9.8 debug version')
 
 import socket
 try:
@@ -52,6 +53,7 @@ import sys
 
 import network
 
+print('DBG: import finished starting  constants')
 
 LONG_SLEEP = 3
 SHORT_SLEEP = 1
@@ -108,6 +110,7 @@ def blink_report(n_blinks):
         networkpin.off()
 
 try:
+    print('DBG: starting compiling re-s')
     # compile regex
     # compile re number
     r_number = re.compile("0\.(\d+)")
@@ -128,18 +131,28 @@ except:
 
 # Setup Socket WebServer
 try:
+    print('DBG: starting socket')
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('', 80))
     s.listen(5)
     print('DBG: opened connection to port 80')
     while True:
         try:
+            print('DBG: starting accepting connection')  # err counter  ##
             # networkpin.on()
+
+            # machine.disable_irq()
+
             conn, addr = s.accept()
-            # print("Got a connection from %s" % str(addr))
+            print("Got a connection from %s" % str(addr))  # err counter ###
             request = conn.recv(1024)
             # print("Content = %s" % str(request))  # print full request
+            print('DBG: got request ')
             request = str(request)
+
+            # machine.enable_irq()
+
+            print('DBG: starting re - searching for values')
 
             # compile re number
             # r_number = re.compile("0\.(\d+)")
@@ -165,6 +178,7 @@ try:
             m_catch = r_catch.search(request)
 
             try:
+                print('DBG: starting processing founded values')
                 # default values for positions and speed and direction
                 f_headx = 0.5
                 f_handy = 0.5
@@ -176,6 +190,7 @@ try:
                 # not
 
                 if r_headx.search(request) is not None:
+                    print('DBG: headx found and starting processing headx')
 
                     s_headx = str(m_headx.group(0))
                     # print('source string: {}'.format(s_headx))
@@ -195,6 +210,7 @@ try:
                     #                                            '-'))
                 #
                 if r_handy.search(request) is not None:
+                    print('DBG: handy found and starting processing handy')
                     s_handy = str(m_handy.group(0))
                     # print('source string: {}'.format(s_handy))
                     handy = r_number.search(s_handy)
@@ -212,6 +228,7 @@ try:
                     #                                            '-'))
 
                 if r_turnx.search(request) is not None:
+                    print('DBG: turnx found and starting processing turnx')
                     s_turnx = str(m_turnx.group(0))
                     # print('source string: {}'.format(s_turnx))
                     turnx = r_number.search(s_turnx)
@@ -229,6 +246,7 @@ try:
                     #                                            '-'))
 
                 if r_runy.search(request) is not None:
+                    print('DBG: runy found and starting processing runy')
                     s_runy = str(m_runy.group(0))
                     # print('source string: {}'.format(s_runy))
                     runy = r_number.search(s_runy)
@@ -254,6 +272,7 @@ try:
                     # networkpin.off()
 
                 if r_catch.search(request) is not None:
+                    print('DBG: catch found and starting processing catch')
                     # print('DBG servo_catch.duty() : {}'.format(
                     #     servo_catch.duty()))
 
@@ -270,9 +289,15 @@ try:
 
             # networkpin.off()
 
+            print('DBG: starting responsing with html')  # err counter  ##
+
+            # machine.disable_irq()
+
             response = html
             conn.send(response)
             conn.close()
+
+            # machine.enable_irq()
         except Exception as e:
             print('ERR: Catch Exception while processing requests: {} , {}'.format(type(e), e))
             print('DBG: about to reset in few seconds')
@@ -282,7 +307,7 @@ try:
             #
             # utime.sleep(LONG_SLEEP)
             #
-            time.sleep(SHORT_SLEEP)
+            # time.sleep(SHORT_SLEEP)
             # # hard reset
             # machine.reset()
             # soft reset
@@ -300,7 +325,7 @@ except Exception as e:
     #
     # utime.sleep(LONG_SLEEP)
     #
-    time.sleep(SHORT_SLEEP)
+    # time.sleep(SHORT_SLEEP)
     # # hard reset
     machine.reset()
     # soft reset
