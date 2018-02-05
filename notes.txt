@@ -314,4 +314,27 @@ demo
 'KVN'
 >>> 
 
+# ----------
 
+>>> import re
+>>> request = "http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz"
+>>>
+>>> r_nextssid = re.compile("nextssid=(\w+)")
+>>>
+>>> r_nextssid
+re.compile('nextssid=(\\w+)')
+>>>
+>>> r_nextssid.search(request)
+<_sre.SRE_Match object; span=(20, 31), match='nextssid=xx'>
+>>>
+>>> nextssid = r_nextssid.search(request).groups(0)
+
+>>> nextssid
+('xx',)
+>>> type(nextssid)
+<class 'tuple'>
+
+>>> len(nextssid)
+1
+>>> nextssid[0]
+'xx'
