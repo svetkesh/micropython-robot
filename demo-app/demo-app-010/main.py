@@ -171,7 +171,12 @@ try:
 
 
     # next
-    r_nextssid = re.compile("nextssid=(\w+)")
+    r_nextssid = re.compile('nextssid=(\\w+)')
+    # print(r_nextssid.search(request))
+    # print(r_nextssid.search(request) is not None)
+    #
+    # nextssid = r_nextssid.search(request).groups(0)
+    # print(nextssid[0])
 
 
 
@@ -219,8 +224,8 @@ try:
             # r_catch = re.compile("catch=catch")  #
             m_catch = r_catch.search(request)
 
-            m_ssid = r_ssid.search(request)
-            m_wifipassword = r_wifipassword.search(request)
+            # m_ssid = r_ssid.search(request)
+            # m_wifipassword = r_wifipassword.search(request)
 
             # try:
             #     print('string: {}\n found x,y: {} , {}'.format(
@@ -333,56 +338,64 @@ try:
                 # get wifi settings and store into settings.txt
                 # add DBG
                 if r_nextssid.search(request) is not None:
-                    print('DBG: r_ssid found {}'.format(r_nextssid.search(request).groups(0)))
+                    # print('DBG: r_ssid found {}'.format(r_nextssid.search(request).groups(0)))
+                    # print(r_nextssid.search(request))
+                    # print(r_nextssid.search(request) is not None)
+
+                    nextssid = r_nextssid.search(request).groups(0)
+                    print('\nDBG found nextssid[0] : {} \n'.format(nextssid[0]))
                 else:
                     print('DBG: r_ssid NOT found')
                     print(request)
                     print('----')
-                if r_wifipassword.search(request) is not None:
-                    print('DBG: r_wifipassword found')
-                else:
-                    print('DBG: r_wifipassword NOT found')
-                    print(request)
-                    print('----')
 
-                if r_ssid.search(request) is not None and r_wifipassword.search(request) is not None:
-                    try:
-                        # # nextssid
-                        # r_ssid = re.compile("nextssid=0\.(\w+)")
-                        # # nextwifipassword
-                        # r_wifipassword = re.compile("nextwifipassword=0\.(\w+)")
+                #
 
-                        s_ssid = str(m_ssid.group(0))
-                        print('source string: {}'.format(s_ssid))
-                        ssid = r_alfanum.search(s_ssid)
-                        print('  value found: {}'.format(ssid.group(0)))
+                #
 
-                        s_wifipassword = str(m_wifipassword.group(0))
-                        print('source string: {}'.format(s_wifipassword))
-                        wifipassword = r_alfanum.search(s_wifipassword)
-                        print('  value found: {}'.format(wifipassword.group(0)))
+                # if r_wifipassword.search(request) is not None:
+                #     print('DBG: r_wifipassword found')
+                # else:
+                #     print('DBG: r_wifipassword NOT found')
+                #     print(request)
+                #     print('----')
 
-                        try:
+                #
 
-                            with open('config.txt', 'w') as f:
-                                f.write('{"ssid":"' +
-                                        ssid.group(0) + '","ssidpss":"' +
-                                        wifipassword.group(0)+ '","trick":"demo"}')
-                        except:
-                            print('DBG error saving settings')
-
-                    except:
-                        print('DBG error searching/saving wifi settings')
-
-
-
-
-
+                # if r_ssid.search(request) is not None and r_wifipassword.search(request) is not None:
+                #     try:
+                #         # # nextssid
+                #         # r_ssid = re.compile("nextssid=0\.(\w+)")
+                #         # # nextwifipassword
+                #         # r_wifipassword = re.compile("nextwifipassword=0\.(\w+)")
+                #
+                #         s_ssid = str(m_ssid.group(0))
+                #         print('source string: {}'.format(s_ssid))
+                #         ssid = r_alfanum.search(s_ssid)
+                #         print('  value found: {}'.format(ssid.group(0)))
+                #
+                #         s_wifipassword = str(m_wifipassword.group(0))
+                #         print('source string: {}'.format(s_wifipassword))
+                #         wifipassword = r_alfanum.search(s_wifipassword)
+                #         print('  value found: {}'.format(wifipassword.group(0)))
+                #
+                #         try:
+                #
+                #             with open('config.txt', 'w') as f:
+                #                 f.write('{"ssid":"' +
+                #                         ssid.group(0) + '","ssidpss":"' +
+                #                         wifipassword.group(0)+ '","trick":"demo"}')
+                #         except:
+                #             print('DBG error saving settings')
+                #
+                #     except:
+                #         print('DBG error searching/saving wifi settings')
 
             except:
-                print('Error searching exact values')
-                blink_report(5)
-                blink_report(5)
+                print('Error searching exact values in request : {}'.format(request))
+                print('type(request): {} \n'.format(type(request)))
+                # blink_report(5)
+                # blink_report(5)
 
             networkpin.off()
 
@@ -392,8 +405,8 @@ try:
             conn.close()
         except Exception as e:
             print('got Exception while processing requests: {} , {}'.format(type(e), e))
-            blink_report(6)
-            blink_report(6)
+            # blink_report(6)
+            # blink_report(6)
             networkpin.off()
             #
             # utime.sleep(LONG_SLEEP)
