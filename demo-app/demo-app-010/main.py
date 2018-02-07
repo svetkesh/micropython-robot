@@ -136,55 +136,79 @@ sevr_catch = machine.PWM(machine.Pin(15), freq=50)
 networkpin = machine.Pin(2, machine.Pin.OUT)
 # networkpin.on()
 
+# def blink_report(n_blinks):
+#     networkpin.off()
+#     time.sleep(SHORT_SLEEP*2)
+#     for blinks in range (n_blinks):
+#         networkpin.on()
+#         time.sleep(BLINK_SLEEP)
+#         networkpin.off()
+
 def blink_report(n_blinks):
-    networkpin.off()
+    # networkpin.off()
+    print('booooom')
     time.sleep(SHORT_SLEEP*2)
     for blinks in range (n_blinks):
-        networkpin.on()
+        # networkpin.on()
         time.sleep(BLINK_SLEEP)
-        networkpin.off()
-
-try:
-    # compile regex
-    # compile re number
-    r_number = re.compile("0\.(\d+)")
-    # # get head position
-    r_headx = re.compile("headx=0\.(\d+)")
-    # # get hand position
-    r_handy = re.compile("handy=0\.(\d+)")  #
-    # get body direction turnx
-    r_turnx = re.compile("turnx=0\.(\d+)")  #
-    # get body speed runy
-    r_runy = re.compile("runy=0\.(\d+)")  #
-    #  get catch-relase trigger
-    r_catch = re.compile("catch=catch")  #
-
-    # comile settings
-    # re compile alfa-numeric string
-    r_alfanum = re.compile("\.(\w+)")
-    # nextssid
-    r_ssid = re.compile("nextssid=\.(\w+)")
-    # nextwifipassword
-    r_wifipassword = re.compile("nextwifipassword=\.(\w+)")
-    # nextrunmode
-    r_runmode = re.compile("nextrunmode=\.(\w+)")
+        # networkpin.off()
+        print('blinks {}'.format(blinks))
 
 
-    # next
-    r_nextssid = re.compile('nextssid=(\\w+)')
-    # print(r_nextssid.search(request))
-    # print(r_nextssid.search(request) is not None)
-    #
-    # nextssid = r_nextssid.search(request).groups(0)
-    # print(nextssid[0])
+def blink_twice(n_blinks, repeat_reports = 2):
+    def blink_report(n_blinks):
+        # networkpin.off()
+        print('booooom')
+        time.sleep(SHORT_SLEEP * 2)
+        for blinks in range(n_blinks):
+            # networkpin.on()
+            time.sleep(BLINK_SLEEP)
+            # networkpin.off()
+            print('blinks {}'.format(blinks))
+    for repeat in range(repeat_reports):
+        blink_report(n_blinks)
 
-
-
-
-except:
-    print('DBG: error compiling regex')
-    blink_report(4)
-    blink_report(4)
+# try:
+#     # # compile regex
+#     # # compile re number
+#     # r_number = re.compile("0\.(\d+)")
+#     # # # get head position
+#     # r_headx = re.compile("headx=0\.(\d+)")
+#     # # # get hand position
+#     # r_handy = re.compile("handy=0\.(\d+)")  #
+#     # # get body direction turnx
+#     # r_turnx = re.compile("turnx=0\.(\d+)")  #
+#     # # get body speed runy
+#     # r_runy = re.compile("runy=0\.(\d+)")  #
+#     # #  get catch-relase trigger
+#     # r_catch = re.compile("catch=catch")  #
+#
+#     # compile settings
+#     # re compile alfa-numeric string
+#     # r_alfanum = re.compile("\.(\w+)")
+#     # nextssid
+#     # r_ssid = re.compile("nextssid=\.(\w+)") # seems to be error with \.
+#     # nextwifipassword
+#     # r_wifipassword = re.compile("nextwifipassword=\.(\w+)")
+#     # nextrunmode
+#     # r_runmode = re.compile("nextrunmode=\.(\w+)")
+#
+#
+#     # next
+#     # r_nextssid = re.compile('nextssid=(\\w+)')
+#     # print(r_nextssid.search(request))
+#     # print(r_nextssid.search(request) is not None)
+#     #
+#     # nextssid = r_nextssid.search(request).groups(0)
+#     # print(nextssid[0])
+#
+#
+#
+#
+# except:
+#     print('DBG: error compiling regex')
+#     blink_report(4)
+#     blink_report(4)
 
 # Setup Socket WebServer
 try:
@@ -201,31 +225,79 @@ try:
             # print("Content = %s" % str(request))  # print full request
             request = str(request)
 
-            # compile re number
+            # keep it simple ... delete after all )
+
+            r_nextssid = re.compile('nextssid=(\\w+)')
+
+            if r_nextssid.search(request) is not None:
+                # print('DBG: r_ssid found {}'.format(r_nextssid.search(request).groups(0)))
+                # print(r_nextssid.search(request))
+                # print(r_nextssid.search(request) is not None)
+
+
+                try:
+
+                    print('found something')  # keep it simple
+                    # print(' : {}\n'.format())
+
+                    # request = request.decode("utf-8")
+
+                    print(' request: {}\n'.format(request))
+                    print(' r_nextssid.search(request): {}\n'.format(r_nextssid.search(request)))
+                    print(' r_nextssid.search(request) is not None: {}\n'.format(r_nextssid.search(request) is not None))
+                    # print(' r_nextssid.search(request).groups(0): {}\n'.format(r_nextssid.search(request).groups(0))) # wtf?
+
+                    m_nextssid = r_nextssid.search(request)
+
+                    print(' m_nextssid: {}\n'.format(m_nextssid))
+                    print(' m_nextssid.group(0): {}\n'.format(m_nextssid.group(0)))
+                    print(' m_nextssid.group(0)[9:]: {}\n'.format(m_nextssid.group(0)[9:]))
+                    print(' m_nextssid.group(1): {}\n'.format(m_nextssid.group(1)))
+                    # print(' : {}\n'.format())
+                    print(' r_nextssid.search(request).group(0): {}\n'.format(r_nextssid.search(request).group(0)))
+                    print(' r_nextssid.search(request).group(1): {}\n'.format(r_nextssid.search(request).group(1)))
+
+                    # nextssid = r_nextssid.search(request).groups(0)
+                    # print(nextssid[0])
+                    #
+                    # print(' request                             : {}\n'.format(request))
+                    # print(' r_nextssid.search(request)          : {}\n'.format(r_nextssid.search(request)))
+                    # print(' r_nextssid.search(request).groups(0): {}\n'.format(r_nextssid.search(request).groups(0)))
+                    # print(' : {}\n'.format())
+                except Exception as e:
+                    print('ERR: got {} error {}'.format(type(e), e))
+                    print('\n while processing request {}\n'.format(request))
+                    blink_report(5)
+
+            else:
+                print('DBG: r_ssid NOT found')
+                print(request)
+                print('----')
+
+
+
+            # # compile re number
             # r_number = re.compile("0\.(\d+)")
-
-            # # get head position
-            # r_headx = re.compile("headx=0\.(\d+)")
-            m_headx = r_headx.search(request)
             #
-            # # get hand position
-            # r_handy = re.compile("handy=0\.(\d+)")  #
-            m_handy = r_handy.search(request)
-
-            # get body direction turnx
-            # r_turnx = re.compile("turnx=0\.(\d+)")  #
-            m_turnx = r_turnx.search(request)
-
-            # get body speed runy
-            # r_runy = re.compile("runy=0\.(\d+)")  #
-            m_runy = r_runy.search(request)
-
-            # get catch-release trigger
-            # r_catch = re.compile("catch=catch")  #
-            m_catch = r_catch.search(request)
-
-            # m_ssid = r_ssid.search(request)
-            # m_wifipassword = r_wifipassword.search(request)
+            # # # get head position
+            # # r_headx = re.compile("headx=0\.(\d+)")
+            # m_headx = r_headx.search(request)
+            # #
+            # # # get hand position
+            # # r_handy = re.compile("handy=0\.(\d+)")  #
+            # m_handy = r_handy.search(request)
+            #
+            # # get body direction turnx
+            # # r_turnx = re.compile("turnx=0\.(\d+)")  #
+            # m_turnx = r_turnx.search(request)
+            #
+            # # get body speed runy
+            # # r_runy = re.compile("runy=0\.(\d+)")  #
+            # m_runy = r_runy.search(request)
+            #
+            # # get catch-release trigger
+            # # r_catch = re.compile("catch=catch")  #
+            # m_catch = r_catch.search(request)
 
             # try:
             #     print('string: {}\n found x,y: {} , {}'.format(
@@ -237,165 +309,154 @@ try:
             # print('\n---- looking for exact headx/handy value'
             #       '\n---- and direction and speed       ---- :')
 
-            try:
-                # default values for positions and speed and direction
-                f_headx = 0.5
-                f_handy = 0.5
-                f_turnx = 0.5
-                f_runy = 0.5
-
-                # selecting only actual commands without defaults values
-                # >>> print('not') if None != re_compiled.search(search_string) else print('yes')
-                # not
-
-                if r_headx.search(request) is not None:
-
-                    s_headx = str(m_headx.group(0))
-                    print('source string: {}'.format(s_headx))
-                    headx = r_number.search(s_headx)
-                    print('  value found: {}'.format(headx.group(0)))
-                    f_headx = float(headx.group(0))
-                    # print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))  # testing float conv
-                    posx = int(f_headx * 75 + 40)
-                    sevr_head_x.duty(posx)
-
-                    # print('got position from joystick hand x,y : {} , {}\n'
-                    #       'got position from joystick run turn : {} \n'
-                    #       'direction , speed : {} , {}'.format(posx,
-                    #                                            '-',
-                    #                                            '-',
-                    #                                            '-',
-                    #                                            '-'))
-                #
-                if r_handy.search(request) is not None:
-                    s_handy = str(m_handy.group(0))
-                    print('source string: {}'.format(s_handy))
-                    handy = r_number.search(s_handy)
-                    print('  value found: {}'.format(handy.group(0)))
-                    f_handy = float(handy.group(0))
-                    posy = int(f_handy * 75 + 40)
-                    sevr_hand_y.duty(posy)
-
-                    # print('got position from joystick hand x,y : {} , {}'
-                    #       'got position from joystick run turn : {} \n'
-                    #       'direction , speed : {} , {}'.format('-',
-                    #                                            posy,
-                    #                                            '-',
-                    #                                            '-',
-                    #                                            '-'))
-
-                if r_turnx.search(request) is not None:
-                    s_turnx = str(m_turnx.group(0))
-                    print('source string: {}'.format(s_turnx))
-                    turnx = r_number.search(s_turnx)
-                    print('  value found: {}'.format(turnx.group(0)))
-                    f_turnx = float(turnx.group(0))
-                    directionx = int(f_turnx * 75 + 40)
-                    serv_direction.duty(directionx)
-
-                    # print('got position from joystick hand x,y : {} , {}'
-                    #       'got position from joystick run turn : {} \n'
-                    #       'direction , speed : {} , {}'.format('-',
-                    #                                            '-',
-                    #                                            directionx,
-                    #                                            '-',
-                    #                                            '-'))
-
-                if r_runy.search(request) is not None:
-                    s_runy = str(m_runy.group(0))
-                    print('source string: {}'.format(s_runy))
-                    runy = r_number.search(s_runy)
-                    print('  value found: {}'.format(runy.group(0)))
-                    f_runy = float(runy.group(0))
-
-                    if f_runy < 0.5:
-                        m_duty = -1
-                    else:
-                        m_duty = 1
-
-                    p_duty = int(abs(f_runy * 3000) - 1500)
-
-                    print('got position from joystick hand x,y : {} , {}'
-                          'got position from joystick run turn : {} \n'
-                          'direction , speed : {} , {}'.format('-',
-                                                               '-',
-                                                               '-',
-                                                               m_duty,
-                                                               p_duty))
-                    motor_a_p.duty(p_duty)
-                    motor_a_m.duty(m_duty)
-                    networkpin.off()
-
-                if r_catch.search(request) is not None:
-                    print('DBG sevr_catch.duty() : {}'.format(
-                        sevr_catch.duty()))
-
-                    if sevr_catch.duty() < 75:
-                        sevr_catch.duty(110)
-                    else:
-                        sevr_catch.duty(40)
-
-                # get wifi settings and store into settings.txt
-                # add DBG
-                if r_nextssid.search(request) is not None:
-                    # print('DBG: r_ssid found {}'.format(r_nextssid.search(request).groups(0)))
-                    # print(r_nextssid.search(request))
-                    # print(r_nextssid.search(request) is not None)
-
-                    nextssid = r_nextssid.search(request).groups(0)
-                    print('\nDBG found nextssid[0] : {} \n'.format(nextssid[0]))
-                else:
-                    print('DBG: r_ssid NOT found')
-                    print(request)
-                    print('----')
-
-                #
-
-                #
-
-                # if r_wifipassword.search(request) is not None:
-                #     print('DBG: r_wifipassword found')
-                # else:
-                #     print('DBG: r_wifipassword NOT found')
-                #     print(request)
-                #     print('----')
-
-                #
-
-                # if r_ssid.search(request) is not None and r_wifipassword.search(request) is not None:
-                #     try:
-                #         # # nextssid
-                #         # r_ssid = re.compile("nextssid=0\.(\w+)")
-                #         # # nextwifipassword
-                #         # r_wifipassword = re.compile("nextwifipassword=0\.(\w+)")
-                #
-                #         s_ssid = str(m_ssid.group(0))
-                #         print('source string: {}'.format(s_ssid))
-                #         ssid = r_alfanum.search(s_ssid)
-                #         print('  value found: {}'.format(ssid.group(0)))
-                #
-                #         s_wifipassword = str(m_wifipassword.group(0))
-                #         print('source string: {}'.format(s_wifipassword))
-                #         wifipassword = r_alfanum.search(s_wifipassword)
-                #         print('  value found: {}'.format(wifipassword.group(0)))
-                #
-                #         try:
-                #
-                #             with open('config.txt', 'w') as f:
-                #                 f.write('{"ssid":"' +
-                #                         ssid.group(0) + '","ssidpss":"' +
-                #                         wifipassword.group(0)+ '","trick":"demo"}')
-                #         except:
-                #             print('DBG error saving settings')
-                #
-                #     except:
-                #         print('DBG error searching/saving wifi settings')
-
-            except:
-                print('Error searching exact values in request : {}'.format(request))
-                print('type(request): {} \n'.format(type(request)))
-                # blink_report(5)
-                # blink_report(5)
+            # try:
+            #     # default values for positions and speed and direction
+            #     f_headx = 0.5
+            #     f_handy = 0.5
+            #     f_turnx = 0.5
+            #     f_runy = 0.5
+            #
+            #     # selecting only actual commands without defaults values
+            #     # >>> print('not') if None != re_compiled.search(search_string) else print('yes')
+            #     # not
+            #
+            #     # if r_headx.search(request) is not None:
+            #     #
+            #     #     s_headx = str(m_headx.group(0))
+            #     #     print('source string: {}'.format(s_headx))
+            #     #     headx = r_number.search(s_headx)
+            #     #     print('  value found: {}'.format(headx.group(0)))
+            #     #     f_headx = float(headx.group(0))
+            #     #     # print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))  # testing float conv
+            #     #     posx = int(f_headx * 75 + 40)
+            #     #     sevr_head_x.duty(posx)
+            #     #
+            #     #     # print('got position from joystick hand x,y : {} , {}\n'
+            #     #     #       'got position from joystick run turn : {} \n'
+            #     #     #       'direction , speed : {} , {}'.format(posx,
+            #     #     #                                            '-',
+            #     #     #                                            '-',
+            #     #     #                                            '-',
+            #     #     #                                            '-'))
+            #     # #
+            #     # if r_handy.search(request) is not None:
+            #     #     s_handy = str(m_handy.group(0))
+            #     #     print('source string: {}'.format(s_handy))
+            #     #     handy = r_number.search(s_handy)
+            #     #     print('  value found: {}'.format(handy.group(0)))
+            #     #     f_handy = float(handy.group(0))
+            #     #     posy = int(f_handy * 75 + 40)
+            #     #     sevr_hand_y.duty(posy)
+            #     #
+            #     #     # print('got position from joystick hand x,y : {} , {}'
+            #     #     #       'got position from joystick run turn : {} \n'
+            #     #     #       'direction , speed : {} , {}'.format('-',
+            #     #     #                                            posy,
+            #     #     #                                            '-',
+            #     #     #                                            '-',
+            #     #     #                                            '-'))
+            #     #
+            #     # if r_turnx.search(request) is not None:
+            #     #     s_turnx = str(m_turnx.group(0))
+            #     #     print('source string: {}'.format(s_turnx))
+            #     #     turnx = r_number.search(s_turnx)
+            #     #     print('  value found: {}'.format(turnx.group(0)))
+            #     #     f_turnx = float(turnx.group(0))
+            #     #     directionx = int(f_turnx * 75 + 40)
+            #     #     serv_direction.duty(directionx)
+            #     #
+            #     #     # print('got position from joystick hand x,y : {} , {}'
+            #     #     #       'got position from joystick run turn : {} \n'
+            #     #     #       'direction , speed : {} , {}'.format('-',
+            #     #     #                                            '-',
+            #     #     #                                            directionx,
+            #     #     #                                            '-',
+            #     #     #                                            '-'))
+            #     #
+            #     # if r_runy.search(request) is not None:
+            #     #     s_runy = str(m_runy.group(0))
+            #     #     print('source string: {}'.format(s_runy))
+            #     #     runy = r_number.search(s_runy)
+            #     #     print('  value found: {}'.format(runy.group(0)))
+            #     #     f_runy = float(runy.group(0))
+            #     #
+            #     #     if f_runy < 0.5:
+            #     #         m_duty = -1
+            #     #     else:
+            #     #         m_duty = 1
+            #     #
+            #     #     p_duty = int(abs(f_runy * 3000) - 1500)
+            #     #
+            #     #     print('got position from joystick hand x,y : {} , {}'
+            #     #           'got position from joystick run turn : {} \n'
+            #     #           'direction , speed : {} , {}'.format('-',
+            #     #                                                '-',
+            #     #                                                '-',
+            #     #                                                m_duty,
+            #     #                                                p_duty))
+            #     #     motor_a_p.duty(p_duty)
+            #     #     motor_a_m.duty(m_duty)
+            #     #     networkpin.off()
+            #     #
+            #     # if r_catch.search(request) is not None:
+            #     #     print('DBG sevr_catch.duty() : {}'.format(
+            #     #         sevr_catch.duty()))
+            #     #
+            #     #     if sevr_catch.duty() < 75:
+            #     #         sevr_catch.duty(110)
+            #     #     else:
+            #     #         sevr_catch.duty(40)
+            #
+            #     # get wifi settings and store into settings.txt
+            #     # add DBG
+            #     # if r_nextssid.search(request) is not None:
+            #     #     # print('DBG: r_ssid found {}'.format(r_nextssid.search(request).groups(0)))
+            #     #     # print(r_nextssid.search(request))
+            #     #     # print(r_nextssid.search(request) is not None)
+            #     #
+            #     #     nextssid = r_nextssid.search(request).groups(0)
+            #     #     print('\nDBG found nextssid[0] : {} \n'.format(nextssid[0]))
+            #     # else:
+            #     #     print('DBG: r_ssid NOT found')
+            #     #     print(request)
+            #     #     print('----')
+            #
+            #     # write wifi settings
+            #
+            #     # if r_ssid.search(request) is not None and r_wifipassword.search(request) is not None:
+            #     #     try:
+            #     #         # # nextssid
+            #     #         # r_ssid = re.compile("nextssid=0\.(\w+)")
+            #     #         # # nextwifipassword
+            #     #         # r_wifipassword = re.compile("nextwifipassword=0\.(\w+)")
+            #     #
+            #     #         s_ssid = str(m_ssid.group(0))
+            #     #         print('source string: {}'.format(s_ssid))
+            #     #         ssid = r_alfanum.search(s_ssid)
+            #     #         print('  value found: {}'.format(ssid.group(0)))
+            #     #
+            #     #         s_wifipassword = str(m_wifipassword.group(0))
+            #     #         print('source string: {}'.format(s_wifipassword))
+            #     #         wifipassword = r_alfanum.search(s_wifipassword)
+            #     #         print('  value found: {}'.format(wifipassword.group(0)))
+            #     #
+            #     #         try:
+            #     #
+            #     #             with open('config.txt', 'w') as f:
+            #     #                 f.write('{"ssid":"' +
+            #     #                         ssid.group(0) + '","ssidpss":"' +
+            #     #                         wifipassword.group(0)+ '","trick":"demo"}')
+            #     #         except:
+            #     #             print('DBG error saving settings')
+            #     #
+            #     #     except:
+            #     #         print('DBG error searching/saving wifi settings')
+            #
+            # except:
+            #     print('Error searching exact values in request : {}'.format(request))
+            #     print('type(request): {} \n'.format(type(request)))
+            #     # blink_report(5)
+            #     # blink_report(5)
 
             networkpin.off()
 
@@ -416,6 +477,8 @@ try:
             # machine.reset()
             # soft reset
             sys.exit()
+
+            #
 except Exception as e:
     print('got Exception with running Web server: {} , {}'.format(type(e), e))
     blink_report(7)

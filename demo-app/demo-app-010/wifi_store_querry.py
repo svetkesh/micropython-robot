@@ -60,9 +60,12 @@ import re
 
 # --
 
-# request = "http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz"
-request = "b'GET /favicon.ico HTTP/1.1\r\nHost: 192.168.4.1\r\nConnection: keep-alive\r\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36\r\nAccept: image/webp,image/apng,image/*,*/*;q=0.8\r\nReferer: http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.9,ru;q=0.8,uk;q=0.7\r\n\r\n'
-"
+request = "http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz"
+request = b'GET /?nextssid=xx&nextwifipassword=yy&nextrunmode=zz HTTP/1.1\r\nHost: 192.168.4.1\r\nConnection: keep-alive\r\nCache-Control: max-age=0\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.9,ru;q=0.8,uk;q=0.7\r\n\r\n'
+request = request.decode("utf-8")
+
+# request = "b'GET /favicon.ico HTTP/1.1\r\nHost: 192.168.4.1\r\nConnection: keep-alive\r\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36\r\nAccept: image/webp,image/apng,image/*,*/*;q=0.8\r\nReferer: http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.9,ru;q=0.8,uk;q=0.7\r\n\r\n' \
+# "
 #
 r_nextssid = re.compile('nextssid=(\\w+)')
 print(r_nextssid.search(request))

@@ -338,3 +338,82 @@ re.compile('nextssid=(\\w+)')
 1
 >>> nextssid[0]
 'xx'
+
+# ------------
+
+>>> request = "http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz"
+>>> r_nextssid = re.compile('nextssid=(\w+)')
+>>> r_nextssid
+<re 3fff07a0>
+>>> r_nextssid.search(request)
+<match num=2>
+>>> r_nextssid.search(request)[0]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'match' object is not subscriptable
+>>> r_nextssid.groups()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'ure' object has no attribute 'groups'
+>>> type(r_nextssid.search(request))
+<class 'match'>
+>>> print(r_nextssid.search(request))
+<match num=2>
+>>> r_nextssid.search(request)
+<match num=2>
+>>> m_nextssid = r_nextssid.search(request)
+>>> print(m_nextssid)
+<match num=2>
+>>> m_nextssid.groups()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'match' object has no attribute 'groups'
+>>> m_nextssid.group()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: function takes 2 positional arguments but 1 were given
+>>> m_nextssid.group(0)
+'nextssid=xx'
+
+
+# ----
+
+request = "http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz"
+
+>>> r_nextssid = re.compile('nextssid=(\\w+)')
+>>> m_nextssid = r_nextssid.search(request)
+>>> m_nextssid
+<match num=2>
+>>> m_nextssid.group(0)
+'nextssid=xx'
+>>> m_nextssid.group(0)[2:5]
+'xts'
+>>> m_nextssid.group(0)[8:]
+'=xx'
+>>> m_nextssid.group(0)[9:]
+'xx'
+
+# ----
+
+MicroPython v1.9.3-8-g63826ac5c on 2017-11-01; ESP module with ESP8266
+Type "help()" for more information.
+>>>
+>>>
+>>> request = "http://192.168.4.1/?nextssid=xx&nextwifipassword=yy&nextrunmode=zz"
+>>> r_nextssid = re.compile('nextssid=(\\w+)')
+>>> S_nextssid = r_nextssid.search(request)
+>>> S_nextssid
+<match num=2>
+>>> S_nextssid.group(0)
+'nextssid=xx'
+>>> S_nextssid.group(1)
+'xx'
+>>> S_nextssid.group(2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+IndexError: 2
+>>> m_nextssid = r_nextssid.search(request)
+>>> m_nextssid.group(0)
+'nextssid=xx'
+>>> m_nextssid.group(1)
+'xx'
