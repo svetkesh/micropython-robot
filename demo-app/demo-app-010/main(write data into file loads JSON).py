@@ -50,6 +50,7 @@ import utime as time
 import sys
 
 import network
+import ujson as json
 
 
 LONG_SLEEP = 10
@@ -227,7 +228,10 @@ try:
 
             # keep it simple ... delete after all )
 
-            r_nextssid = re.compile('nextssid=(\\w+)')
+            # r_nextssid = re.compile('nextssid=(\\w+)')  # compile re just alpha num chars
+
+            r_nextssid = re.compile('nextssid=([a-zA-Z0-9_\s\@\!\@\#\%\*\-]+)') # wide SSID Naming Convention as :
+                # https://www.cisco.com/assets/sol/sb/WAP321_Emulators/WAP321_Emulator_v1.0.0.3/help/Wireless05.html
 
             if r_nextssid.search(request) is not None:
                 # print('DBG: r_ssid found {}'.format(r_nextssid.search(request).groups(0)))
@@ -264,6 +268,29 @@ try:
                     # print(' r_nextssid.search(request)          : {}\n'.format(r_nextssid.search(request)))
                     # print(' r_nextssid.search(request).groups(0): {}\n'.format(r_nextssid.search(request).groups(0)))
                     # print(' : {}\n'.format())
+
+                    ssid = r_nextssid.search(request).group(1)
+
+                    try:
+                        with open('config.txt', 'w') as f:
+                            f.write('{"ssid":"' + ssid +
+                                    # '","ssidpss":"' + wifipassword.group(0)+
+                                    '","trick":"demo"' +
+                                    '}')
+                    except:
+                        print('DBG error saving settings')
+
+                    # read JSON
+                    try:
+                        with open('config.txt', 'r') as f:
+                            j = json.load(f)
+                            # print(f.read())
+                            print(j)
+                            print(j['ssid'])
+                            print(j['trick'])
+                    except:
+                        print('ERR reading file')
+
                 except Exception as e:
                     print('ERR: got {} error {}'.format(type(e), e))
                     print('\n while processing request {}\n'.format(request))
