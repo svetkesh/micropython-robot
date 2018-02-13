@@ -417,3 +417,7 @@ IndexError: 2
 'nextssid=xx'
 >>> m_nextssid.group(1)
 'xx'
+
+----
+future readings:
+https://hackernoon.com/improve-your-python-python-classes-and-object-oriented-programming-d09ff461168d
