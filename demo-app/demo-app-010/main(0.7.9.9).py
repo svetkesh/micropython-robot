@@ -28,13 +28,106 @@ ver 0.7.9.9 based on 0.7.9.4 rewritten as modules and objects
 '''
 
 
-class RobotPWM():
-    pass
+class RobotPWM(object):
+    '''
+    Power Width Modulation drive.
+
+    This class defines PWM for motor-shield for ESP12E with
+    ESP8266 module.
+    Should easy define logical structure,
+    and electrical parameters,
+    and easy tie to motor-shield pin numeration,
+    and easy working frequency setting.
+
+    Example:
+        pwm_turn = RobotPWM(
+            'pwm 12',
+            12
+        )
+        print(pwm_turn)
+
+        # gives:
+
+        INFO: RobotPWM initialized
+        INFO: RobotMotor initialized
+        INFO: object: {'pin': 12, 'name': 'pwm 12'}
+               class: RobotPWM
+                name: pwm 12
+                 pin: 12
+    Attributes:
+        name: readable name for PWM drive such as 'left_leg_up', 'catch_hand'
+        pin: pin to connect to Dx at DEVKIT notation. Please refer Motorshield to ESP12E pinout here:
+            http://csharpcorner.mindcrackerinc.netdna-cdn.com/article/
+                blinking-led-by-esp-12e-nodemcu-v3-module-using-arduinoide/
+                    Images/NodeMCU_Pinout.png
+        (@ http://www.c-sharpcorner.com/article/blinking-led-by-esp-12e-nodemcu-v3-module-using-arduinoide/)
+
+    Todo:
+        * Rewrite class to accept motorshield pinout notation.
+    '''
+
+    def __init__(self, name, pin):
+        self.name = name
+        self.pin = pin
+        print('INFO: {} initialized'.format(
+            self.__class__.__name__)
+        )
+
+    def __str__(self):
+        return 'INFO: object: {}\n'\
+               '       class: {}\n'\
+               '        name: {}\n'\
+               '         pin: {}'\
+            .format(self.__dict__,
+                    self.__class__.__name__,
+                    self.name,
+                    str(self.pin))
+
+
+class RobotMotor(object):
+    def __init__(self, name, letter):
+        self.name = name
+        self.letter = letter
+        print('INFO: {} initialized'.format(
+            self.__class__.__name__)
+        )
+
+    def __str__(self):
+        return 'INFO: object: {}\n'\
+               '       class: {}\n'\
+               '        name: {}\n'\
+               '      letter: {}'\
+            .format(self.__dict__,
+                    self.__class__.__name__,
+                    self.name,
+                    self.letter)
+
+
+def mainland():
+    print('yep mainland!')
+    pwm_turn = RobotPWM(
+        'pwm 12',
+        12
+    )
+    motor_a = RobotMotor(
+        'motor',
+        'A'
+    )
+    print(pwm_turn)
+    print(motor_a)
+    # print(RobotPWM.__doc__)
+
+
+
+
+def main():
+    print('yessssss main!')
 
 
 if __name__ == '__main__':
     print('DBG: __main__ running')
-
+    mainland()
+    main()
     print('DBG: __main__ quit')
 
 
