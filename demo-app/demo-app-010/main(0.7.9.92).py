@@ -25,6 +25,19 @@ ver 0.7.9.1 + minor fix for y axis for hand - joystick
 ver 0.7.9.3 reply html with current IP
 ver 0.7.9.4 add catch (working)
 ver 0.7.9.9 based on 0.7.9.4 rewritten as modules and objects
+            uses ('...some kind of dot notation -
+            - instance.attributes') for storing components
+
+            variant 1 (update(args)):
+                def __init__(self, **args):
+                    self.__dict__.update(args)
+                    self.__dict__.update(locals())
+                    del self.self
+
+            variant 2 (setattr):
+                def __init__(self, **kwargs):
+                    for key, value in kwargs.items():
+                    setattr(self, key, value)
 """
 
 
@@ -117,6 +130,26 @@ class Robot:
         'Robot')
     )
 
+    # def __init__(self, **args):
+    #     # # counter to display
+    #     # counter = 0
+    #     #
+    #     # for arg in args:
+    #     #     print('DBG: counter:{}'.format(counter))
+    #     #     print(self, self.__dir__())
+    #     #     print(arg)
+    #     #     self.arg = arg
+    #     #     counter += 1
+    #
+    #     self.__dict__.update(args)
+    #     self.__dict__.update(locals())
+    #     del self.self
+
+    # def setAllWithKwArgs(self, **kwargs):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
     class RobotPWM:
         """
         Power Width Modulation drive.
@@ -141,6 +174,12 @@ class Robot:
                         self.__class__.__name__,
                         self.name,
                         str(self.pin))
+
+        def brrr(self):
+            return 'pwmbrrrrr'
+
+        def brv(self, val):
+            return 'pwmbrrrrr' + str(val)
 
     class RobotMotor:
         """
@@ -167,25 +206,11 @@ class Robot:
                         self.name,
                         self.letter)
 
-    #
-    # print('INFO: before components assigned')
-    # components = []  #
-    # print('INFO: after components assigned')
+        def brrr(self):
+            return 'motorbrrrrr'
 
-    def __init__(self):
-        self.components = []
-
-    def add_component(self, component):
-        """
-        Add drive or sensor to robot listing
-
-        :param component: drive or sensor
-        :return: updated list components
-        """
-        print('INFO: Robot.add_component() running ')
-        self.components.append(component)
-        print(self.components, len(self.components))
-        return self.components
+        def brv(self, val):
+            return 'motorbrrrrr' + str(val)
 
 
 def mainland():
@@ -205,20 +230,7 @@ def mainland():
     # ok ... so far
 
     # print(RobotPWM.__doc__)
-    robot = Robot()
-    # print(robot.__dict__)
-    # print(Robot.__dict__)
-    # # some introspection
-    # for item in Robot.__dict__:
-    #     print(item,
-    #           Robot.__dict__[item],
-    #           type(Robot.__dict__[item]),
-    #           Robot.__dict__[item].__class__.__name__
-    #           # isinstance(type(Robot.__dict__[item]), type)
-    #           )
-    robot.add_component(Robot.RobotMotor('drive_B', 'A'))
-    robot.add_component(Robot.RobotPWM('nand_catch', 12))
-
+    # robot = Robot()
     # print(robot.__dict__)
     # print(Robot.__dict__)
     # # some introspection
@@ -230,18 +242,59 @@ def mainland():
     #           # isinstance(type(Robot.__dict__[item]), type)
     #           )
 
-    print(robot)
-    for component in robot.components:
-        print(component)
-    print('--')
+    # robot.add_component(Robot.RobotMotor('drive_B', 'A'))
+    # robot.add_component(Robot.RobotPWM('nand_catch', 12))
+
+    # print(robot.__dict__)
+    # print(Robot.__dict__)
+    # # some introspection
+    # for item in Robot.__dict__:
+    #     print(item,
+    #           Robot.__dict__[item],
+    #           type(Robot.__dict__[item]),
+    #           Robot.__dict__[item].__class__.__name__
+    #           # isinstance(type(Robot.__dict__[item]), type)
+    #           )
 
     extra_drive = Robot.RobotPWM('extra', 13)
-    robot.add_component(extra_drive)
-    robot.add_component(14)
+    motor_a = Robot.RobotMotor('motor_a', 'A')
+
+    # this is for
+    # def __init__(self, **args):
+    #   ...
+
+    robot = Robot(extra_drive=Robot.RobotPWM('extra', 13),
+                  motor_a=Robot.RobotMotor('motor_a', 'A')
+                  )
+
+    # robot = Robot(Robot.RobotPWM('extra', 13),      # keyworded args needed
+    #               Robot.RobotMotor('motor_a', 'A')  # in __init__(self, **kwargs)
+    #               )
+    # some introspection into robot instance
+    print('INFO: some introspection into robot instance')
+    print('DBG: robot:{}'.format(robot))
+    print('DBG: robot.__dict__ :{}'.format(robot.__dict__))
+    print('DBG: robot.__dir__():{}'.format(robot.__dir__()))
+
+    for item in robot.__dict__:
+        print(item,
+              robot.__dict__[item],
+              type(robot.__dict__[item]),
+              robot.__dict__[item].__class__.__name__
+              )
+
+    print('----')
+    print('using dot notation with Robot instance')
+    print(robot.motor_a.brrr())
+    print(robot.extra_drive.brrr())
+    print(robot.motor_a.brv('motorrrr'))
+    print(robot.extra_drive.brv(13))
 
 
-    print(robot.components)
-    print(robot.components[0])
+
+
+
+
 
 
 
