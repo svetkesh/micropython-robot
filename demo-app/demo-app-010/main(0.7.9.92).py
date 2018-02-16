@@ -25,7 +25,7 @@ ver 0.7.9.1 + minor fix for y axis for hand - joystick
 ver 0.7.9.3 reply html with current IP
 ver 0.7.9.4 add catch (working)
 ver 0.7.9.9 based on 0.7.9.4 rewritten as modules and objects
-            uses ('...some kind of dot notation -
+ver 0.7.9.92 uses ('...some kind of dot notation -
             - instance.attributes') for storing components
 
             variant 1 (update(args)):
