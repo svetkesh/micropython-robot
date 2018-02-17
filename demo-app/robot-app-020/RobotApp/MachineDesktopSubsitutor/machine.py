@@ -1,3 +1,5 @@
+# import logging
+
 class Pin:
     """
     Place holder for uPython machine.Pin
@@ -10,12 +12,24 @@ class Pin:
 
     ESP8266AvailablePins = (0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16)
 
+    assigned_pins = set()
+
     def __init__(self, pin):
-        nonlocal ESP8266AvailablePins
-        if pin in ESP8266AvailablePins:
-            self.pin = pin
+        if pin in Pin.ESP8266AvailablePins:
+            if pin not in Pin.assigned_pins:
+                Pin.assigned_pins.add(pin)
+                self.pin = pin
+
+                # some introspection
+                # print('DBG: Pin.assigned_pins : {}'.format(
+                #     Pin.assigned_pins
+                # ))
+                # >> DBG: Pin.assigned_pins : {5, 15}
+            else:
+                raise ValueError('ERR: cannon initialize already assigned Pin : {}'.format(pin))
+
         else:
-            print('ERR: cannon initialize Pin : {}'.format(pin))
+            raise ValueError('ERR: cannon initialize Pin : {}'.format(pin))
 
     def __repr__(self):
         return 'Pin connected : {}'.format(
@@ -26,9 +40,6 @@ class Pin:
 class PWM:
     """
     Place holder for uPython machine.PWM class
-
-    sevr_catch = machine.PWM(machine.Pin(15), freq=50)
-    serv_direction.duty(directionx)
     """
 
     # import Pin
@@ -44,6 +55,12 @@ class PWM:
         )
 
     def duty(self, value):
+        """
+        Workaround to allow running micropython PWM module launch on desktop
+        and run .duty() method
+        :param value: to set angle for servodrive or current for DC motor
+        :return: text analogue of fulfilling motion by servo drive or DC motor rotation.
+        """
         print('DBG: MachineDesktopSubsitutor recieved command duty :{}'.format(
             str(value)
         ))
@@ -55,6 +72,25 @@ def main():
     print(sevr_catch)
     direction = 70
     sevr_catch.duty(direction)
+
+    # test - should raise err
+    try:
+        # initialization goes smooth
+        servo5 = PWM(Pin(5), freq=50)
+
+        print(servo5)
+        # Using Pin: Pin connected: 5
+        # Frequency: 50
+
+        servo5.duty(71)
+        # DBG: MachineDesktopSubsitutor  recieved command duty: 71
+
+
+        # initialization checked and raised ValueError
+        # servo15 = PWM(Pin(15), freq=50)  #<class 'ValueError'> ERR: cannon initialize already assigned Pin : 15
+        # servo6 = PWM(Pin(6), freq=50)  # <class 'ValueError'> ERR: cannon initialize Pin : 6
+    except ValueError as valerr:
+        print(type(valerr), valerr)
 
 
 if __name__ == '__main__':
