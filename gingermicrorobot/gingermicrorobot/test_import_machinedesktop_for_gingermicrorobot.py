@@ -3,9 +3,11 @@ try:
     print('DBG: import ESP8266 "machine" library - done')
 except ImportError:
     print('DBG: Could not import ESP8266 "machine" library\n'
-          'loading MachineDesktopSubsitutor.machine as desktop subsitution')
-    from MachineDesktopSubsitutor.machine import PWM as PWM
-    from MachineDesktopSubsitutor.machine import PWM as PWM
+          'loading machinedesktop.machine as desktop substitution')
+    # from ..machinedesktop.machinedesktop import Pin
+    # from ..machinedesktop.machinedesktop import PWM
+    from gingermicrorobot.machinedesktop.machinedesktop import PWM
+    from gingermicrorobot.machinedesktop.machinedesktop import Pin
 
 try:
     import ure as re

@@ -422,3 +422,5 @@ IndexError: 2
 future readings:
 https://hackernoon.com/improve-your-python-python-classes-and-object-oriented-programming-d09ff461168d
 http://python-textbok.readthedocs.io/en/1.0/Classes.html#defining-and-using-a-class
+
+http://www.diveintopython3.net/packaging.html
