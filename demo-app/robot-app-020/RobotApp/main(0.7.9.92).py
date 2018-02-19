@@ -256,14 +256,16 @@ def mainland():
     #           # isinstance(type(Robot.__dict__[item]), type)
     #           )
 
-    extra_drive = Robot.RobotPWM('extra', 13)
-    motor_a = Robot.RobotMotor('motor_a', 'A')
+    # extra_drive = Robot.RobotPWM('extra', 13)
+    # minor_drive = Robot.RobotPWM('extra', 14)
+    # motor_a = Robot.RobotMotor('motor_a', 'A')
 
     # this is for
     # def __init__(self, **args):
     #   ...
 
     robot = Robot(extra_drive=Robot.RobotPWM('extra', 13),
+                  minor_drive=Robot.RobotPWM('extra', 14),
                   motor_a=Robot.RobotMotor('motor_a', 'A')
                   )
 
