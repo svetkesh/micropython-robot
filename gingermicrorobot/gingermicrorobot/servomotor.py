@@ -10,9 +10,10 @@ class ServoMotor:
         'servomotor.ServoMotor')
     )
 
-    def __init__(self, name, pin):
+    def __init__(self, name, pin, reverse=False):
         self.name = name
         self.pin = pin
+        self.reverse = reverse
         print('INFO: {} initialized'.format(
             self.__class__.__name__)
         )
@@ -32,3 +33,10 @@ class ServoMotor:
 
     def brv(self, val):
         return 'pwmbrrrrr' + str(val)
+
+    def echo(self, *args):
+        return 'pwmbrrrrr' + str(args)
+
+    # @
+    def duty(self, *args):
+        return 'pwm reporting duty' + str(args)

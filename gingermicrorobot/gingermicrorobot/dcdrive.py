@@ -10,9 +10,10 @@ class DCDrive:
         'dcdrive.DCDrive')
     )
 
-    def __init__(self, name, letter):
+    def __init__(self, name, letter, reverse=False):
         self.name = name
         self.letter = letter
+        self.reverse = reverse
         print('INFO: {} initialized'.format(
             self.__class__.__name__)
         )
@@ -33,3 +34,9 @@ class DCDrive:
 
     def brv(self, val):
         return 'motorbrrrrr' + str(val)
+
+    def echo(self, *args):
+        return 'motorbrrrrr' + str(args)
+
+    def duty(self, *args):
+        return 'motor reporting duty' + str(args)
