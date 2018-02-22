@@ -40,3 +40,5 @@ class ServoMotor:
     # @
     def duty(self, *args):
         return 'pwm reporting duty' + str(args)
+
+
