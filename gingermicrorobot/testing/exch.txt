@@ -1,0 +1,1 @@
+{"ssid": "super text SSID", "wifipassword": "superTEXTpassword", "trick": "TEXT-demo-trick"}
