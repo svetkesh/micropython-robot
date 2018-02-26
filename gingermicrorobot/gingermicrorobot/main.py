@@ -52,6 +52,7 @@ def main():
     print(ginger.servo_catch.echo(72))
     print(ginger.servo_catch.duty(72))
     print(ginger.servo_catch.echo('string 72'))
+    print(ginger.servo_catch.duty('string 72'))  # duty should be int or float
 
 
 if __name__ == "__main__":

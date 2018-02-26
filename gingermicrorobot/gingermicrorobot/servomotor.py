@@ -28,16 +28,10 @@ class ServoMotor:
                     self.name,
                     str(self.pin))
 
-    def brrr(self):
-        return 'pwmbrrrrr'
-
-    def brv(self, val):
-        return 'pwmbrrrrr' + str(val)
-
     def echo(self, *args):
-        return 'pwmbrrrrr' + str(args)
+        return 'pwm reply ok ' + str(args)
 
-    # @
+    # duty should be int or float
     def duty(self, *args):
         return 'pwm reporting duty' + str(args)
 

@@ -28,15 +28,9 @@ class DCDrive:
                     self.name,
                     self.letter)
 
-    # some inline tests
-    def brrr(self):
-        return 'motorbrrrrr'
-
-    def brv(self, val):
-        return 'motorbrrrrr' + str(val)
-
     def echo(self, *args):
-        return 'motorbrrrrr' + str(args)
+        return 'motor echo ok' + str(args)
 
+        # duty should be int or float
     def duty(self, *args):
         return 'motor reporting duty' + str(args)
