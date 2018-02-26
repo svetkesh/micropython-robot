@@ -141,6 +141,7 @@ class SettingsWriter:
     """
     def __init__(self, j, file='settings.txt', valid_formatted_json=True):
         self.file = file
+        self.j_str = j
         try:
             self.j = json.loads(j)
             for item in self.j:
@@ -183,7 +184,10 @@ class SettingsWriter:
         if self.valid_formatted_json:
             try:
                 with open(self.file, 'w') as f:
-                    f.write(str(self.j))
+                    print('DBG: 186 j         :{}'.format(str(self.j)))
+                    print('DBG: 187 self.j_str:{}'.format(str(self.j_str)))
+                    # f.write(str(self.j))
+                    f.write(str(self.j_str))
                 return True
             except:
                 print('DBG error saving settings')
@@ -214,8 +218,8 @@ class SettingsWriter:
 def main():
     # pass
 
-    s = '{"ssid":"' + 'some SSID' + \
-        '","wifipassword":"' + 'otherpassword' + \
+    s = '{"ssid":"some SSID' + \
+        '","wifipassword":' + '"otherpassword' + \
         '","trick":"demo"' + \
         '}'
 
