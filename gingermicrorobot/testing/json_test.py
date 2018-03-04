@@ -14,15 +14,15 @@ print(type(j), j, j['ssid'], j['wifipassword'])
 
 # ----
 
-print('----')
+print('--s2--')
 ssid = "some SSID"
-wifipassword = "somepassword"
+wifipassword = "somePassword"
 trick = "demo"
 
 s2 = {
-    'ssid' : ssid,
-    'wifipassword' : wifipassword,
-    'trick' : trick
+    'ssid': ssid,
+    'wifipassword': wifipassword,
+    'trick': trick
 }
 
 print(type(s2), s2)
@@ -32,6 +32,9 @@ print(type(d2), d2)
 
 j2 = json.loads(d2)
 print(type(j2), j2)
+
+# ---- dumps(**kwargs), loads(args) ----
+print('--j_defs--')
 
 
 def j_dumps(**kwargs):
@@ -45,29 +48,48 @@ def j_dumps(**kwargs):
 def j_loads(args):
     return json.loads(args)
 
+# ----
+print('--j_dumps , dumping to string--')
 
-print(j_dumps(ssid = "some SSID",
-              wifipassword = "somepassword",
-              trick = "demo",
+print(j_dumps(ssid="some SSID",
+              wifipassword="somepassword",
+              trick="demo",
               ))
 
-print('\'')
-print(j_loads('{"ssid": "some SSID", "wifipassword": "somepassword", "trick": "demo"}')) # err
+print('chars0-4: {}', format(
+    j_dumps(ssid="some SSID",
+            wifipassword="somepassword",
+            trick="demo",
+            )[0:5]))
+
+# ----
+print('--j_loads , load to json --')
+
+print(j_loads('{"ssid": "some SSID", "wifipassword": "somepassword", "trick": "demo"}'))  # err
 # # TypeError: the JSON object must be str, bytes or bytearray, not 'tuple'
 
 # print('\"')
 # print(j_loads("{'ssid': 'some SSID', 'wifipassword': 'somepassword', 'trick': 'demo'}")) # err
 # # json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
 
-print('s3')
+print('value for key \"ssid\":{}'.
+      format(j_loads('{'
+                     '"ssid": "some SSID", '
+                     '"wifipassword": "somepassword", '
+                     '"trick": "demo"'
+                     '}')["ssid"]))
+
+
+print('--s3--')
+              
 s3 = '{"ssid": "some SSID", "wifipassword": "somepassword", "trick": "demo"}'
 print(j_loads(s3))
 
 # ----
 print('--dump and load json-file--')
-
-
 print('--dump json to file--')
+
+
 def dump_dict_to_file(file_name='exch.txt', **kwargs):
     with open(file_name, 'w') as f:
         json.dump(kwargs, f)
@@ -78,6 +100,8 @@ dump_dict_to_file(ssid="new SSID",
                   )
 
 print('--loading file into JSON--')
+
+
 def loads_file_to_dict(file_name='exch.txt'):
     with open(file_name, 'r') as f:
         return json.load(f)
@@ -86,6 +110,8 @@ print(loads_file_to_dict())
 print(loads_file_to_dict()['trick'])
 
 print('--dump text formatted like json to file--')
+
+
 def dump_formatted_json_text_to_file(txt, file_name='exch.txt'):
     j = json.loads(txt)
     print(type(j), j)
@@ -102,7 +128,4 @@ print('type :{}\nJSON :{}\ntrick:{}'.format(type(loads_file_to_dict()),
                           loads_file_to_dict()['trick']))
 
 print('--end of tricks--')
-
-
-
 
