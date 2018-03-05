@@ -10,7 +10,7 @@ class Led:
     Usage:
 
     """
-    def __init__(self, light=1, pin=4):
+    def __init__(self, light=0, pin=4):
         self.light = light
         self.pin = pin
 
