@@ -79,7 +79,7 @@ class Led:
     @light.setter
     def light(self, value):
         try:
-            from machine import Pin
+            import machine
             pin_light = machine.Pin(self.pin, machine.Pin.OUT)
             if self.light == 0:
                 pin_light.off()
@@ -91,16 +91,16 @@ class Led:
             self._light = value
 
 
-l = Led(light=0, pin=2)
-print('led: {}\nlight: {}'.format(l, l.light))
-
-l.light = 1
-print('led: {}\nlight: {}'.format(l, l.light))
-
-led2 = Led(name='Second LED', light=1, pin=4)
-print(led2)
-led2.light = 0
-print(led2)
-print(led2.light)
+# l = Led(light=0, pin=2)
+# print('led: {}\nlight: {}'.format(l, l.light))
+#
+# l.light = 1
+# print('led: {}\nlight: {}'.format(l, l.light))
+#
+# led2 = Led(name='Second LED', light=1, pin=4)
+# print(led2)
+# led2.light = 0
+# print(led2)
+# print(led2.light)
 
 

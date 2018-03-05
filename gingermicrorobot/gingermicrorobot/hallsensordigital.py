@@ -38,8 +38,11 @@ class HallSensorDigital:
 
     @sensor.setter
     def sensor(self, sensor):
+
+        print('DBG: Hall sensor is probing')
+
         try:
-            from machine import Pin
+            import machine
             pin_sensor = machine.Pin(0, machine.Pin.IN, machine.Pin.PULL_UP)
             self.__sensor = pin_sensor.value()
 

@@ -4,7 +4,7 @@
 ver 0.7.9.95 robot modelled in objects. Introducing him here.
 """
 
-import logging
+# import logging
 
 from gingermicrorobot import GingerMicroRobot as Ginger
 from dcdrive import DCDrive as DCDrive
@@ -45,24 +45,40 @@ def main():
             pin=3
         ),
         led=Led(
+            name='led',
             pin=2,
         )
 
     )
 
-    print(ginger)
-    print(dir(ginger.motor))
-    print(ginger.motor.echo())
-    print(ginger.motor.echo(71))
-    print(ginger.motor.duty(71))
-    print(ginger.motor.echo('string71'))
+    # print(ginger)
+    # print(dir(ginger.motor))
+    # print(ginger.motor.echo())
+    # print(ginger.motor.echo(71))
+    # print(ginger.motor.duty(71))
+    # print(ginger.motor.echo('string71'))
+    #
+    # print(ginger.servo_catch.echo())
+    # print(ginger.servo_catch.echo(72))
+    # print(ginger.servo_catch.duty(72))
+    # print(ginger.servo_catch.echo('string 72'))
+    # print(ginger.servo_catch.duty('string 72'))  # duty should be int or float
+    # print(ginger.sensor_hall.sensor)
+    # print(ginger.led.light)
+    print('--test--')
 
-    print(ginger.servo_catch.echo())
-    print(ginger.servo_catch.echo(72))
-    print(ginger.servo_catch.duty(72))
-    print(ginger.servo_catch.echo('string 72'))
-    print(ginger.servo_catch.duty('string 72'))  # duty should be int or float
-    print(ginger.sensor_hall.sensor)
+    # for i in range(50):
+    while True:
+        if ginger.sensor_hall.sensor == 0:
+            ginger.led.light = 0
+        else:
+            ginger.led.light = 1
+
+        print('sensor:{}, light:{}'.format(
+            ginger.sensor_hall.sensor,
+            ginger.led.light
+        ))
+
 
 
 if __name__ == "__main__":
