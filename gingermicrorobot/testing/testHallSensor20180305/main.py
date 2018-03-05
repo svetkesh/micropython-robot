@@ -10,6 +10,7 @@ from gingermicrorobot import GingerMicroRobot as Ginger
 from dcdrive import DCDrive as DCDrive
 from servomotor import ServoMotor as Servo
 from hallsensordigital import HallSensorDigital as Hall
+from led import Led as Led
 
 
 def main():
@@ -43,6 +44,10 @@ def main():
         sensor_hall=Hall(
             pin=3
         ),
+        led=Led(
+            pin=2,
+        )
+
     )
 
     print(ginger)
