@@ -42,7 +42,7 @@ def main():
             pin=15
         ),
         sensor_hall=Hall(
-            pin=3
+            pin=4
         ),
         led=Led(
             name='led',
@@ -69,7 +69,7 @@ def main():
 
     # for i in range(50):
     while True:
-        if ginger.sensor_hall.sensor == 0:
+        if ginger.sensor_hall.hall() == 0:
             ginger.led.light = 0
         else:
             ginger.led.light = 1

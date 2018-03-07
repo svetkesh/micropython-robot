@@ -81,6 +81,7 @@ class Led:
         try:
             import machine
             pin_light = machine.Pin(self.pin, machine.Pin.OUT)
+            # l2 = Pin(2, Pin.OUT)
             if self.light == 0:
                 pin_light.off()
             else:

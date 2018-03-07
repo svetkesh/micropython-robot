@@ -64,11 +64,25 @@ class HallSensorDigital:
             import random
             self.__sensor = random.randint(0, 1)
 
+    def hall(self):
+        print('DBG: Hall sensor is probing in hall()')
+
+        try:
+            import machine
+            pin_sensor = machine.Pin(self.pin, machine.Pin.IN, machine.Pin.PULL_UP)
+            # p4 = Pin(4, Pin.IN, Pin.PULL_UP)
+
+            return pin_sensor.value()
+
+        except ImportError:
+            import random
+            return random.randint(0, 1)
+
 #
 # hsd5 = HallSensorDigital(pin=5)
-# print(hsd5.sensor)
-# print(hsd5.sensor)
-# print(hsd5.sensor)
-# print(hsd5.sensor)
-# print(hsd5.sensor)
-# print(hsd5.sensor)
+# print(hsd5.hall())
+# print(hsd5.hall())
+# print(hsd5.hall())
+# print(hsd5.hall())
+# print(hsd5.hall())
+# print(hsd5.hall())
