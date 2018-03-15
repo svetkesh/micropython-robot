@@ -307,7 +307,7 @@ try:
             else:
                 time_loose = time.now()
                 # robot loses game right now
-                time.sleep(1)
+                # time.sleep(1)
                 # light switch off .. for looser
                 break
 
