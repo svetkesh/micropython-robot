@@ -2,6 +2,7 @@ import asyncio
 import time
 import sys, signal
 import sys, termios, tty, os
+import 
 
 VELOCITY = 1 # move from position 0  to 1 in 1 second
 
@@ -20,47 +21,6 @@ async def up_move(up):
 #             print('QUIT')
 #         else:
 #             print('something pressed')
-
-
-def getch():
-    fd = sys.stdin.fileno()
-    # old_settings = termios.tcgetattr(fd)
-    old_settings = termios.t
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
-
-
-button_delay = 0.2
-
-
-def sync_read_input():
-    while True:
-        char = getch()
-
-        if char == "a":
-            print("Left pressed")
-            time.sleep(button_delay)
-
-        elif char == "d":
-            print("Right pressed")
-            time.sleep(button_delay)
-
-        elif char == "w":
-            print("Up pressed")
-            time.sleep(button_delay)
-
-        elif char == "s":
-            print("Down pressed")
-            time.sleep(button_delay)
-
-        elif char == "p":
-            print("Stop!")
-            exit(0)
 
 
 # async def hand_up(hand):
@@ -94,4 +54,4 @@ def sync_read_input():
 # asyncio.ensure_future(exercise())
 # loop.run_forever()
 
-sync_read_input()
+
