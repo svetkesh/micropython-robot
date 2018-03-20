@@ -2,7 +2,7 @@ import asyncio
 import time
 import sys, signal
 import sys, termios, tty, os
-import 
+import pynput
 
 VELOCITY = 1 # move from position 0  to 1 in 1 second
 
