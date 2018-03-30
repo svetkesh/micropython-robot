@@ -44,17 +44,18 @@ print('DBG: starting main.py')
 import socket
 try:
     import machine
-    print('DBG: import "machine" library - done')
+    machine.freq(160000000)
+    # print('DBG: import "machine" library - done')
 except ImportError:
     print('DBG: Could not import "machine" library')
 
 try:
     import ure as re
-    print('DBG: import microRE "ure" library successful')
+    # print('DBG: import microRE "ure" library successful')
 except ImportError:
     try:
         import re
-        print('DBG: import standard library RE "re" successful')
+        # print('DBG: import standard library RE "re" successful')
     except ImportError:
         print('DBG: import could not be done neither re neither micro "ure"')
         raise SystemExit
@@ -87,21 +88,22 @@ print('Robot IP robot_ip : {}'. format(robot_ip))
 # HTML to send to browsers
 # hardcoded ip address html reply
 
-html = """<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<br>Robot IP:
-""" + robot_ip + """
-<br>
-</body>
-</html>
+# html = """<!DOCTYPE html>
+# <html lang="en">
+# <head>
+#     <meta charset="UTF-8">
+#     <title>Title</title>
+# </head>
+# <body>
+# <br>Robot IP:
+# """ + robot_ip + """
+# <br>
+# </body>
+# </html>
+#
+# """
 
-"""
-
+html_ok = """<html>ok</html>"""
 
 
 # Setup drives
@@ -151,14 +153,14 @@ try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('', 80))
     s.listen(5)
-    print('DBG: opened connection to port 80')
+    # print('DBG: opened connection to port 80')
     while True:
         networkpin.off()
-        print('DBG: hall_sensor.value(): {}, '
-              'at : {} '
-              'since last loose: {}'.format(hall_sensor.value(),
-                                            time.time(),
-                                            time.time() - time_loose))  # analogue
+        # print('DBG: hall_sensor.value(): {}, '
+        #       'at : {} '
+        #       'since last loose: {}'.format(hall_sensor.value(),
+        #                                     time.time(),
+        #                                     time.time() - time_loose))  # analogue
 
         # if time.time() - time_loose > HOLD_LOOSE_TIMEOUT:
         #     # this robot never looses before or looses long ago
@@ -173,7 +175,7 @@ try:
         if hall_sensor.value() == 1:
             time_loose = time.time()
             networkpin.on()
-            print('DBG: hall_sensor.value() != 1')
+            # print('DBG: hall_sensor.value() != 1')
 
         #
         # else:
@@ -187,7 +189,7 @@ try:
             # networkpin.on()
             conn, addr = s.accept()
             # print("Got a connection from %s" % str(addr))
-            request = conn.recv(1024)
+            request = conn.recv(64)                         # change data volume from 1024 to 64
             # print("Content = %s" % str(request))  # print full request
             request = str(request)
 
@@ -324,7 +326,8 @@ try:
 
                 # networkpin.off()
 
-                response = html
+                # response = html
+                response = html_ok
                 conn.send(response)
                 conn.close()
             else:
@@ -335,8 +338,8 @@ try:
                 conn.close()
 
         except Exception as e:
-            print('ERR: Catch Exception while processing requests: {} , {}'.format(type(e), e))
-            print('DBG: about to reset in few seconds')
+            # print('ERR: Catch Exception while processing requests: {} , {}'.format(type(e), e))
+            # print('DBG: about to reset in few seconds')
             # blink_report(6)
             # blink_report(6)
             # networkpin.off()
@@ -351,12 +354,12 @@ try:
 
 
 except Exception as e:
-    print('ERR: Catch Exception with running Web server: {} , {}'.format(type(e), e))
+    # print('ERR: Catch Exception with running Web server: {} , {}'.format(type(e), e))
     # blink_report(7)
     # blink_report(7)
     # networkpin.off()
 
-    print('DBG: about to reset in few seconds')
+    # print('DBG: about to reset in few seconds')
     # blink_report(6)
     # blink_report(6)
     # networkpin.off()

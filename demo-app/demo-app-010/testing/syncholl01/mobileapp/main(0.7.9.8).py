@@ -36,7 +36,7 @@ class RoboPad(FloatLayout):
     def __init__(self, **kwargs):
         super(RoboPad, self).__init__(**kwargs)
 
-        # # print('running super(Gamepad, self).__init__()')
+        # print('running super(Gamepad, self).__init__()')
 
         # joystickhand and joystickrun
         self.joystickhand = Joystick(size_hint=(.4, .4),
@@ -76,8 +76,8 @@ class RoboPad(FloatLayout):
 
     def update_coordinates_run(self, joystick, pad):
         # test for joystickrun binding test
-        # # print('update_coordinates_run ...')
-        # # print(self, joystick, pad)
+        # print('update_coordinates_run ...')
+        # print(self, joystick, pad)
         x = str(pad[0])[0:5]
         y = str(pad[1])[0:5]
         radians = str(joystick.radians)[0:5]
@@ -86,7 +86,7 @@ class RoboPad(FloatLayout):
         # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
         # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle, send_status)
 
-        # without send_status # print just to debug label
+        # without send_status print just to debug label
         text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
         # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle)
         # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
@@ -94,8 +94,8 @@ class RoboPad(FloatLayout):
 
     def update_coordinates_hand(self, joystick, pad):
         # test for update_coordinates_hand binding test
-        # # print('update_coordinates_hand running...')
-        # # print(self, joystick, pad)
+        # print('update_coordinates_hand running...')
+        # print(self, joystick, pad)
         x = str(pad[0])[0:5]
         y = str(pad[1])[0:5]
         radians = str(joystick.radians)[0:5]
@@ -104,7 +104,7 @@ class RoboPad(FloatLayout):
         # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
         # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle, send_status)
 
-        # without send_status # print just to debug label
+        # without send_status print just to debug label
         text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
         # self.debug_label_hand.text = text.format(x, y, radians, magnitude, angle)
         # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
@@ -113,14 +113,14 @@ class RoboPad(FloatLayout):
         self.send_command_data(headx=x, handy=y)
 
     def update_catch_release(self, instance):
-        # # print('DBG: button pressed!')
+        # print('DBG: button pressed!')
         # catch = catch
         self.send_command_data(catch='catch')
 
     def send_command_data(self, headx='z', handy='z', turnx='z', runy='z', catch='z'):
         robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
         robot_port = 80
-        # # print('send_command_data running')
+        # print('send_command_data running')
         # self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\ncatch {}'.format(headx,
         #                                                                                  handy,
         #                                                                                  turnx,
@@ -128,12 +128,12 @@ class RoboPad(FloatLayout):
         #                                                                                  catch)
 
         dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch}
-        # # print(dict_commands)
+        # print(dict_commands)
 
         str_commands = 'http://' + str(robot_host) + '/?'
 
         for item in dict_commands:
-            # # print(item,
+            # print(item,
             #       dict_commands[item],
             #       type(dict_commands[item])
             #       )
@@ -155,7 +155,7 @@ class RoboPad(FloatLayout):
                                     '=' + \
                                     'catch' + \
                                     '&'
-        # # print('str_commands: {}'.format(str_commands))
+        # print('str_commands: {}'.format(str_commands))
 
         try:
             client_socket = socket.socket()  # instantiate
@@ -167,8 +167,8 @@ class RoboPad(FloatLayout):
             #     # sleep(3)
             #     # time.sleep(0.02)
             #     #
-            time.sleep(0.2)
-            # # print('sent OK {} sent'.format(str_commands))
+            time.sleep(0.05)
+            # print('sent OK {} sent'.format(str_commands))
             # send_status = 'sent ok' + str(turnx)
         except:
             print('ERR: command not sent {}'.format(turnx))
@@ -177,13 +177,13 @@ class RoboPad(FloatLayout):
 
 class RoboJoystickApp(App):
     def build(self):
-        # print('BasicApp.running build()')
+        print('BasicApp.running build()')
         self.icon = 'robot256.png'
         return RoboPad()  # goes how ?
 
 
 if __name__ == '__main__':
-    # print('running __main__()')
+    print('running __main__()')
     RoboJoystickApp().run()
-    # print('quiting __main__()')
+    print('quiting __main__()')
 

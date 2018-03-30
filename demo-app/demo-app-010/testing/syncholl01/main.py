@@ -28,6 +28,16 @@ ver 0.7.9.7 -dev variant of (0.7.9.4) - preparation for exhibition version (0.7.
 ver 0.7.9.8 - exhibition version, disabled wifi station, just access point
 ver 0.7.9.8h01 - exhibition version, added Hall
 
+compatable with:
+esp8266-20171101-v1.9.3.bin (not bad)
+esp8266-20180129-v1.9.3-240-ga275cb0f.bin (somehow...)
+esp8266-20180212-v1.9.3-289-g8e1cb58a.bin (+)
+
+incompatable with micropython:
+esp8266-20180316-v1.9.3-456-g0db49c37.bin
+...
+esp8266-20180326-v1.9.3-479-gb63cc1e9.bin
+
 '''
 print('DBG: starting main.py')
 
@@ -58,7 +68,7 @@ LONG_SLEEP = 3
 SHORT_SLEEP = 1
 BLINK_SLEEP = 0.3
 BLACKOUT = 0
-HOLD_LOOSE_TIMEOUT = 3
+HOLD_LOOSE_TIMEOUT = 5
 
 time_loose = 0
 
