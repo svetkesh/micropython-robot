@@ -45,7 +45,6 @@ print('DBG: starting main.py')
 try:
     import usocket as socket
 except ImportError:
-    print('DBG: Could not import "usocket" library')
     import socket
 try:
     import machine
@@ -106,14 +105,6 @@ html = """<!DOCTYPE html>
 </html>
 
 """
-
-html_ok = """<html><body>OK</body></html>"""
-
-try:
-    with open('log.txt', 'r') as f:
-        print('DBG log: {}'.format(f.read()))
-except:
-    pass
 
 
 
@@ -200,11 +191,7 @@ try:
             # networkpin.on()
             conn, addr = s.accept()
             # print("Got a connection from %s" % str(addr))
-            try:
-                request = conn.recv(64)
-            except Exception as e:
-                with open('log.txt', 'w') as f:
-                    f.write('ERR: conn.recv: {}'.format(str(e)))
+            request = conn.recv(1024)
             # print("Content = %s" % str(request))  # print full request
             request = str(request)
 
@@ -341,8 +328,7 @@ try:
 
                 # networkpin.off()
 
-                # response = html
-                response = html_ok
+                response = html
                 conn.send(response)
                 conn.close()
             else:

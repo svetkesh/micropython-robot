@@ -187,7 +187,7 @@ try:
             # networkpin.on()
             conn, addr = s.accept()
             # print("Got a connection from %s" % str(addr))
-            request = conn.recv(1024)
+            request = conn.recv(1024)                       # this can be reduced to 64
             # print("Content = %s" % str(request))  # print full request
             request = str(request)
 
