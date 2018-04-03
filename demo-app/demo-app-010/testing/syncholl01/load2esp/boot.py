@@ -13,6 +13,21 @@ import network, machine, time  #, math
 
 print('DBG: Starting boot.py')
 
+# more info :
+# https://www.espressif.com/sites/default/files/documentation/
+# esp8266_reset_causes_and_common_fatal_exception_causes_en.pdf
+reset_causes = '\n' \
+               '0 - Power reboot\n' \
+               '1 - Hardware WDT reset\n' \
+               '2 - Fatal exception\n' \
+               '3 - Software watchdog reset\n' \
+               '4 - Software reset\n' \
+               '5 - Deep-sleep\n' \
+               '6 - Hardware reset'
+
+print('DBG last reset_cause: "{}"'.format(machine.reset_cause()))
+print('INFO reset_causes:{}'.format(reset_causes))
+
 # #ssid = 'KVN'
 # # ssidpss = ''
 # ssid = 't4m'
@@ -20,6 +35,8 @@ print('DBG: Starting boot.py')
 
 s_timeout = 200
 l_timeout = 2000
+
+
 
 networkpin = machine.Pin(2, machine.Pin.OUT)
 networkpin.on()
