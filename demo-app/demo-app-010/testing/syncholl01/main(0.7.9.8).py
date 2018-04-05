@@ -86,11 +86,6 @@ html = """<!DOCTYPE html>
 
 """
 
-html_ok = """<html><body>OK</body>
-</html>
-
-"""
-
 # Setup drives
 # LE0 = machine.Pin(0, machine.Pin.OUT)
 # LED2 = machine.Pin(2, machine.Pin.OUT)
@@ -142,7 +137,7 @@ try:
             # networkpin.on()
             conn, addr = s.accept()
             # print("Got a connection from %s" % str(addr))
-            request = conn.recv(64)  # change 1024 - 64
+            request = conn.recv(1024)
             # print("Content = %s" % str(request))  # print full request
             request = str(request)
 
@@ -275,7 +270,7 @@ try:
 
             # networkpin.off()
 
-            response = html_ok  # change html - html_ok
+            response = html
             conn.send(response)
             conn.close()
         except Exception as e:

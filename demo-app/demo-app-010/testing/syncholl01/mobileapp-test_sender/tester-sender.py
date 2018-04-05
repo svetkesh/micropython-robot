@@ -249,7 +249,7 @@ def random_sender():
         #     send_status += 'error sending turnx' + str(turnx)
 
     def cycle_timeouted():
-        for timeout in range(100, 1, -10):
+        for timeout in range(50, 1, -1):
             print('DBG: current timeout: {}'.format(timeout / 100))
             for cycle in range(0, 10):
                 # print('DBG: current timeout: {}, cycle: {}'.format(timeout / 100, cycle))
