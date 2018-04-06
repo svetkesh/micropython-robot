@@ -46,6 +46,7 @@ esp8266-20180326-v1.9.3-479-gb63cc1e9.bin
 import sys, machine, network
 import utime as time
 import ure as re
+import urandom
 try:
     import usocket as socket
 except ImportError:
@@ -117,14 +118,30 @@ finally:
     print('MSG for command {}\n'
           'cycles {}\n'
           'run in {} s\n'
-          'meantime: {} ms\n'.format('pass',
+          'meantime: {} ms\n'.format('sensor.value()',
                                      i + 1,
                                      time.ticks_diff(time.ticks_ms(), start_timer) / tiks_factor,
                                      ms_factor * time.ticks_diff(time.ticks_ms(), start_timer)/((i + 1) * tiks_factor)))
 
 #
-
-
+try:
+    start_timer = time.ticks_ms()
+    for i in range(0, n_probes):
+        if servo_direction.duty() > 70:
+            servo_direction.duty(40)
+        else:
+            servo_direction.duty(110)
+    print(time.ticks_ms())
+except Exception as e:
+    print('EXC: type: {},\n exception: {}\n '.format(type(e), str(e)))
+finally:
+    print('MSG for command {}\n'
+          'cycles {}\n'
+          'run in {} s\n'
+          'meantime: {} ms\n'.format('servo.duty()',
+                                     i + 1,
+                                     time.ticks_diff(time.ticks_ms(), start_timer) / tiks_factor,
+                                     ms_factor * time.ticks_diff(time.ticks_ms(), start_timer)/((i + 1) * tiks_factor)))
 print('DBG: end measuring')
 
 
