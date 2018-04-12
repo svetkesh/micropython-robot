@@ -186,7 +186,8 @@ def random_sender():
 
     def send_command_data(timeout=0, cycle=0, headx='z', handy='z', turnx='z', runy='z', catch='z'):
         robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
-        robot_port = 80
+        # robot_port = 80
+        robot_port = 8080
         # # print('send_command_data running')
         # self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\ncatch {}'.format(headx,
         #                                                                                  handy,
@@ -249,12 +250,19 @@ def random_sender():
         #     send_status += 'error sending turnx' + str(turnx)
 
     def cycle_timeouted():
-        for timeout in range(50, 1, -1):
-            print('DBG: current timeout: {}'.format(timeout / 100))
+        # initial timeout 0.5 s: 0.2  0.2  0.2
+        #  ini_timeout = 50      20   50   100
+        #  step_timeout = 100    100  250  500
+
+        ini_timeout = 100
+        step_timeout = 500
+
+        for timeout in range(ini_timeout, 1, -1):
+            print('DBG: current timeout: {}'.format(timeout / step_timeout))
             for cycle in range(0, 10):
-                # print('DBG: current timeout: {}, cycle: {}'.format(timeout / 100, cycle))
+                # print('DBG: current timeout: {}, cycle: {}'.format(timeout / step_timeout, cycle))
                 generate_commands(timeout, cycle)
-                time.sleep(timeout / 100)
+                time.sleep(timeout / step_timeout)
 
     cycle_timeouted()
 

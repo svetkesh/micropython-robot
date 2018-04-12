@@ -145,6 +145,9 @@ try:
             request = conn.recv(64)  # change 1024 - 64
             # print("Content = %s" % str(request))  # print full request
             request = str(request)
+            response = html_ok  # change html - html_ok
+            conn.send(response)
+            conn.close()
 
             # compile re number
             # r_number = re.compile("0\.(\d+)")
@@ -275,9 +278,9 @@ try:
 
             # networkpin.off()
 
-            response = html_ok  # change html - html_ok
-            conn.send(response)
-            conn.close()
+            # response = html_ok  # change html - html_ok
+            # conn.send(response)
+            # conn.close()
         except Exception as e:
             print('ERR: Catch Exception while processing requests: {} , {}'.format(type(e), e))
             print('DBG: about to reset in few seconds')
