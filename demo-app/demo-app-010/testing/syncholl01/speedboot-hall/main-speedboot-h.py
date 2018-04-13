@@ -1,5 +1,7 @@
 print('DBG: starting main.py')
 
+# todo: add WDT 1 s
+
 # import socket
 import usocket as socket
 try:
