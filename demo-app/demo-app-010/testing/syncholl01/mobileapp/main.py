@@ -168,7 +168,7 @@ class RoboPad(FloatLayout):
             #     # time.sleep(0.02)
             #     #
             time.sleep(0.2)
-            # # print('sent OK {} sent'.format(str_commands))
+            print('sent OK {} sent'.format(str_commands))
             # send_status = 'sent ok' + str(turnx)
         except:
             print('ERR: command not sent {}'.format(turnx))

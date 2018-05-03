@@ -146,7 +146,7 @@ try:
                     if r_turnx.search(request) is not None:
                         s_turnx = str(m_turnx.group(0))
                         turnx = r_number.search(s_turnx)
-                        f_turnx = 1 - float(turnx.group(0))  # inverse bode turn
+                        f_turnx = float(turnx.group(0))
                         directionx = int(f_turnx * 75 + 40)
                         servo_direction.duty(directionx)
 
@@ -156,19 +156,19 @@ try:
                         f_runy = float(runy.group(0))
 
                         if f_runy < 0.5:
-                            # m_duty = -1
-                            m_duty = -300
-                            p_duty = int(1000 - 2000 * f_runy)
-
-                        elif f_runy == 0.5:
-                            m_duty = 0
-                            p_duty = 0
+                            m_duty = -1
                         else:
-                            m_duty = int(f_runy * 1000)
-                            p_duty = int(f_runy * 1000)
+                            m_duty = 1
 
-                        # print('DBG f_runy {}, m_duty {}, p_duty {}'.format(f_runy, m_duty, p_duty))
+                        p_duty = int(abs(f_runy * 3000) - 1500)
 
+                        # print('got position from joystick hand x,y : {} , {}'
+                        #       'got position from joystick run turn : {} \n'
+                        #       'direction , speed : {} , {}'.format('-',
+                        #                                            '-',
+                        #                                            '-',
+                        #                                            m_duty,
+                        #                                            p_duty))
                         motor_a_p.duty(p_duty)
                         motor_a_m.duty(m_duty)
 

@@ -146,7 +146,7 @@ try:
                     if r_turnx.search(request) is not None:
                         s_turnx = str(m_turnx.group(0))
                         turnx = r_number.search(s_turnx)
-                        f_turnx = 1 - float(turnx.group(0))  # inverse bode turn
+                        f_turnx = float(turnx.group(0))
                         directionx = int(f_turnx * 75 + 40)
                         servo_direction.duty(directionx)
 
@@ -157,8 +157,8 @@ try:
 
                         if f_runy < 0.5:
                             # m_duty = -1
-                            m_duty = -300
-                            p_duty = int(1000 - 2000 * f_runy)
+                            m_duty = -900
+                            p_duty = int(-2000 * f_runy)
 
                         elif f_runy == 0.5:
                             m_duty = 0
@@ -167,10 +167,10 @@ try:
                             m_duty = int(f_runy * 1000)
                             p_duty = int(f_runy * 1000)
 
-                        # print('DBG f_runy {}, m_duty {}, p_duty {}'.format(f_runy, m_duty, p_duty))
+                        print('DBG f_runy {}, p_duty {}, p_duty {}'.format(f_runy ,p_duty, p_duty))
 
                         motor_a_p.duty(p_duty)
-                        motor_a_m.duty(m_duty)
+                        motor_a_m.duty(p_duty)
 
                     if r_catch.search(request) is not None:
                         # print('DBG servo_catch.duty() : {}'.format(
