@@ -75,7 +75,7 @@ class FakeRobo:
         # loop.run_forever()
 
         loop = asyncio.get_event_loop()
-        asyncio.gather(self.run(),                # <-------------------------------
+        asyncio.gather(self.run(),                # <------- no gather in uasyncio
                        self.rand_duty())
         loop.run_forever()
 
