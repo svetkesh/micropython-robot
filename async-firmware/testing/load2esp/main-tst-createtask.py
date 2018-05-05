@@ -56,7 +56,8 @@ def test_runservo(duration):
     loop = asyncio.get_event_loop()
     for servo in servos:
         loop.create_task(runservo(servo))
-    loop.run_until_complete(killer(duration))
+    # loop.run_until_complete(killer(duration))
+    loop.run_forever()
     loop.close()
     print('exiting test_runservo() and loop.close')
 
