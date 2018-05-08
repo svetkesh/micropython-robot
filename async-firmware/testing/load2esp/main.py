@@ -11,8 +11,8 @@ def _handler(reader, writer):
     print('New connection')
     line = yield from reader.readline()
     # print(line)
-    # driverobot(line)
-    robotlistener(line)  # synchro driver
+    driverobot(line)
+    # robotlistener(line)  # synchro driver
     # arobotlistener(line)  # try async driver
     yield from writer.awrite('Gotcha!')
     yield from writer.aclose()
