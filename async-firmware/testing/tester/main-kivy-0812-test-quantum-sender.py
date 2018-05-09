@@ -31,10 +31,10 @@ from kivy.uix.button import Button
 import socket
 import time
 
-old_headx = 0.01
-old_handy = 0.01
-old_turnx = 0.01
-old_runy = 0.01
+# old_headx = 0.01
+# old_handy = 0.01
+# old_turnx = 0.01
+# old_runy = 0.01
 
 class RoboPad(FloatLayout):
     def __init__(self, **kwargs):
@@ -78,6 +78,11 @@ class RoboPad(FloatLayout):
         # bind button
         self.catchbutton.bind(on_press=self.update_catch_release)
 
+        self.old_headx = 0.0
+        self.old_handy = 0.0
+        self.old_turnx = 0.0
+        self.old_runy = 0.0
+
     def update_coordinates_run(self, joystick, pad):
         # test for joystickrun binding test
         # # print('update_coordinates_run ...')
@@ -97,6 +102,11 @@ class RoboPad(FloatLayout):
         self.send_command_data(turnx=x, runy=y)
 
     def update_coordinates_hand(self, joystick, pad):
+
+
+
+        change_factor = 0.4
+
         # test for update_coordinates_hand binding test
         # # print('update_coordinates_hand running...')
         # # print(self, joystick, pad)
@@ -117,8 +127,44 @@ class RoboPad(FloatLayout):
         # self.send_command_data(headx=x, handy=y)  # original in 0.8.1
 
 
-        self.compare_n_send_command_data(headx=x, handy=y)
+        # self.compare_n_send_command_data(headx=x, handy=y)
+        float_headx = float(x)
+        float_handy = float(y)
 
+        # if abs(float_headx - self.old_headx) or abs(float_handy - self.old_handy) > change_factor:
+        #     print('DBG: above change_factor {} x:{}, y:{}'.format(change_factor,
+        #                                                           abs(float_headx - self.old_headx),
+        #                                                           abs(float_handy - self.old_handy)
+        #                                                           ))
+        # for head_x
+        if abs(float_headx - self.old_headx) > change_factor:
+            print('DBG: above change_factor headx')
+            self.old_headx = float_headx
+            print('DBG: above change_factor {} x:{}, delta:{}'.format(change_factor,
+                                                                      x,
+                                                                      # float_headx,
+                                                                      abs(float_headx - self.old_headx)
+                                                                      ))
+            self.send_command_data(headx=x)
+        # else:
+        #     x = 'zz'
+
+        # for hand_y
+        if abs(float_handy - self.old_handy) > change_factor:
+            print('DBG: above change_factor handy')
+            self.old_handy = float_handy
+            print('DBG: above change_factor {} y:{}, delta:{}'.format(change_factor,
+                                                                      y,
+                                                                      # float_handy,
+                                                                      abs(float_handy - self.old_handy)
+                                                                      ))
+            self.send_command_data(handy=y)
+        # else:
+        #     y = 'zz'
+
+        # print('command x{}, y{}'.format(x, y))
+
+        # self.send_command_data(headx=x, handy=y)
 
     def update_catch_release(self, instance):
         # # print('DBG: button pressed!')
@@ -135,8 +181,17 @@ class RoboPad(FloatLayout):
         #                                                                                  runy,
         #                                                                                  catch)
 
+        tuple_commands = (headx, handy, turnx, runy, catch)
+        print(tuple_commands, type(tuple_commands), len(tuple_commands))
+
         dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch}
-        # # print(dict_commands)
+        print(dict_commands)
+
+        for item in dict_commands:
+            print(item, dict_commands[item])
+
+        if any(i != 'z' for i in tuple_commands):
+            print('meaning value  found')
 
         str_commands = 'http://' + str(robot_host) + '/?'
 
@@ -175,105 +230,106 @@ class RoboPad(FloatLayout):
             #     # sleep(3)
             #     # time.sleep(0.02)
             #     #
-            time.sleep(0.2)
-            print('sent OK {} sent'.format(str_commands))
+            # time.sleep(0.2)
+            # print('sent OK {} sent'.format(str_commands))
             # send_status = 'sent ok' + str(turnx)
         except:
             print('ERR: command not sent {}'.format(turnx))
         #     send_status += 'error sending turnx' + str(turnx)
 
-    def compare_n_send_command_data(self, headx='z', handy='z', turnx='z', runy='z', catch='z'):
-
-        # define some globals
-
-        global old_headx
-        global old_handy
-        global old_turnx
-        global old_runy
-
-        change_factor = 0.05
-
-        print('DBG: headx:{} {} {} {} ()'.format(headx, type(headx), float(headx), float(headx)+1.1, type(float(headx))))
-        print('DBG: old_headx:{} {} {} {}'.format(old_headx, type(old_headx), float(old_headx), type(float(old_headx))))
-        print('DBG: abs(float(old_headx)-float(headx) > change_factor: {}, {}').format(float(headx)+1.1, type(float(old_headx)-float(headx)))
-
-        # if abs(float(old_headx)-float(headx)) > change_factor or abs(old_handy-float(handy))>change_factor:  # of course not True alws
-        if abs(float(old_headx)-float(headx) > change_factor) > change_factor:  # of course not True alws
-                                                                                              # //head just
-
-            try:
-            # if True:
-            #     print('DBG: headx:{} {} , handy:{} {}'.format(headx, type(headx), handy, type(handy)))
-
-                # update saved old_* joystick values
-
-                old_headx = headx
-                old_handy = handy
-                old_turnx = turnx
-                old_runy = runy
-
-                print('DBG: joystick values re-saved')
-
-
-                robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
-                robot_port = 80
-                # # print('send_command_data running')
-                # self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\ncatch {}'.format(headx,
-                #                                                                                  handy,
-                #                                                                                  turnx,
-                #                                                                                  runy,
-                #                                                                                  catch)
-
-                dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch}
-                # # print(dict_commands)
-
-                str_commands = 'http://' + str(robot_host) + '/?'
-
-                for item in dict_commands:
-                    # # print(item,
-                    #       dict_commands[item],
-                    #       type(dict_commands[item])
-                    #       )
-                    # if dict_commands[item] !='z':
-                    #     str_commands += item +\
-                    #                     '=' + \
-                    #                     dict_commands[item] + \
-                    #                     '&'
-
-                    # add normalization
-                    if dict_commands[item] != 'z':
-                        if dict_commands[item] != 'catch':
-                            str_commands += item + \
-                                            '=' + \
-                                            str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) + \
-                                            '&'
-                        else:
-                            str_commands += item + \
-                                            '=' + \
-                                            'catch' + \
-                                            '&'
-                # # print('str_commands: {}'.format(str_commands))
-
-                try:
-                    client_socket = socket.socket()  # instantiate
-                    client_socket.connect((robot_host, robot_port))  # connect to the server
-                    #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
-                    client_socket.send(str_commands.encode())  # encode than send message
-                    #
-                    client_socket.close()  # close the connection
-                    #     # sleep(3)
-                    #     # time.sleep(0.02)
-                    #     #
-                    time.sleep(0.2)
-                    print('sent OK {} sent'.format(str_commands))
-                    # send_status = 'sent ok' + str(turnx)
-                except:
-                    print('ERR: command not sent {}'.format(turnx))
-                #     send_status += 'error sending turnx' + str(turnx)
-            except:
-                pass
-        else:
-            print('DBG: joystick changes ignored')
+    # def compare_n_send_command_data(self, headx='z', handy='z', turnx='z', runy='z', catch='z'):
+    #
+    #     # define some globals
+    #
+    #     global old_headx
+    #     global old_handy
+    #     global old_turnx
+    #     global old_runy
+    #
+    #     change_factor = 0.05
+    #
+    #     print('DBG: headx:{} {} {} {} ()'.format(headx, type(headx), float(headx), float(headx)+1.1, type(float(headx))))
+    #     print('DBG: old_headx:{} {} {} {}'.format(old_headx, type(old_headx), float(old_headx), type(float(old_headx))))
+    #     print('DBG: abs(float(old_headx)-float(headx) > change_factor: {}, {}').format(float(headx)+1.1, type(float(old_headx)-float(headx)))
+    #
+    #     # # if abs(float(old_headx)-float(headx)) > change_factor or abs(old_handy-float(handy))>change_factor:  # of course not True alws
+    #     # if abs(float(old_headx)-float(headx) > change_factor) > change_factor:  # of course not True alws
+    #                                                                                           # //head just
+    #     if True:
+    #
+    #         try:
+    #         # if True:
+    #         #     print('DBG: headx:{} {} , handy:{} {}'.format(headx, type(headx), handy, type(handy)))
+    #
+    #             # update saved old_* joystick values
+    #
+    #             old_headx = headx
+    #             old_handy = handy
+    #             old_turnx = turnx
+    #             old_runy = runy
+    #
+    #             print('DBG: joystick values re-saved')
+    #
+    #
+    #             robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
+    #             robot_port = 80
+    #             # # print('send_command_data running')
+    #             # self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\ncatch {}'.format(headx,
+    #             #                                                                                  handy,
+    #             #                                                                                  turnx,
+    #             #                                                                                  runy,
+    #             #                                                                                  catch)
+    #
+    #             dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch}
+    #             # # print(dict_commands)
+    #
+    #             str_commands = 'http://' + str(robot_host) + '/?'
+    #
+    #             for item in dict_commands:
+    #                 # # print(item,
+    #                 #       dict_commands[item],
+    #                 #       type(dict_commands[item])
+    #                 #       )
+    #                 # if dict_commands[item] !='z':
+    #                 #     str_commands += item +\
+    #                 #                     '=' + \
+    #                 #                     dict_commands[item] + \
+    #                 #                     '&'
+    #
+    #                 # add normalization
+    #                 if dict_commands[item] != 'z':
+    #                     if dict_commands[item] != 'catch':
+    #                         str_commands += item + \
+    #                                         '=' + \
+    #                                         str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) + \
+    #                                         '&'
+    #                     else:
+    #                         str_commands += item + \
+    #                                         '=' + \
+    #                                         'catch' + \
+    #                                         '&'
+    #             # # print('str_commands: {}'.format(str_commands))
+    #
+    #             try:
+    #                 client_socket = socket.socket()  # instantiate
+    #                 client_socket.connect((robot_host, robot_port))  # connect to the server
+    #                 #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
+    #                 client_socket.send(str_commands.encode())  # encode than send message
+    #                 #
+    #                 client_socket.close()  # close the connection
+    #                 #     # sleep(3)
+    #                 #     # time.sleep(0.02)
+    #                 #     #
+    #                 time.sleep(0.2)
+    #                 print('sent OK {} sent'.format(str_commands))
+    #                 # send_status = 'sent ok' + str(turnx)
+    #             except:
+    #                 print('ERR: command not sent {}'.format(turnx))
+    #             #     send_status += 'error sending turnx' + str(turnx)
+    #         except:
+    #             pass
+    #     else:
+    #         print('DBG: joystick changes ignored')
 
 
 class RoboJoystickApp(App):
