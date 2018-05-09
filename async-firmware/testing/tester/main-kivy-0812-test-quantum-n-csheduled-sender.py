@@ -31,6 +31,8 @@ from kivy.uix.button import Button
 import socket
 import time
 
+from kivy.clock import Clock
+
 # old_headx = 0.01
 # old_handy = 0.01
 # old_turnx = 0.01
@@ -83,6 +85,15 @@ class RoboPad(FloatLayout):
         self.old_turnx = 0.0
         self.old_runy = 0.0
         self.last_command_sent_at = 0.0
+
+        self.current_hand_pos = {}
+        self.saved_hand_pos = {}
+        self.current_run_pos = {}
+        self.saved_run_pos = {}
+
+        self.timeout_slow = 0.25
+
+        Clock.schedule_interval(self.timer, self.timeout_slow)
 
     def update_coordinates_run(self, joystick, pad):
         # test for joystickrun binding test
@@ -146,17 +157,17 @@ class RoboPad(FloatLayout):
         #                                                           ))
         # for head_x
 
-        if abs(float_headx - self.old_headx) > change_factor:  # not running good on fast moves
+        # if abs(float_headx - self.old_headx) > change_factor:  # not running good on fast moves
 
         # if (abs(float_headx - self.old_headx) > change_factor
         #     and (time.time() - self.last_command_sent_at) > hand_timeout) \
         #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
-        # #  add more time for drive move:
-        # #  hand_timeout + abs(float_headx - self.old_headx)/8.0
-        # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_sent_at) > (hand_timeout + abs(float_headx - self.old_headx)/8.0)) \
-        #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
+        #  add more time for drive move:
+        #  hand_timeout + abs(float_headx - self.old_headx)/8.0
+        if (abs(float_headx - self.old_headx) > change_factor
+            and (time.time() - self.last_command_sent_at) > (hand_timeout + abs(float_headx - self.old_headx)/8.0)) \
+                or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
             # print('DBG: above change_factor headx')
 
@@ -169,6 +180,8 @@ class RoboPad(FloatLayout):
                                             abs(float_headx - self.old_headx),
                                             hand_timeout + abs(float_headx - self.old_headx) / 8.0
                                             ))
+            # self.saved_hand_pos = {'headx': x, 'handy': y}
+            self.current_hand_pos = {'headx': x}
             self.old_headx = float_headx
             self.last_command_sent_at = time.time()
             self.send_command_data(headx=x)
@@ -176,6 +189,8 @@ class RoboPad(FloatLayout):
             # print('last_command_sent_at: {} {}'.format(time.time(), time.clock()))
         # else:
         #     x = 'zz'
+
+
 
         # for hand_y
         if abs(float_handy - self.old_handy) > change_factor:
@@ -193,6 +208,8 @@ class RoboPad(FloatLayout):
         # print('command x{}, y{}'.format(x, y))
 
         # self.send_command_data(headx=x, handy=y)
+
+        self.current_hand_pos = {'headx': x, 'handy': y}  # need to add for scheduled
 
     def update_catch_release(self, instance):
         # # print('DBG: button pressed!')
@@ -359,6 +376,25 @@ class RoboPad(FloatLayout):
     #     else:
     #         print('DBG: joystick changes ignored')
 
+    def timer(self, dt):
+        print('timer running \n{}\n{}\n{}'.format(time.time() - self.last_command_sent_at,
+                                                  self.current_hand_pos,
+                                                  self.saved_hand_pos))
+
+        if (time.time() - self.last_command_sent_at) > self.timeout_slow*2 : #
+                # and (self.saved_hand_pos != self.current_hand_pos):
+
+            # print('Im timer got NEW data:{}'.format(self.current_hand_pos))
+
+            try:
+                self.send_command_data(headx=self.current_hand_pos['headx'], handy=self.current_hand_pos['handy'])
+                self.last_command_sent_at = time.time()
+                self.saved_hand_pos = self.current_hand_pos
+                print('timer raised afterburner {} {}'. format(self.current_hand_pos['headx'],
+                                                               self.current_hand_pos['handy']))
+            except Exception as e:
+                print('ERR in timer {}, {}'.format(type(e), e))
+                pass
 
 class RoboJoystickApp(App):
     def build(self):

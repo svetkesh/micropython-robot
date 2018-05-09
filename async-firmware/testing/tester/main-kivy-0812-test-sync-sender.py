@@ -33,11 +33,12 @@ import time
 
 import asyncio
 
-some_current_data = {'headx': 0.5, 'handy': 0.5}
+from kivy.clock import Clock
+
+
 
 
 class RoboPad(FloatLayout):
-    global some_current_data
 
 
 
@@ -47,9 +48,11 @@ class RoboPad(FloatLayout):
 
         super(RoboPad, self).__init__(**kwargs)
 
-        t = threading.Thread(target=self.some_current_data)
-        t.daemon = True
-        t.start()
+        # some trash he-he
+
+        # t = threading.Thread(target=self.some_current_data)
+        # t.daemon = True
+        # t.start()
 
         # # print('running super(Gamepad, self).__init__()')
 
@@ -90,6 +93,13 @@ class RoboPad(FloatLayout):
         self.catchbutton.bind(on_press=self.update_catch_release)
 
         # self.global_reader()
+
+        self.current_hand_pos = {}
+        self.saved_hand_pos = {}
+        self.current_run_pos = {}
+        self.saved_run_pos = {}
+
+        Clock.schedule_interval(self.timer, 0.1)
 
     def update_coordinates_run(self, joystick, pad):
         # test for joystickrun binding test
@@ -132,8 +142,8 @@ class RoboPad(FloatLayout):
         # <<<
         # self.send_command_data(headx=x, handy=y)  #  test not sending data but save to global some_current_data
 
-        some_current_data = {'headx':x, 'handy':y}
-        print('DBG: some_current_data : {}'.format(some_current_data))
+        self.current_hand_pos = {'headx':x, 'handy':y}
+        # print('DBG: some_current_data : {}'.format(self.some_current_data))
 
     def update_catch_release(self, instance):
         # # print('DBG: button pressed!')
@@ -184,6 +194,7 @@ class RoboPad(FloatLayout):
             client_socket = socket.socket()  # instantiate
             client_socket.connect((robot_host, robot_port))  # connect to the server
             #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
+            print(client_socket.gettimeout())
             client_socket.send(str_commands.encode())  # encode than send message
             #
             client_socket.close()  # close the connection
@@ -202,6 +213,15 @@ class RoboPad(FloatLayout):
         while True:
             print('DBG: global_reader says: some_current_data is : '.format(some_current_data))
             time.sleep(0.5)
+
+    def timer(self, dt):
+        if self.saved_hand_pos == self.current_hand_pos:
+            print(print('Im timer got OLD data:{}'.format(self.saved_hand_pos)))
+
+        else:
+            print(print('Im timer got NEW data:{}'.format(self.current_hand_pos)))
+            self.saved_hand_pos = self.current_hand_pos
+            self.send_command_data(headx=self.saved_hand_pos['headx'], handy=self.saved_hand_pos['handy'])
 
 
 class RoboJoystickApp(App):
