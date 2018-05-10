@@ -1,0 +1,29 @@
+https://kivy.org/docs/guide/packaging-android.html
+
+Buildozer¶
+
+Buildozer is a tool that automates the entire build process. It downloads and sets up all the prequisites for python-for-android, including the android SDK and NDK, then builds an apk that can be automatically pushed to the device.
+
+Buildozer currently works only in Linux, and is an alpha release, but it already works well and can significantly simplify the apk build.
+
+You can get buildozer at https://github.com/kivy/buildozer:
+
+git clone https://github.com/kivy/buildozer.git
+cd buildozer
+sudo python2.7 setup.py install
+
+This will install buildozer in your system. Afterwards, navigate to your project directory and run:
+
+buildozer init
+
+This creates a buildozer.spec file controlling your build configuration. You should edit it appropriately with your app name etc. You can set variables to control most or all of the parameters passed to python-for-android.
+
+Install buildozer’s dependencies.
+
+Finally, plug in your android device and run:
+
+buildozer android debug deploy run
+
+to build, push and automatically run the apk on your device.
+
+Buildozer has many available options and tools to help you, the steps above are just the simplest way to build and run your APK. The full documentation is available here. You can also check the Buildozer README at https://github.com/kivy/buildozer.

@@ -115,6 +115,8 @@ class RoboPad(FloatLayout):
 
     def update_coordinates_hand(self, joystick, pad):
 
+        start_ucr = time.time()
+
         # test for update_coordinates_hand binding test
         # # print('update_coordinates_hand running...')
         # # print(self, joystick, pad)
@@ -224,6 +226,8 @@ class RoboPad(FloatLayout):
         # self.send_command_data(headx=x, handy=y)
 
         # self.current_hand_pos = {'headx': str(float_headx), 'handy': y}  # need to add for scheduled
+
+        print(time.time() - start_ucr)
 
     def update_catch_release(self, instance):
         # # print('DBG: button pressed!')
