@@ -15,6 +15,14 @@ ver 0.7.9.4 add catch (catch-release is working)
 
 ver 0.7.9.7 -dev variant of (0.7.9.4) - preparation for exhibition version (0.7.9.8)
 ver 0.7.9.8 - exhibition version, disabled wifi station, just access point
+
+ver 0.8.2 test version with smooth joystik run
+          uses drop commands if "last command seems to be long"
+          how long is calculated in def accept_command()
+
+          re-calculates joystik coordinates in def squaredround()
+
+          add Timer
 '''
 
 from kivy.app import App
@@ -86,36 +94,134 @@ class RoboPad(FloatLayout):
         self.old_runy = 0.0
         self.last_command_sent_at = 0.0
 
-        self.current_hand_pos = {}
-        self.saved_hand_pos = {}
-        self.current_run_pos = {}
-        self.saved_run_pos = {}
+        # self.current_hand_pos = {'headx': 0.0, 'handy': 0.0}
+        # self.saved_hand_pos = {}
+        # self.last_hand_move = {}
+        # self.current_run_pos = {'turnx': 0.0, 'runy': 0.0}
+        # self.saved_run_pos = {'turnx': 0.0, 'runy': 0.0}
+        # self.last_run_move = {}
+
+        self.current_pos = {'headx': 0.0, 'handy': 0.0, 'turnx': 0.0, 'runy': 0.0}
+        self.saved_pos = {'headx': 0.0, 'handy': 0.0, 'turnx': 0.0, 'runy': 0.0}
+
+        self.last_move = {'headx': 0.0, 'handy': 0.0, 'turnx': 0.0, 'runy': 0.0}
 
         self.timeout_slow = 1.1
+
+
 
         Clock.schedule_interval(self.timer, self.timeout_slow)
 
     def update_coordinates_run(self, joystick, pad):
-        # test for joystickrun binding test
-        # # print('update_coordinates_run ...')
-        # # print(self, joystick, pad)
-        x = str(pad[0])[0:5]
-        y = str(pad[1])[0:5]
-        radians = str(joystick.radians)[0:5]
-        magnitude = str(joystick.magnitude)[0:5]
-        angle = str(joystick.angle)[0:5]
-        # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
-        # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle, send_status)
+        # # test for joystickrun binding test
+        # # # print('update_coordinates_run ...')
+        # # # print(self, joystick, pad)
+        # x = str(pad[0])[0:5]
+        # y = str(pad[1])[0:5]
+        # radians = str(joystick.radians)[0:5]
+        # magnitude = str(joystick.magnitude)[0:5]
+        # angle = str(joystick.angle)[0:5]
+        # # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
+        # # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle, send_status)
+        #
+        # # without send_status # print just to debug label
+        # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
+        # # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle)
+        # # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
+        # self.send_command_data(turnx=x, runy=y)
 
-        # without send_status # print just to debug label
-        text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
-        # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle)
-        # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
-        self.send_command_data(turnx=x, runy=y)
+        RUN_Y_STEP = 2  # steps to final acceleration
+        RUN_Y_SLEEP = 0.04  # steps to final acceleration
+
+
+        x = self.squaredround(pad[0])
+        y = self.squaredround(pad[1])
+
+        self.current_pos['turnx'] = x
+        self.current_pos['runy'] = y
+
+        # self.current_run_pos = {'turnx': x, 'runy': y}  # not working good in mix servo and DC drive
+        # self.current_run_pos = {'turnx': x, 'runy': y}  # not working good in mix servo and DC drive
+        # self.current_run_pos = {'turnx': x}  # not working good in mix servo and DC drive
+
+        # self.current_run_pos = {'turnx': x, 'runy': y}  # not working good in mix servo and DC drive
+
+        # if self.accept_command(pos=self.current_run_pos):
+
+        if self.accept_command(pos=self.current_pos):
+            self.send_command_data(turnx=x, runy=y)
+
+
+            # # smooth start not working well
+            # self.send_command_data(turnx=x)
+            #
+            # for run_step in range(RUN_Y_STEP, 1, -1):
+            #     try:
+            #
+            #         # print('DBG run_step {} {} {} {} {} {}'.format(
+            #         #     type(self.saved_pos['runy']),
+            #         #     self.saved_pos['runy'],
+            #         #     type(y),
+            #         #     y,
+            #         #     type(self.saved_pos['runy']),
+            #         #     self.saved_pos
+            #         # ))
+            #
+            #         self.send_command_data(runy=self.saved_pos['runy'] + (y -self.saved_pos['runy']) / run_step)
+            #
+            #         time.sleep(RUN_Y_SLEEP)
+            #
+            #         print('DBG run_step {} {} {}'.format(run_step,
+            #                                              self.saved_pos['runy'],
+            #                                              self.saved_pos['runy'] +
+            #                                              (self.saved_pos['runy'] - y) / run_step))   # RUN_Y_STEP
+            #     except Exception as e:
+            #         print('ERR run_step err: {} {}'.format(type(e), e))
+            #     # self.send_command_data(turnx=x, runy=y)
+            #
+            # # self.send_command_data(turnx=x, runy=y)
+
+        else:
+            pass
+
+
+        # # smooth run stepper (
+        #
+        # for run_step in range(RUN_Y_STEP, 1, -1):
+        #     try:
+        #
+        #         # print('DBG run_step {} {} {} {} {} {}'.format(
+        #         #     type(self.saved_pos['runy']),
+        #         #     self.saved_pos['runy'],
+        #         #     type(y),
+        #         #     y,
+        #         #     type(self.saved_pos['runy']),
+        #         #     self.saved_pos
+        #         # ))
+        #
+        #         self.send_command_data(runy=self.saved_pos['runy'] + (self.saved_pos['runy'] + y) / run_step)
+        #
+        #         # print('DBG run_step {} {} {}'.format(run_step,
+        #         #                               self.saved_pos['runy'],
+        #         #                               runy=self.saved_pos['runy'] + (self.saved_pos['runy'] - y) / run_step))
+        #     except Exception as e:
+        #         print('run_step err: {} {}'.format(type(e), e))
+        #     # self.send_command_data(turnx=x, runy=y)
+        #
+        #     # self.current_run_pos = {'runy': y}
+
+
+
+        # self.current_run_pos = {'runy': y}
+
+
+
+
+
 
     def update_coordinates_hand(self, joystick, pad):
 
-        start_ucr = time.time()
+        # start_uch = time.time()  # measure update_coordinates_hand
 
         # test for update_coordinates_hand binding test
         # # print('update_coordinates_hand running...')
@@ -129,7 +235,7 @@ class RoboPad(FloatLayout):
         # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle, send_status)
 
         # without send_status # print just to debug label
-        text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
+        # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
         # self.debug_label_hand.text = text.format(x, y, radians, magnitude, angle)
         # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
 
@@ -151,9 +257,12 @@ class RoboPad(FloatLayout):
         x = self.squaredround(pad[0])
         y = self.squaredround(pad[1])
 
-        self.current_hand_pos = {'headx': str(x), 'handy': str(y)}
+        # self.current_hand_pos = {'headx': x, 'handy': y}
+        self.current_pos['headx'] = x
+        self.current_pos['handy'] = y
 
-        if self.accept_command(pos=self.current_hand_pos):
+        # if self.accept_command(pos=self.current_hand_pos):
+        if self.accept_command(pos=self.current_pos):
             self.send_command_data(headx=x, handy=y)
         else:
             pass
@@ -227,7 +336,7 @@ class RoboPad(FloatLayout):
 
         # self.current_hand_pos = {'headx': str(float_headx), 'handy': y}  # need to add for scheduled
 
-        print(time.time() - start_ucr)
+        # print(time.time() - start_uch)  # display update_coordinates_hand time
 
     def update_catch_release(self, instance):
         # # print('DBG: button pressed!')
@@ -248,7 +357,7 @@ class RoboPad(FloatLayout):
         # print(tuple_commands)
 
         dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch}
-        # print(dict_commands)
+        print(dict_commands)
 
         # for item in dict_commands:
         #     print(item, dict_commands[item])
@@ -276,6 +385,17 @@ class RoboPad(FloatLayout):
                                     '=' + \
                                     str('{0:.2f}'.format((dict_commands[item] + 1) / 2)) + \
                                     '&'
+
+                    # remember last command
+                    try:
+                        # print('DBG remember last command {} {} {}'.format(self.saved_pos[item],
+                        #                                                   dict_commands[item],
+                        #                                                   self.last_move[item]))
+                        self.last_move[item] = abs(self.saved_pos[item] - dict_commands[item])   #
+                    except Exception as e:
+                        print('ERR saving self.last_move[item] {} {}'.format(type(e), e))
+
+                        pass
                 else:
                     str_commands += item + \
                                     '=' + \
@@ -304,8 +424,17 @@ class RoboPad(FloatLayout):
             # self.last_command_sent_at = time.time()
 
             for item in dict_commands:
-                if dict_commands[item] != 'z' or dict_commands[item] != 'catch':
-                    self.saved_hand_pos[item] = dict_commands[item]
+
+                # if dict_commands[item] != 'z' or dict_commands[item] != 'catch':  # gives type error:
+                #                               # DBG send_command_data after socket.close 0.0 to <class 'str'> z
+
+                if dict_commands[item] != 'z' and dict_commands[item] != 'catch':  # gives type error:
+
+                    # print('DBG send_command_data after socket.close {} to {} {}'.format(self.saved_pos[item],
+                    #                                                                     type(dict_commands[item]),
+                    #                                                                     dict_commands[item]))
+
+                    self.saved_pos[item] = dict_commands[item]
 
         except:
             print('ERR: command not sent {}'.format(turnx))
@@ -406,24 +535,47 @@ class RoboPad(FloatLayout):
     #         print('DBG: joystick changes ignored')
 
     def timer(self, dt):
+
         # print('timer running \n{}\n{}\n{}'.format(time.time() - self.last_command_sent_at,
         #                                           self.current_hand_pos,
         #                                           self.saved_hand_pos))
 
         if (time.time() - self.last_command_sent_at) > self.timeout_slow*2 : #
-                # and (self.saved_hand_pos != self.current_hand_pos):
+            #     # and (self.saved_hand_pos != self.current_hand_pos):
+            #
+            # # print('Im timer got NEW data:{}'.format(self.current_hand_pos))
+            #
+            # try:
+            #     self.send_command_data(headx=self.current_hand_pos['headx'], handy=self.current_hand_pos['handy'])
+            #     self.last_command_sent_at = time.time()
+            #     # self.saved_hand_pos = self.current_hand_pos
+            #     print('timer raised afterburner {} {}'. format(self.current_hand_pos['headx'],
+            #                                                    self.current_hand_pos['handy']))
 
-            # print('Im timer got NEW data:{}'.format(self.current_hand_pos))
+            if self.current_pos == self.saved_pos:
+                print('DBG timer has no jobs for {} at pos: {}'.format(time.time() - self.last_command_sent_at,
+                                                                       self.saved_pos))
+            else:
+                print('DBG timer have job at {} to move to: {}'.format(time.time() - self.last_command_sent_at,
+                                                                       self.current_pos))
+                try:
+                    # self.send_command_data(headx=self.current_hand_pos['headx'],
+                    #                        handy=self.current_hand_pos['handy'],
+                    #
+                    #                        turnx=self.current_run_pos['turnx'],
+                    #                        runy=self.current_run_pos['runy'])
 
-            try:
-                self.send_command_data(headx=self.current_hand_pos['headx'], handy=self.current_hand_pos['handy'])
-                self.last_command_sent_at = time.time()
-                # self.saved_hand_pos = self.current_hand_pos
-                print('timer raised afterburner {} {}'. format(self.current_hand_pos['headx'],
-                                                               self.current_hand_pos['handy']))
-            except Exception as e:
-                # print('ERR in timer {}, {}'.format(type(e), e))
-                pass
+
+
+                    self.send_command_data(headx=self.current_pos['headx'],
+                                           handy=self.current_pos['handy'],
+
+                                           turnx=self.current_pos['turnx'],
+                                           runy=self.current_pos['runy'])
+
+                except Exception as e:
+                    print('ERR in timer {}, {}'.format(type(e), e))
+                    # pass
 
     def squaredround(self, x):
         import math
@@ -443,14 +595,21 @@ class RoboPad(FloatLayout):
 
     def accept_command(self, pos):
 
-        hand_timeout = 0.12  # 0.18 ok  0.17 is too short
+        ACCEPT_COMMAND_TIMEOUT = 0.06  # 0.6 is too short, broke app!
                             #
                             # for slow motion 0.1 ok ok
                             # for fast motiion 0.0.25 is not enough
 
+        velocity = 0.15  # 0.1 too short - joystick freezes broke app!
+
+
         hand_timeout_slow = 0.25
 
         change_factor = 0.2
+
+        next_hand_pos = {}
+        # delta_positions = [0.0]
+        delta_last_run = [0.0]
 
         # <<<
         # self.send_command_data(headx=x, handy=y)  # original in 0.8.1
@@ -493,11 +652,74 @@ class RoboPad(FloatLayout):
         #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
         # check against given params
-        print(pos)
+        # print(pos)
 
-        if time.time() - self.last_command_sent_at > hand_timeout:
+        # check type of data
+
+        # for item in pos:
+        #     print(item, type(pos[item]), pos[item])
+
+        # next is good ...for future movements
+        # for item in pos:
+        #     if pos[item] != 'z' or pos[item] != 'catch':
+        #         pass
+        #         # self.saved_hand_pos[item] = pos[item]
+        #         next_hand_pos[item] = pos[item]
+        #         try:
+        #             # delta_position = abs(next_hand_pos[item] - self.saved_hand_pos[item])
+        #             delta_positions.append(abs(next_hand_pos[item] - self.saved_hand_pos[item]))
+        #             # print(next_hand_pos[item],
+        #             #       self.saved_hand_pos[item],
+        #             #       abs(next_hand_pos[item] - self.saved_hand_pos[item]))
+        #
+        #
+        #         except Exception as e:
+        #             print(type(e), e)
+        #             # pass
+
+        # if len(delta_positions) > 0:
+        #     print(' {}  movement'.format(max(delta_positions)))
+        # else:
+        #     print('not a movement')
+
+        # calculate last path robot runs
+        #
+        # I think about dependence path the servos run and the closest time the robot will be available to
+        # accept command ...
+        #
+
+        # last command stored at self.last_move{}
+
+        for item in pos:
+            if pos[item] != 'z' and pos[item] != 'catch':
+                # pass
+                # self.saved_hand_pos[item] = pos[item]
+                next_hand_pos[item] = pos[item]
+                try:
+                    # delta_position = abs(next_hand_pos[item] - self.saved_hand_pos[item])
+                    delta_last_run.append(self.last_move[item])
+                    # print(next_hand_pos[item],
+                    #       self.saved_hand_pos[item],
+                    #       abs(next_hand_pos[item] - self.saved_hand_pos[item]))
+
+                except Exception as e:
+                    print('ERR collecting movements'.format(type(e), e))
+                    # pass
+
+        if time.time() - self.last_command_sent_at > ACCEPT_COMMAND_TIMEOUT + max(delta_last_run) * velocity:
+            print('allow last command max {} timeout {} since last {}'.format(
+                str(max(delta_last_run))[0:5],
+                str(ACCEPT_COMMAND_TIMEOUT + max(delta_last_run) * velocity)[0:4],
+                str(time.time() - self.last_command_sent_at)[0:4])
+            )
+
             return True
         else:
+            print('deny  last command max {} timeout {} since last {}'.format(
+                str(max(delta_last_run))[0:5],
+                str(ACCEPT_COMMAND_TIMEOUT + max(delta_last_run) * velocity)[0:4],
+                str(time.time() - self.last_command_sent_at)[0:4])
+            )
             return False
 
 
