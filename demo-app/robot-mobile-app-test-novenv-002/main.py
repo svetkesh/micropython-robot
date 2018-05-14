@@ -21,6 +21,8 @@ ver 0.8.2 test version with smooth joystik run
           how long is calculated in def accept_command()
 
           re-calculates joystik coordinates in def squaredround()
+
+          add Timer
 '''
 
 from kivy.app import App
@@ -104,7 +106,7 @@ class RoboPad(FloatLayout):
 
         self.last_move = {'headx': 0.0, 'handy': 0.0, 'turnx': 0.0, 'runy': 0.0}
 
-        self.timeout_slow = 1.1
+        self.timeout_slow = 0.114
 
 
 
@@ -598,7 +600,7 @@ class RoboPad(FloatLayout):
                             # for slow motion 0.1 ok ok
                             # for fast motiion 0.0.25 is not enough
 
-        velocity = 0.15  # 0.1 too short - joystick freezes broke app!
+        velocity = 0.3  # 0.1 too short - joystick freezes broke app!
 
 
         hand_timeout_slow = 0.25
