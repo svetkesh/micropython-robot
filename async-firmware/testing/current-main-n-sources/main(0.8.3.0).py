@@ -74,6 +74,9 @@ ok
 
 """
 
+mean_time_robotlistener = 0.0
+count_robotlistener = 1
+
 # set game timers
 HOLD_LOOSE_TIMEOUT = 5
 # time_loose = 0
@@ -128,7 +131,15 @@ def robotlistener(request):  # test to ensure command passes to robot driver
     global servo_catch
     global networkpin
 
+    global html
+
     global HOLD_LOOSE_TIMEOUT
+
+    global mean_time_robotlistener
+    start_robotlistener = time.time()
+    global count_robotlistener
+
+
 
     time_loose = 0  # initial time out since last game loose - hall sensor trigger
 
@@ -365,6 +376,18 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                         servo_catch.duty(110)
                     else:
                         servo_catch.duty(40)
+
+        mean_time_robotlistener = (mean_time_robotlistener * count_robotlistener + (time.time() - start_robotlistener))\
+                                / (count_robotlistener + 1)
+
+        html = """<!DOCTYPE html>
+        <html lang="en">
+        mean_time_robotlistener = """ + str(mean_time_robotlistener) + """</html>
+
+        """
+        print('DBG: mean_time_robotlistener : {}'.format(mean_time_robotlistener))
+
+        count_robotlistener += 1
 
     except Exception as e:
         # print('Error searching exact values in received command , {}'.format(type(e), e))
