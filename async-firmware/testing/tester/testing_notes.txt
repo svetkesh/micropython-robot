@@ -1,0 +1,7 @@
+async-firmware/testing/tester/main-kivy-0812-test-quantum-n-csheduled-sender(0.8.3.0.2).py
+
+timings
+
+mean timeout catch 0.05 99%
+mean timeout hand 0.2  65%
+mean timeout run 0.17 63%

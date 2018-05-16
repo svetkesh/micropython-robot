@@ -23,10 +23,6 @@ ver 0.8.2 test version with smooth joystik run
           re-calculates joystik coordinates in def squaredround()
 
           add Timer
-
-0.8.3.01 - added sliders for accept_command_timeout and velocity_factor adjust
-0.8.3.02 - added sliders for timeout_timer_start adjust
-0.8.3.02 - allow / disallow coomand by comparing with time latest coomand sent 
 '''
 
 from kivy.app import App
@@ -39,7 +35,6 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
-from kivy.uix.slider import Slider
 
 import socket
 import time
@@ -58,35 +53,25 @@ class RoboPad(FloatLayout):
         # # print('running super(Gamepad, self).__init__()')
 
         # joystickhand and joystickrun
-        self.joystickhand = Joystick(size_hint=(.45, .45),
+        self.joystickhand = Joystick(size_hint=(.4, .4),
                                      pos_hint={'x': 0.0, 'y': .2},
                                      sticky=True)
         self.add_widget(self.joystickhand)
-        self.joystickrun = Joystick(size_hint=(.45, .45),
+        self.joystickrun = Joystick(size_hint=(.4, .4),
                                     pos_hint={'x': 0.6, 'y': .2})
-        self.joystickhand.bind(pad=self.update_coordinates_hand)
-
         self.add_widget(self.joystickrun)
-        self.joystickrun.bind(pad=self.update_coordinates_run)
 
         # add some buttons
         self.catchbutton = Button(size_hint=(.15, .15),
                                   pos_hint={'x': .8, 'y': .65},
                                   text='Catch me!')
         self.add_widget(self.catchbutton)
-        self.catchbutton.bind(on_press=self.update_catch_release)
-
-        # self.reset_stat_button = Button(size_hint=(.05, .05),
-        #                                 pos_hint={'x': .6, 'y': .65},
-        #                                 text='reset stat')
-        # self.add_widget(self.reset_stat_button)
-        # self.reset_stat_button.bind(on_press=self.reset_stat_button)
 
         # add debug Labels
-        self.debug_label = Label(size_hint=(.4, .0),
-                                     pos_hint={'x': .2, 'y': .2},
-                                     text='message ... ...',)  # multiline=True,)
-        self.add_widget(self.debug_label)
+        # self.debug_label = Label(size_hint=(.2, .2),
+        #                              pos_hint={'x': .8, 'y': .8},
+        #                              text='message ... ...',)  # multiline=True,)
+        # self.add_widget(self.debug_label)
         # self.debug_label_hand = Label(size_hint=(.2, .2),
         #                               pos_hint={'x': .1, 'y': .8},
         #                               text='message ... ...',)
@@ -97,56 +82,17 @@ class RoboPad(FloatLayout):
         # self.add_widget(self.debug_label_run)
 
         # bind joystick
-
-
+        self.joystickrun.bind(pad=self.update_coordinates_run)
+        self.joystickhand.bind(pad=self.update_coordinates_hand)
 
         # bind button
-
-
-        self.slider_accept_command_timeout = Slider(size_hint=(.4, .03),
-                                                    pos_hint={'x': .1,
-                                                              'y': .9},
-                                                    min=0.02,
-                                                    max=0.2,
-                                                    value=0.05)
-        self.add_widget(self.slider_accept_command_timeout)
-        self.slider_accept_command_timeout.bind(value=self.OnSliderAcccepptCommandTiteoutValueChange)
-
-        self.slider_velocity_factor = Slider(size_hint=(.4, .03),
-                                                    pos_hint={'x': .1,
-                                                              'y': .85},
-                                                    min=0.01,
-                                                    max=10.0,
-                                                    value=0.3)
-        self.add_widget(self.slider_velocity_factor)
-        self.slider_velocity_factor.bind(value=self.OnSliderVelocityFactorValueChange)
-
-        #  not used , just place holder
-        self.slider_timeout_timer_start = Slider(size_hint=(.4, .03),
-                                                    pos_hint={'x': .1,
-                                                              'y': .8},
-                                                    min=0.02,
-                                                    max=0.2,
-                                                    value=0.11)
-        self.add_widget(self.slider_timeout_timer_start)
-        self.slider_timeout_timer_start.bind(value=self.OnSliderTimeoutTimerStartValueChange)
-
-        self.accept_command_timeout = 0.05  # 0.6 is too short, broke app!
-                            #
-                            # for slow motion 0.1 ok ok
-                            # for fast motiion 0.0.25 is not enough
-
-        # self.timeout_slow = 0.14
-        self.timeout_timer_start = 0.14
-        self.velocity_factor = 0.3
-
+        self.catchbutton.bind(on_press=self.update_catch_release)
 
         self.old_headx = 0.0
         self.old_handy = 0.0
         self.old_turnx = 0.0
         self.old_runy = 0.0
-        self.last_command_compiled_before_send = time.time()
-        self.last_command_sent_at = time.time()
+        self.last_command_sent_at = 0.0
 
         # self.current_hand_pos = {'headx': 0.0, 'handy': 0.0}
         # self.saved_hand_pos = {}
@@ -160,28 +106,11 @@ class RoboPad(FloatLayout):
 
         self.last_move = {'headx': 0.0, 'handy': 0.0, 'turnx': 0.0, 'runy': 0.0}
 
-
-
-        self.mean_time_send_command_data = 0.05
-        self.counter_send_command_data = 1
-        self.counter_commands = 1
+        self.timeout_slow = 0.14
 
 
 
-
-        Clock.schedule_interval(self.timer, self.timeout_timer_start)
-
-    def OnSliderAcccepptCommandTiteoutValueChange(self, instance, value):
-        print(type(value), value, self.accept_command_timeout)
-        self.accept_command_timeout = value
-
-    def OnSliderVelocityFactorValueChange(self, instance, value):
-        print(type(value), value, self.velocity_factor)
-        self.velocity_factor = value
-
-    def OnSliderTimeoutTimerStartValueChange(self, instance, value):
-        print(type(value), value, self.timeout_timer_start)
-        self.timeout_timer_start = value
+        Clock.schedule_interval(self.timer, self.timeout_slow)
 
     def update_coordinates_run(self, joystick, pad):
         # # test for joystickrun binding test
@@ -285,6 +214,11 @@ class RoboPad(FloatLayout):
 
         # self.current_run_pos = {'runy': y}
 
+
+
+
+
+
     def update_coordinates_hand(self, joystick, pad):
 
         # start_uch = time.time()  # measure update_coordinates_hand
@@ -343,19 +277,19 @@ class RoboPad(FloatLayout):
         # if abs(float_headx - self.old_headx) > change_factor:  # not running good on fast moves
 
         # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
+        #     and (time.time() - self.last_command_sent_at) > hand_timeout) \
+        #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
         # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
+        #     and (time.time() - self.last_command_sent_at) > hand_timeout) \
+        #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
         #  add more time for drive move:
         #  hand_timeout + abs(float_headx - self.old_headx)/12.0
         #
         # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > (hand_timeout + abs(float_headx - self.old_headx)/12.0)) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
+        #     and (time.time() - self.last_command_sent_at) > (hand_timeout + abs(float_headx - self.old_headx)/12.0)) \
+        #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
             # print('DBG: above change_factor headx')
 
@@ -371,7 +305,7 @@ class RoboPad(FloatLayout):
             # self.saved_hand_pos = {'headx': x, 'handy': y}
             # self.current_hand_pos = {'headx': x}
             # self.old_headx = str(x)
-            # self.last_command_compiled_before_send = time.time()
+            # self.last_command_sent_at = time.time()
             # self.send_command_data(headx=str(x))
 
             # print('last_command_sent_at: {} {}'.format(time.time(), time.clock()))
@@ -409,18 +343,7 @@ class RoboPad(FloatLayout):
         # catch = catch
         self.send_command_data(catch='catch')
 
-    # def reset_stat_button(self, instance):
-    #     # self.mean_time_send_command_data = 0.05
-    #     # self.counter_send_command_data = 1
-    #     # self.counter_commands = 1
-    #     print('reset stat')
-
-
-
     def send_command_data(self, headx='z', handy='z', turnx='z', runy='z', catch='z'):
-
-        before_send_command_data = time.time()
-
         robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
         robot_port = 80
         # # print('send_command_data running')
@@ -481,7 +404,7 @@ class RoboPad(FloatLayout):
         # # print('str_commands: {}'.format(str_commands))
 
         try:
-            self.last_command_compiled_before_send = time.time()
+            self.last_command_sent_at = time.time()
 
             client_socket = socket.socket()  # instantiate
             client_socket.connect((robot_host, robot_port))  # connect to the server
@@ -498,7 +421,7 @@ class RoboPad(FloatLayout):
 
             # update send command as saved position
 
-            # self.last_command_compiled_before_send = time.time()
+            # self.last_command_sent_at = time.time()
 
             for item in dict_commands:
 
@@ -512,13 +435,6 @@ class RoboPad(FloatLayout):
                     #                                                                     dict_commands[item]))
 
                     self.saved_pos[item] = dict_commands[item]
-
-            self.mean_time_send_command_data = (self.counter_send_command_data * self.mean_time_send_command_data +
-                                                time.time() - before_send_command_data) / \
-                                               (self.counter_send_command_data + 1)
-
-            self.counter_send_command_data += 1
-            self.last_command_sent_at = time.time()
 
         except:
             print('ERR: command not sent {}'.format(turnx))
@@ -620,41 +536,27 @@ class RoboPad(FloatLayout):
 
     def timer(self, dt):
 
-        debug_text = "commands counter: {} sent: {}\n" \
-                     "mean timeout sending commands: {}\n" \
-                     "self.slider_accept_command_timeout: {}\n" \
-                     "self.slider_velocity_factor: {}\n" \
-                     "self.slider_timeout_timer_start: {}\n" \
-
-        self.debug_label.text = debug_text.format(self.counter_commands,
-                                                  str((self.counter_send_command_data / self.counter_commands))[0:5],
-                                                  str(self.mean_time_send_command_data)[0:5],
-                                                  str(self.accept_command_timeout)[0:5],
-                                                  str(self.velocity_factor)[0:5],
-                                                  str(self.timeout_timer_start)[0:5])
-
-        # print('timer running \n{}\n{}\n{}'.format(time.time() - self.last_command_compiled_before_send,
+        # print('timer running \n{}\n{}\n{}'.format(time.time() - self.last_command_sent_at,
         #                                           self.current_hand_pos,
         #                                           self.saved_hand_pos))
 
-        if (time.time() - self.last_command_compiled_before_send) > self.timeout_timer_start: #
+        if (time.time() - self.last_command_sent_at) > self.timeout_slow*2 : #
             #     # and (self.saved_hand_pos != self.current_hand_pos):
             #
             # # print('Im timer got NEW data:{}'.format(self.current_hand_pos))
             #
             # try:
             #     self.send_command_data(headx=self.current_hand_pos['headx'], handy=self.current_hand_pos['handy'])
-            #     self.last_command_compiled_before_send = time.time()
+            #     self.last_command_sent_at = time.time()
             #     # self.saved_hand_pos = self.current_hand_pos
             #     print('timer raised afterburner {} {}'. format(self.current_hand_pos['headx'],
             #                                                    self.current_hand_pos['handy']))
 
             if self.current_pos == self.saved_pos:
-                # print('DBG timer has no jobs for {} at pos: {}'.format(time.time() - self.last_command_compiled_before_send,
-                #                                                        self.saved_pos))
-                pass
+                print('DBG timer has no jobs for {} at pos: {}'.format(time.time() - self.last_command_sent_at,
+                                                                       self.saved_pos))
             else:
-                print('DBG timer have job at {} to move to: {}'.format(time.time() - self.last_command_compiled_before_send,
+                print('DBG timer have job at {} to move to: {}'.format(time.time() - self.last_command_sent_at,
                                                                        self.current_pos))
                 try:
                     # self.send_command_data(headx=self.current_hand_pos['headx'],
@@ -693,12 +595,12 @@ class RoboPad(FloatLayout):
 
     def accept_command(self, pos):
 
-        # ACCEPT_COMMAND_TIMEOUT = 0.06  # 0.6 is too short, broke app!
-        #
-        #                     for slow motion 0.1 ok ok
-        #                     for fast motiion 0.0.25 is not enough
-        #
-        # velocity = 0.3  # 0.1 too short - joystick freezes broke app!
+        ACCEPT_COMMAND_TIMEOUT = 0.06  # 0.6 is too short, broke app!
+                            #
+                            # for slow motion 0.1 ok ok
+                            # for fast motiion 0.0.25 is not enough
+
+        velocity = 0.3  # 0.1 too short - joystick freezes broke app!
 
 
         hand_timeout_slow = 0.25
@@ -708,8 +610,6 @@ class RoboPad(FloatLayout):
         next_hand_pos = {}
         # delta_positions = [0.0]
         delta_last_run = [0.0]
-
-        self.counter_commands += 1
 
         # <<<
         # self.send_command_data(headx=x, handy=y)  # original in 0.8.1
@@ -737,19 +637,19 @@ class RoboPad(FloatLayout):
         # if abs(float_headx - self.old_headx) > change_factor:  # not running good on fast moves
 
         # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
+        #     and (time.time() - self.last_command_sent_at) > hand_timeout) \
+        #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
         # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
+        #     and (time.time() - self.last_command_sent_at) > hand_timeout) \
+        #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
         #  add more time for drive move:
         #  hand_timeout + abs(float_headx - self.old_headx)/12.0
         #
         # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > (hand_timeout + abs(float_headx - self.old_headx)/12.0)) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
+        #     and (time.time() - self.last_command_sent_at) > (hand_timeout + abs(float_headx - self.old_headx)/12.0)) \
+        #         or (time.time() - self.last_command_sent_at) > hand_timeout_slow:  #
 
         # check against given params
         # print(pos)
@@ -806,29 +706,21 @@ class RoboPad(FloatLayout):
                     print('ERR collecting movements'.format(type(e), e))
                     # pass
 
-        # #  ACCEPT_COMMAND_TIMEOUT - > self.accept_command_timeout
-        # if time.time() - self.last_command_compiled_before_send > self.accept_command_timeout + max(delta_last_run) * self.velocity_factor:
-        #     print('allow last command max {} timeout {} since last {}'.format(
-        #         str(max(delta_last_run))[0:5],
-        #         str(self.accept_command_timeout + max(delta_last_run) * self.velocity_factor)[0:4],
-        #         str(time.time() - self.last_command_compiled_before_send)[0:4])
-        #     )
-        #
-        #     return True
-        # else:
-        #     print('deny  last command max {} timeout {} since last {}'.format(
-        #         str(max(delta_last_run))[0:5],
-        #         str(self.accept_command_timeout + max(delta_last_run) * self.velocity_factor)[0:4],
-        #         str(time.time() - self.last_command_compiled_before_send)[0:4])
-        #     )
-        #     return False
+        if time.time() - self.last_command_sent_at > ACCEPT_COMMAND_TIMEOUT + max(delta_last_run) * velocity:
+            print('allow last command max {} timeout {} since last {}'.format(
+                str(max(delta_last_run))[0:5],
+                str(ACCEPT_COMMAND_TIMEOUT + max(delta_last_run) * velocity)[0:4],
+                str(time.time() - self.last_command_sent_at)[0:4])
+            )
 
-        # added straight comparation 0.8.0.3.3
-
-        if time.time() > self.last_command_sent_at:
-            return False
-        else:
             return True
+        else:
+            print('deny  last command max {} timeout {} since last {}'.format(
+                str(max(delta_last_run))[0:5],
+                str(ACCEPT_COMMAND_TIMEOUT + max(delta_last_run) * velocity)[0:4],
+                str(time.time() - self.last_command_sent_at)[0:4])
+            )
+            return False
 
 
 class RoboJoystickApp(App):

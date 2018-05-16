@@ -380,11 +380,11 @@ def robotlistener(request):  # test to ensure command passes to robot driver
         mean_time_robotlistener = (mean_time_robotlistener * count_robotlistener + (time.time() - start_robotlistener))\
                                 / (count_robotlistener + 1)
 
-        # html = """<!DOCTYPE html>
-        # <html lang="en">
-        # mean_time_robotlistener = """ + str(mean_time_robotlistener) + """</html>
-        #
-        # """
+        html = """<!DOCTYPE html>
+        <html lang="en">
+        mean_time_robotlistener = """ + str(mean_time_robotlistener) + """</html>
+
+        """
         print('DBG: mean_time_robotlistener : {}'.format(mean_time_robotlistener))
 
         count_robotlistener += 1
