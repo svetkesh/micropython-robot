@@ -26,8 +26,7 @@ ver 0.8.2 test version with smooth joystik run
 
 0.8.3.01 - added sliders for accept_command_timeout and velocity_factor adjust
 0.8.3.02 - added sliders for timeout_timer_start adjust
-0.8.3.02 - allow / disallow coomand by comparing with time latest coomand sent
-0.8.3.0.5  changed control layout
+0.8.3.02 - allow / disallow coomand by comparing with time latest coomand sent 
 '''
 
 from kivy.app import App
@@ -59,20 +58,20 @@ class RoboPad(FloatLayout):
         # # print('running super(Gamepad, self).__init__()')
 
         # joystickhand and joystickrun
-        self.joystickhand = Joystick(size_hint=(.5, .5),
-                                     pos_hint={'x': .0, 'y': .0},
+        self.joystickhand = Joystick(size_hint=(.45, .45),
+                                     pos_hint={'x': 0.0, 'y': .2},
                                      sticky=True)
         self.add_widget(self.joystickhand)
-        self.joystickrun = Joystick(size_hint=(.5, .5),
-                                    pos_hint={'x': .5, 'y': .0})
+        self.joystickrun = Joystick(size_hint=(.45, .45),
+                                    pos_hint={'x': 0.6, 'y': .2})
         self.joystickhand.bind(pad=self.update_coordinates_hand)
 
         self.add_widget(self.joystickrun)
         self.joystickrun.bind(pad=self.update_coordinates_run)
 
         # add some buttons
-        self.catchbutton = Button(size_hint=(.3, .1),
-                                  pos_hint={'x': .7, 'y': .9},
+        self.catchbutton = Button(size_hint=(.15, .15),
+                                  pos_hint={'x': .8, 'y': .65},
                                   text='Catch me!')
         self.add_widget(self.catchbutton)
         self.catchbutton.bind(on_press=self.update_catch_release)
@@ -87,8 +86,7 @@ class RoboPad(FloatLayout):
         self.debug_label = Label(size_hint=(.4, .0),
                                      pos_hint={'x': .2, 'y': .2},
                                      text='message ... ...',)  # multiline=True,)
-        # self.add_widget(self.debug_label)
-
+        self.add_widget(self.debug_label)
         # self.debug_label_hand = Label(size_hint=(.2, .2),
         #                               pos_hint={'x': .1, 'y': .8},
         #                               text='message ... ...',)
@@ -111,8 +109,7 @@ class RoboPad(FloatLayout):
                                                     min=0.02,
                                                     max=0.2,
                                                     value=0.05)
-        # self.add_widget(self.slider_accept_command_timeout)
-
+        self.add_widget(self.slider_accept_command_timeout)
         self.slider_accept_command_timeout.bind(value=self.OnSliderAcccepptCommandTiteoutValueChange)
 
         self.slider_velocity_factor = Slider(size_hint=(.4, .03),
@@ -121,8 +118,7 @@ class RoboPad(FloatLayout):
                                                     min=0.01,
                                                     max=10.0,
                                                     value=0.3)
-        # self.add_widget(self.slider_velocity_factor)
-
+        self.add_widget(self.slider_velocity_factor)
         self.slider_velocity_factor.bind(value=self.OnSliderVelocityFactorValueChange)
 
         #  not used , just place holder
@@ -132,8 +128,7 @@ class RoboPad(FloatLayout):
                                                     min=0.02,
                                                     max=0.2,
                                                     value=0.11)
-        # self.add_widget(self.slider_timeout_timer_start)
-
+        self.add_widget(self.slider_timeout_timer_start)
         self.slider_timeout_timer_start.bind(value=self.OnSliderTimeoutTimerStartValueChange)
 
         self.accept_command_timeout = 0.05  # 0.6 is too short, broke app!
@@ -189,22 +184,6 @@ class RoboPad(FloatLayout):
         self.timeout_timer_start = value
 
     def update_coordinates_run(self, joystick, pad):
-        # # test for joystickrun binding test
-        # # # print('update_coordinates_run ...')
-        # # # print(self, joystick, pad)
-        # x = str(pad[0])[0:5]
-        # y = str(pad[1])[0:5]
-        # radians = str(joystick.radians)[0:5]
-        # magnitude = str(joystick.magnitude)[0:5]
-        # angle = str(joystick.angle)[0:5]
-        # # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
-        # # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle, send_status)
-        #
-        # # without send_status # print just to debug label
-        # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
-        # # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle)
-        # # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
-        # self.send_command_data(turnx=x, runy=y)
 
         RUN_Y_STEP = 2  # steps to final acceleration
         RUN_Y_SLEEP = 0.04  # steps to final acceleration
@@ -227,103 +206,10 @@ class RoboPad(FloatLayout):
         if self.accept_command(pos=self.current_pos):
             self.send_command_data(turnx=x, runy=y)
 
-
-            # # smooth start not working well
-            # self.send_command_data(turnx=x)
-            #
-            # for run_step in range(RUN_Y_STEP, 1, -1):
-            #     try:
-            #
-            #         # print('DBG run_step {} {} {} {} {} {}'.format(
-            #         #     type(self.saved_pos['runy']),
-            #         #     self.saved_pos['runy'],
-            #         #     type(y),
-            #         #     y,
-            #         #     type(self.saved_pos['runy']),
-            #         #     self.saved_pos
-            #         # ))
-            #
-            #         self.send_command_data(runy=self.saved_pos['runy'] + (y -self.saved_pos['runy']) / run_step)
-            #
-            #         time.sleep(RUN_Y_SLEEP)
-            #
-            #         print('DBG run_step {} {} {}'.format(run_step,
-            #                                              self.saved_pos['runy'],
-            #                                              self.saved_pos['runy'] +
-            #                                              (self.saved_pos['runy'] - y) / run_step))   # RUN_Y_STEP
-            #     except Exception as e:
-            #         print('ERR run_step err: {} {}'.format(type(e), e))
-            #     # self.send_command_data(turnx=x, runy=y)
-            #
-            # # self.send_command_data(turnx=x, runy=y)
-
         else:
             pass
 
-
-        # # smooth run stepper (
-        #
-        # for run_step in range(RUN_Y_STEP, 1, -1):
-        #     try:
-        #
-        #         # print('DBG run_step {} {} {} {} {} {}'.format(
-        #         #     type(self.saved_pos['runy']),
-        #         #     self.saved_pos['runy'],
-        #         #     type(y),
-        #         #     y,
-        #         #     type(self.saved_pos['runy']),
-        #         #     self.saved_pos
-        #         # ))
-        #
-        #         self.send_command_data(runy=self.saved_pos['runy'] + (self.saved_pos['runy'] + y) / run_step)
-        #
-        #         # print('DBG run_step {} {} {}'.format(run_step,
-        #         #                               self.saved_pos['runy'],
-        #         #                               runy=self.saved_pos['runy'] + (self.saved_pos['runy'] - y) / run_step))
-        #     except Exception as e:
-        #         print('run_step err: {} {}'.format(type(e), e))
-        #     # self.send_command_data(turnx=x, runy=y)
-        #
-        #     # self.current_run_pos = {'runy': y}
-
-
-
-        # self.current_run_pos = {'runy': y}
-
     def update_coordinates_hand(self, joystick, pad):
-
-        # start_uch = time.time()  # measure update_coordinates_hand
-
-        # test for update_coordinates_hand binding test
-        # # print('update_coordinates_hand running...')
-        # # print(self, joystick, pad)
-        # x = str(pad[0])[0:5]
-        # y = str(pad[1])[0:5]
-        # radians = str(joystick.radians)[0:5]
-        # magnitude = str(joystick.magnitude)[0:5]
-        # angle = str(joystick.angle)[0:5]
-        # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}\nsend data status: {}"
-        # self.debug_label_run.text = text.format(x, y, radians, magnitude, angle, send_status)
-
-        # without send_status # print just to debug label
-        # text = "x: {}\ny: {}\nradians: {}\nmagnitude: {}\nangle: {}"
-        # self.debug_label_hand.text = text.format(x, y, radians, magnitude, angle)
-        # self.debug_label.text = text.format(x, y, radians, magnitude, angle)
-
-        # <<<
-        # self.send_command_data(headx=x, handy=y)  # original in 0.8.1
-
-
-        # self.compare_n_send_command_data(headx=x, handy=y)
-
-        # raw_headx = pad[0]
-        # aligned_x = raw_headx * 1.4
-        # if aligned_x > 0.99 :
-        #     x = str(0.99)
-        # else:
-        #     x = str(aligned_x)[0:4]
-        # print(x, raw_headx)
-        #
 
         x = self.squaredround(pad[0])
         y = self.squaredround(pad[1])
@@ -337,77 +223,6 @@ class RoboPad(FloatLayout):
             self.send_command_data(headx=x, handy=y)
         else:
             pass
-
-        # if abs(float_headx - self.old_headx) or abs(float_handy - self.old_handy) > change_factor:
-        #     print('DBG: above change_factor {} x:{}, y:{}'.format(change_factor,
-        #                                                           abs(float_headx - self.old_headx),
-        #                                                           abs(float_handy - self.old_handy)
-        #                                                           ))
-        # for head_x
-
-        # if abs(float_headx - self.old_headx) > change_factor:  # not running good on fast moves
-
-        # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
-
-        # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
-
-        #  add more time for drive move:
-        #  hand_timeout + abs(float_headx - self.old_headx)/12.0
-        #
-        # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > (hand_timeout + abs(float_headx - self.old_headx)/12.0)) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
-
-            # print('DBG: above change_factor headx')
-
-            # print('DBG: above change_factor:{} '
-            #       'x:{} '
-            #       'delta:{} '
-            #       'current TOUT: {}'.format(change_factor,
-            #                                 x,
-            #                                 # float_headx,
-            #                                 abs(float_headx - self.old_headx),
-            #                                 hand_timeout + abs(float_headx - self.old_headx) / 8.0
-            #                                 ))
-            # self.saved_hand_pos = {'headx': x, 'handy': y}
-            # self.current_hand_pos = {'headx': x}
-            # self.old_headx = str(x)
-            # self.last_command_compiled_before_send = time.time()
-            # self.send_command_data(headx=str(x))
-
-            # print('last_command_sent_at: {} {}'.format(time.time(), time.clock()))
-        # else:
-        #     x = 'zz'
-
-
-
-        # for hand_y
-        # if abs(float_handy - self.old_handy) > change_factor:
-        #     print('DBG: above change_factor handy')
-        #     self.old_handy = float_handy
-        #     print('DBG: above change_factor {} y:{}, delta:{}'.format(change_factor,
-        #                                                               y,
-        #                                                               # float_handy,
-        #                                                               abs(float_handy - self.old_handy)
-        #                                                               ))
-        #     self.send_command_data(handy=y)
-        # # else:
-        # #     y = 'zz'
-
-        # if self.accept_command(pos={'headx': x, 'handy': y}):
-        #     self.send_command_data(handy=y)
-
-        # print('command x{}, y{}'.format(x, y))
-
-        # self.send_command_data(headx=x, handy=y)
-
-        # self.current_hand_pos = {'headx': str(float_headx), 'handy': y}  # need to add for scheduled
-
-        # print(time.time() - start_uch)  # display update_coordinates_hand time
 
     def update_catch_release(self, instance):
         # # print('DBG: button pressed!')
@@ -531,99 +346,6 @@ class RoboPad(FloatLayout):
             print('ERR: command not sent {}'.format(turnx))
         #     send_status += 'error sending turnx' + str(turnx)
 
-    # def compare_n_send_command_data(self, headx='z', handy='z', turnx='z', runy='z', catch='z'):
-    #
-    #     # define some globals
-    #
-    #     global old_headx
-    #     global old_handy
-    #     global old_turnx
-    #     global old_runy
-    #
-    #     change_factor = 0.05
-    #
-    #     print('DBG: headx:{} {} {} {} ()'.format(headx, type(headx), float(headx), float(headx)+1.1, type(float(headx))))
-    #     print('DBG: old_headx:{} {} {} {}'.format(old_headx, type(old_headx), float(old_headx), type(float(old_headx))))
-    #     print('DBG: abs(float(old_headx)-float(headx) > change_factor: {}, {}').format(float(headx)+1.1, type(float(old_headx)-float(headx)))
-    #
-    #     # # if abs(float(old_headx)-float(headx)) > change_factor or abs(old_handy-float(handy))>change_factor:  # of course not True alws
-    #     # if abs(float(old_headx)-float(headx) > change_factor) > change_factor:  # of course not True alws
-    #                                                                                           # //head just
-    #     if True:
-    #
-    #         try:
-    #         # if True:
-    #         #     print('DBG: headx:{} {} , handy:{} {}'.format(headx, type(headx), handy, type(handy)))
-    #
-    #             # update saved old_* joystick values
-    #
-    #             old_headx = headx
-    #             old_handy = handy
-    #             old_turnx = turnx
-    #             old_runy = runy
-    #
-    #             print('DBG: joystick values re-saved')
-    #
-    #
-    #             robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
-    #             robot_port = 80
-    #             # # print('send_command_data running')
-    #             # self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\ncatch {}'.format(headx,
-    #             #                                                                                  handy,
-    #             #                                                                                  turnx,
-    #             #                                                                                  runy,
-    #             #                                                                                  catch)
-    #
-    #             dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch}
-    #             # # print(dict_commands)
-    #
-    #             str_commands = 'http://' + str(robot_host) + '/?'
-    #
-    #             for item in dict_commands:
-    #                 # # print(item,
-    #                 #       dict_commands[item],
-    #                 #       type(dict_commands[item])
-    #                 #       )
-    #                 # if dict_commands[item] !='z':
-    #                 #     str_commands += item +\
-    #                 #                     '=' + \
-    #                 #                     dict_commands[item] + \
-    #                 #                     '&'
-    #
-    #                 # add normalization
-    #                 if dict_commands[item] != 'z':
-    #                     if dict_commands[item] != 'catch':
-    #                         str_commands += item + \
-    #                                         '=' + \
-    #                                         str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) + \
-    #                                         '&'
-    #                     else:
-    #                         str_commands += item + \
-    #                                         '=' + \
-    #                                         'catch' + \
-    #                                         '&'
-    #             # # print('str_commands: {}'.format(str_commands))
-    #
-    #             try:
-    #                 client_socket = socket.socket()  # instantiate
-    #                 client_socket.connect((robot_host, robot_port))  # connect to the server
-    #                 #     message = 'http://192.168.4.1/?turnx=' + str(turnx)  # take input
-    #                 client_socket.send(str_commands.encode())  # encode than send message
-    #                 #
-    #                 client_socket.close()  # close the connection
-    #                 #     # sleep(3)
-    #                 #     # time.sleep(0.02)
-    #                 #     #
-    #                 time.sleep(0.2)
-    #                 print('sent OK {} sent'.format(str_commands))
-    #                 # send_status = 'sent ok' + str(turnx)
-    #             except:
-    #                 print('ERR: command not sent {}'.format(turnx))
-    #             #     send_status += 'error sending turnx' + str(turnx)
-    #         except:
-    #             pass
-    #     else:
-    #         print('DBG: joystick changes ignored')
 
     def timer(self, dt):
 
@@ -718,85 +440,6 @@ class RoboPad(FloatLayout):
 
         self.counter_commands += 1
 
-        # <<<
-        # self.send_command_data(headx=x, handy=y)  # original in 0.8.1
-
-
-        # self.compare_n_send_command_data(headx=x, handy=y)
-
-        # raw_headx = pad[0]
-        # aligned_x = raw_headx * 1.4
-        # if aligned_x > 0.99 :
-        #     x = str(0.99)
-        # else:
-        #     x = str(aligned_x)[0:4]
-        # print(x, raw_headx)
-        #
-
-
-        # if abs(float_headx - self.old_headx) or abs(float_handy - self.old_handy) > change_factor:
-        #     print('DBG: above change_factor {} x:{}, y:{}'.format(change_factor,
-        #                                                           abs(float_headx - self.old_headx),
-        #                                                           abs(float_handy - self.old_handy)
-        #                                                           ))
-        # for head_x
-
-        # if abs(float_headx - self.old_headx) > change_factor:  # not running good on fast moves
-
-        # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
-
-        # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > hand_timeout) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
-
-        #  add more time for drive move:
-        #  hand_timeout + abs(float_headx - self.old_headx)/12.0
-        #
-        # if (abs(float_headx - self.old_headx) > change_factor
-        #     and (time.time() - self.last_command_compiled_before_send) > (hand_timeout + abs(float_headx - self.old_headx)/12.0)) \
-        #         or (time.time() - self.last_command_compiled_before_send) > hand_timeout_slow:  #
-
-        # check against given params
-        # print(pos)
-
-        # check type of data
-
-        # for item in pos:
-        #     print(item, type(pos[item]), pos[item])
-
-        # next is good ...for future movements
-        # for item in pos:
-        #     if pos[item] != 'z' or pos[item] != 'catch':
-        #         pass
-        #         # self.saved_hand_pos[item] = pos[item]
-        #         next_hand_pos[item] = pos[item]
-        #         try:
-        #             # delta_position = abs(next_hand_pos[item] - self.saved_hand_pos[item])
-        #             delta_positions.append(abs(next_hand_pos[item] - self.saved_hand_pos[item]))
-        #             # print(next_hand_pos[item],
-        #             #       self.saved_hand_pos[item],
-        #             #       abs(next_hand_pos[item] - self.saved_hand_pos[item]))
-        #
-        #
-        #         except Exception as e:
-        #             print(type(e), e)
-        #             # pass
-
-        # if len(delta_positions) > 0:
-        #     print(' {}  movement'.format(max(delta_positions)))
-        # else:
-        #     print('not a movement')
-
-        # calculate last path robot runs
-        #
-        # I think about dependence path the servos run and the closest time the robot will be available to
-        # accept command ...
-        #
-
-        # last command stored at self.last_move{}
-
         for item in pos:
             if pos[item] != 'z' and pos[item] != 'catch':
                 # pass
@@ -813,24 +456,6 @@ class RoboPad(FloatLayout):
                     print('ERR collecting movements'.format(type(e), e))
                     # pass
 
-        # #  ACCEPT_COMMAND_TIMEOUT - > self.accept_command_timeout
-        # if time.time() - self.last_command_compiled_before_send > self.accept_command_timeout + max(delta_last_run) * self.velocity_factor:
-        #     print('allow last command max {} timeout {} since last {}'.format(
-        #         str(max(delta_last_run))[0:5],
-        #         str(self.accept_command_timeout + max(delta_last_run) * self.velocity_factor)[0:4],
-        #         str(time.time() - self.last_command_compiled_before_send)[0:4])
-        #     )
-        #
-        #     return True
-        # else:
-        #     print('deny  last command max {} timeout {} since last {}'.format(
-        #         str(max(delta_last_run))[0:5],
-        #         str(self.accept_command_timeout + max(delta_last_run) * self.velocity_factor)[0:4],
-        #         str(time.time() - self.last_command_compiled_before_send)[0:4])
-        #     )
-        #     return False
-
-        # added straight comparation 0.8.0.3.3
 
         if time.time() > self.last_command_sent_at:
             return False
