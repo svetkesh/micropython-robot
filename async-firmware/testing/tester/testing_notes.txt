@@ -5,3 +5,87 @@ timings
 mean timeout catch 0.05 99%
 mean timeout hand 0.2  65%
 mean timeout run 0.17 63%
+
+
+
+def drive(p, m):
+    import machine
+    motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+    motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+    motor_a_p.duty(p)
+    motor_a_m.duty(m)
+    print(p, m)
+
+def drive(p, m):
+import machine
+motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+motor_a_p.duty(p)
+motor_a_m.duty(m)
+print(p, m)
+
+
+def drive(p, m):
+
+#import machine
+motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+motor_a_p.duty(p)
+motor_a_m.duty(m)
+
+
+>>> def run(r, t=2):
+...     print(r)
+...     for p in r:
+...         print(p)
+...         drive(p)
+...         time.sleep(t)
+
+
+def run(r):
+print(r)
+for p in r:
+print('----')
+time.sleep(3)
+print(p)
+drive(p[0], p[1])
+time.sleep(3)
+print('----')
+
+110,110
+115,125
+121,142
+128,161
+136,182
+145,205
+155,230
+166,257
+178,286
+191,317
+
+((110,110), (115,125))
+
+
+run(((), (), (), (), (), (), (), (), (), (), (), (), (), (), (), (), (), (0, 0)))
+
+run(((110,110), (115,125), (121,142), (128,161), (136,182), (145,205), (155,230), (166,257), (178,286), (191,317), (0, 0)))
+
+
+110,110
+115,125
+120,140
+125,155
+130,170
+135,185
+140,200
+140,200
+220,400
+300,600
+380,800
+
+
+run(((110,110), (115,125), (120,140), (125,155), (130,170), (135,185), (140,200), (220,400), (300,600), (380,800), (0, 0)))
+
+
+
+drive(0, 100)

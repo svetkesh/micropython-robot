@@ -2,6 +2,8 @@
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
       this uses custom firmware with added uasyncio
+
+0.8.3.0.1
 """
 
 import uasyncio as asyncio
