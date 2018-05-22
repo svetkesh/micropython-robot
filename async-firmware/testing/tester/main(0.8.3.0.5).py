@@ -5,6 +5,8 @@
 
 0.8.3.0.4 uses non-linear calculation for params for DC drive
 0.8.3.0.5 uses 2 scaled calculation for params for DC drive
+
+tested - gives 1 crash for 10 min
 """
 
 import uasyncio as asyncio

@@ -3,7 +3,7 @@
       suits firmware versions 2018 04 +
       this uses custom firmware with added uasyncio
 
-0.8.3.0.4 uses non-linear calculation for params for DC drive
+0.8.3.0.3.1
 """
 
 import uasyncio as asyncio
