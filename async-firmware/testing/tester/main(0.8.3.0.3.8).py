@@ -258,7 +258,7 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                     s_handy = str(m_handy.group(0))
                     handy = r_number.search(s_handy)
                     # f_handy = 1 - float(handy.group(0))  # inverse Y axis
-                    posy = int(handy.group(0))
+                    posy = 155 - int(handy.group(0))       # inverse Y axis
                     servo_hand_y.duty(posy)
 
                 # if r_turnx.search(request) is not None:
@@ -273,7 +273,7 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                     s_turnx = str(m_turnx.group(0))
                     turnx = r_number.search(s_turnx)
                     # f_turnx = 1 - float(turnx.group(0))   # inverse Y axis
-                    directionx = int(turnx.group(0))
+                    directionx = 155 - int(turnx.group(0))  # inverse Y axis
                     servo_direction.duty(directionx)
 
                 # if r_runy.search(request) is not None:
@@ -323,17 +323,18 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                     # new in 0.3.0.3.8 with integers only
                     if i_runy < 77:
                         # m_duty = -1
-                        m_duty = -300
-                        p_duty = int(770 - 10 * i_runy)
+                        m_duty = -200
+                        p_duty = int((924 - 12 * i_runy))
 
                     elif i_runy == 77:
                         m_duty = 0
                         p_duty = 0
                     else:
-                        m_duty = int(i_runy * 10)
-                        p_duty = int(i_runy * 10)
+                        m_duty = int((i_runy-70) * 15)
+                        p_duty = int((i_runy-70) * 15)
 
                     # print('DBG f_runy {}, m_duty {}, p_duty {}'.format(f_runy, m_duty, p_duty))
+                    print('DBG i_runy {}, m_duty {}, p_duty {}'.format(i_runy, m_duty, p_duty))
 
                     motor_a_p.duty(p_duty)
                     motor_a_m.duty(m_duty)

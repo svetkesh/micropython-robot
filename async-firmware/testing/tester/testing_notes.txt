@@ -89,3 +89,36 @@ run(((110,110), (115,125), (120,140), (125,155), (130,170), (135,185), (140,200)
 
 
 drive(0, 100)
+
+# could be inserted in WEB_REPL console:
+
+import utime as time
+for i_runy in range(40, 77, 4):
+#if i_runy < 77:
+m_duty = -100 # default -300, from -50
+p_duty = int(770 - 10 * i_runy)
+print('DBG i_runy {}, m_duty {}, p_duty {}'.format(i_runy, m_duty, p_duty))
+motor_a_p.duty(p_duty)
+motor_a_m.duty(m_duty)
+time.sleep(4)
+
+elif i_runy == 77:
+m_duty = 0
+p_duty = 0
+
+else:
+m_duty = int(i_runy * 10)
+p_duty = int(i_runy * 10)
+
+print('DBG i_runy {}, m_duty {}, p_duty {}'.format(i_runy, m_duty, p_duty))
+
+motor_a_p.duty(p_duty)
+motor_a_m.duty(m_duty)
+
+--
+b'http://192.168.4.1/?runy=77&turnx=77&headx=73&handy=114&'
+
+http://192.168.4.1/?runy=77&
+
+--
+int(770 - 20 * (i_runy-70))

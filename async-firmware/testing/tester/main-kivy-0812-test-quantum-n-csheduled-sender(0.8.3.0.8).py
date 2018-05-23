@@ -104,7 +104,7 @@ class RoboPad(FloatLayout):
         self.debug_label = Label(size_hint=(.4, .0),
                                      pos_hint={'x': .2, 'y': .2},
                                      text='message ... ...',)  # multiline=True,)
-        # self.add_widget(self.debug_label)
+        self.add_widget(self.debug_label)
 
         # self.debug_label_hand = Label(size_hint=(.2, .2),
         #                               pos_hint={'x': .1, 'y': .8},
@@ -437,7 +437,7 @@ class RoboPad(FloatLayout):
         self.send_command_data(catch='catch')
 
     def update_hiphop(self, instance):
-        self.hiphop = 10
+        self.hiphop = 50
 
     # self.dance
     def update_dance(self, instance):
