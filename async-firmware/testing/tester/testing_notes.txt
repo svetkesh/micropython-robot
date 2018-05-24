@@ -32,6 +32,7 @@ motor_a_p = machine.PWM(machine.Pin(5), freq=50)
 motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 motor_a_p.duty(p)
 motor_a_m.duty(m)
+print(p,m)
 
 
 >>> def run(r, t=2):
