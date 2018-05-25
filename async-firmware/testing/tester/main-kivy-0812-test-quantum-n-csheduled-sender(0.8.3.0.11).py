@@ -208,7 +208,7 @@ class RoboPad(FloatLayout):
         self.last_move = {'headx': 0.0, 'handy': 0.0, 'turnx': 0.0, 'runy': 0.0, 'gear': self.gear}
 
         self.saved_command = {'gear': self.gear}
-        self.command_sent = False
+        self.command_sent = True
 
         # self.SERVO_MIN = 35   # real servo min-max
         # self.SERVO_MAX = 125
@@ -222,29 +222,29 @@ class RoboPad(FloatLayout):
         Clock.schedule_interval(self.timer_with_saved_params, self.timeout_timer_start)  # start afterburner
 
     def OnSliderAcccepptCommandTiteoutValueChange(self, instance, value):
-        self.command_sent = False
+        # self.command_sent = False
         # print(type(value), value, self.accept_command_timeout)
         self.accept_command_timeout = value
 
     def OnSliderVelocityFactorValueChange(self, instance, value):
-        self.command_sent = False
+        # self.command_sent = False
         # print(type(value), value, self.velocity_factor)
         self.velocity_factor = value
 
     def OnSliderGearFactorValueChange(self, instance, value):
-        self.command_sent = False
+        # self.command_sent = False
         # print(type(value), value, self.gear)
         self.gear = round(value)
         # self.send_command_data(gear=self.gear)
         self.saved_command['gear'] = self.gear
 
     def OnSliderTimeoutTimerStartValueChange(self, instance, value):
-        self.command_sent = False
+        # self.command_sent = False
         # print(type(value), value, self.timeout_timer_start)
         self.timeout_timer_start = value
 
     def update_coordinates_run(self, joystick, pad):
-        self.command_sent = False
+        # self.command_sent = False
         # # test for joystickrun binding test
         # # # print('update_coordinates_run ...')
         # # # print(self, joystick, pad)
@@ -316,7 +316,8 @@ class RoboPad(FloatLayout):
         # else:
         #     pass
 
-        if self.accept_command_with_saved_params():
+        # if self.accept_command_with_saved_params():
+        if self.command_sent:
             self.saved_command['turnx'] = self.recalculate_servo_position(x)
             self.saved_command['runy'] = self.recalculate_dc_position(y)
             self.send_command_data_with_saved_params()
@@ -354,7 +355,7 @@ class RoboPad(FloatLayout):
         # self.current_run_pos = {'runy': y}
 
     def update_coordinates_hand(self, joystick, pad):
-        self.command_sent = False
+        # self.command_sent = False
 
         RUN_Y_STEP = 2  # steps to final acceleration
         RUN_Y_SLEEP = 0.04  # steps to final acceleration
@@ -366,6 +367,7 @@ class RoboPad(FloatLayout):
         self.current_pos['handy'] = y
 
         if self.accept_command_with_saved_params():
+        # if self.command_sent:
             self.saved_command['headx'] = self.recalculate_servo_position(x)
             self.saved_command['handy'] = self.recalculate_servo_position(y)
             self.send_command_data_with_saved_params()
@@ -373,30 +375,33 @@ class RoboPad(FloatLayout):
             pass
 
     def update_catch_release(self, instance):
-        self.command_sent = False
+        # self.command_sent = False
         # # print('DBG: button pressed!')
         # catch = catch
-        self.send_command_data(catch='catch')
+        self.send_command_data_with_saved_params['catch']='catch'
 
     def update_hiphop(self, instance):
         self.hiphop = 50
 
     # self.dance
     def update_dance(self, instance):
-        self.command_sent = False
+        # self.command_sent = False
         import random
         print('DBG: self.dance: {}'.format(self.dance))
 
         if self.dance:
 
             def generate_commands(timeout=0, cycle=0):
-                self.send_command_data(
-                                  headx=random.choice(['z', random.random()]),
-                                  handy=random.choice(['z', random.random()]),
-                                  turnx=random.choice(['z', random.random()]),
+                
+                self.saved_command['headx']=random.choice(['z', random.random()])
+                self.saved_command['handy']=random.choice(['z', random.random()])
+                self.saved_command['turnx']=random.choice(['z', random.random()])
                                   # runy=random.choice(['z', random.random()]),
-                                  runy=random.choice(['z', 'z']),
-                                  catch=random.choice(['z', 'catch']))
+                self.saved_command['runy']=random.choice(['z', 'z'])
+                self.saved_command['catch']=random.choice(['z', 'catch'])
+                
+                self.send_command_data_with_saved_params()
+
 
             def cycle_timeouted():
                 # initial timeout 0.5 s: 0.2  0.2  0.2
@@ -435,6 +440,8 @@ class RoboPad(FloatLayout):
 
 
     def send_command_data(self, headx='z', handy='z', turnx='z', runy='z', catch='z', gear='z'):
+
+        print('Started send_command_data')
 
         before_send_command_data = time.time()
 
@@ -743,7 +750,7 @@ class RoboPad(FloatLayout):
 
         # print('DBG squaredround x: {}'.format(x))
         max_x = 0.99
-        multiply_factor = 1.4
+        multiply_factor = 1.3
 
         sign = lambda y: math.copysign(1, y)
         aligned_x = x * multiply_factor
@@ -954,53 +961,38 @@ class RoboPad(FloatLayout):
             return True
 
     def send_command_data_with_saved_params(self):
-        # before_send_command_data = time.time()
+        self.command_sent = False
+        before_send_command_data = time.time()
 
         # dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch, 'gear': gear}
-
-        # str_commands = 'http://' + str(self.robot_host) + '/?'
-        #
-        # for item in dict_commands:
-        #     # # print(item,
-        #     #       dict_commands[item],
-        #     #       type(dict_commands[item])
-        #     #       )
-        #     # if dict_commands[item] !='z':
-        #     #     str_commands += item +\
-        #     #                     '=' + \
-        #     #                     dict_commands[item] + \
-        #     #                     '&'
-        #
-        #     if dict_commands[item] != 'z':
-        #
-        #         if dict_commands[item] == 'catch':
-        #             str_commands += item + \
-        #                             '=' + \
-        #                             'catch' + \
-        #                             '&'
-        #
-        #         # if dict_commands[item] != 'catch':
-        #         else:
-        #
-        #             # pre- 0.8.3.3.8
-        #             # str_commands += item + \
-        #             #                 '=' + \
-        #             #                 str('{0:.2f}'.format((dict_commands[item] + 1) / 2)) + \
-        #             #                 '&'
-        #
-        #             if item == 'gear': # new in 0.8.3.0.9 for gear
-        #                 str_commands += item + '=' + str('{}'.format(dict_commands[item])) + '&'
-        #                 # print('DBG dict_commands[item] == \'gear\' {}'.format(str_commands))
-        #
-        #             else:
-        #                 # new in 0.8.3.3.8 ,
-        #                 # calculates integer values for ESP
-        #                 str_commands += item + '=' + str('{}'.format(int((dict_commands[item]+1)/2 * 75 + 40))) + '&'
-        #                 # print('DBG else -- dict_commands[item] == \'gear\' {}'.format(str_commands))
-        #
+        str_commands = 'http://' + str(self.robot_host) + '/?'
 
         for item in self.saved_command:
             print('DBG send_command_data_with_saved_params got command: {}={}'.format(item, self.saved_command))
+
+            # str_commands += item + '=' + str(self.saved_command[item]) + '&'
+            str_commands += item + '=' + str('{}'.format(self.saved_command[item])) + '&'
+
+        # send command
+        try:
+            self.last_command_compiled_before_send = time.time()
+
+            client_socket = socket.socket()  # instantiate
+            client_socket.connect((self.robot_host, self.robot_port))  # connect to the server
+            client_socket.send(str_commands.encode())  # encode than send message
+            #
+            print(str_commands.encode())  # command like :
+            # b'http://192.168.4.1/?headx=0.50&runy=0.50&turnx=0.50&handy=0.50&'
+            client_socket.close()  # close the connection
+        except Exception as e:
+            print('ERR: command not sent {} {}'.format(type(e), e))
+
+        self.mean_time_send_command_data = (self.counter_send_command_data * self.mean_time_send_command_data +
+                                            time.time() - before_send_command_data) / \
+                                           (self.counter_send_command_data + 1)
+
+        self.counter_send_command_data += 1
+        self.last_command_sent_at = time.time()
 
         # erase self.saved_command for future runs and set command sent flag  # re-write needed for async native flags
         self.saved_command = {}

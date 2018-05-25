@@ -123,3 +123,8 @@ http://192.168.4.1/?runy=77&
 
 --
 int(770 - 20 * (i_runy-70))
+
+latest firmvare 1.9.3 uses
+>>> servo_head_x.duty(125)  max
+>>> servo_head_x.duty(35)  min
+>>> servo_head_x.duty(80) mid
