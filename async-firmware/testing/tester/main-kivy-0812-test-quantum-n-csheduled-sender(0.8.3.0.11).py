@@ -190,7 +190,7 @@ class RoboPad(FloatLayout):
         # self.saved_run_pos = {'turnx': 0.0, 'runy': 0.0}
         # self.last_run_move = {}
 
-        self.mean_time_send_command_data = 0.05
+        self.mean_time_send_command_data = 0.0
         self.counter_send_command_data = 1
         self.counter_commands = 1
 
@@ -318,8 +318,10 @@ class RoboPad(FloatLayout):
 
         # if self.accept_command_with_saved_params():
         if self.command_sent:
+
             self.saved_command['turnx'] = self.recalculate_servo_position(x)
             self.saved_command['runy'] = self.recalculate_dc_position(y)
+            self.command_sent = False
             self.send_command_data_with_saved_params()
         else:
             pass
@@ -366,10 +368,11 @@ class RoboPad(FloatLayout):
         self.current_pos['headx'] = x
         self.current_pos['handy'] = y
 
-        if self.accept_command_with_saved_params():
-        # if self.command_sent:
+        if self.command_sent:
+
             self.saved_command['headx'] = self.recalculate_servo_position(x)
             self.saved_command['handy'] = self.recalculate_servo_position(y)
+            self.command_sent = False
             self.send_command_data_with_saved_params()
         else:
             pass
@@ -378,7 +381,12 @@ class RoboPad(FloatLayout):
         # self.command_sent = False
         # # print('DBG: button pressed!')
         # catch = catch
-        self.send_command_data_with_saved_params['catch']='catch'
+        if self.command_sent:
+
+            self.saved_command['catch'] = 'catch'
+            self.command_sent = False
+            self.send_command_data_with_saved_params()
+
 
     def update_hiphop(self, instance):
         self.hiphop = 50
@@ -737,12 +745,43 @@ class RoboPad(FloatLayout):
                                                   str(self.timeout_timer_start)[0:5],
                                                   str(self.gear))
 
-        if self.command_sent:
-            print('DBG timer_with_saved_params have no jobs')
-            # return False
-        else:
+        # if self.command_sent:
+        #     print('DBG timer_with_saved_params saved_command "len":{},'
+        #           ' "if?" {} ,'
+        #           ' {}'.format(len(self.saved_command),
+        #                        True if self.saved_command else False,
+        #                        self.saved_command))
+        #     print('DBG timer_with_saved_params have no jobs')
+        #     # return False
+        # else:
+        #     print('DBG timer_with_saved_params saved_command "len":{},'
+        #           ' "if?" {} ,'
+        #           ' {}'.format(len(self.saved_command),
+        #                        True if self.saved_command else False,
+        #                        self.saved_command))
+        #     print('DBG timer_with_saved_params have some jobs')
+        #     self.send_command_data_with_saved_params()
+        #     # return True
+        #     #
+
+        if self.saved_command:
+            print('DBG timer_with_saved_params saved_command "len":{},'
+                  ' "if?" {} ,'
+                  ' {}'.format(len(self.saved_command),
+                               True if self.saved_command else False,
+                               self.saved_command))
             print('DBG timer_with_saved_params have some jobs')
-            self.send_command_data_with_saved_params()
+            # return False
+            # self.send_command_data_with_saved_params()  # temporally  disable sending command
+            self.saved_command = {}
+        else:
+            print('DBG timer_with_saved_params saved_command "len":{},'
+                  ' "if?" {} ,'
+                  ' {}'.format(len(self.saved_command),
+                               True if self.saved_command else False,
+                               self.saved_command))
+            print('DBG timer_with_saved_params have no jobs')
+
             # return True
 
     def squaredround(self, x):
@@ -961,14 +1000,14 @@ class RoboPad(FloatLayout):
             return True
 
     def send_command_data_with_saved_params(self):
-        self.command_sent = False
+        # self.command_sent = False
         before_send_command_data = time.time()
 
         # dict_commands = {'headx': headx, 'handy': handy, 'turnx': turnx, 'runy': runy, 'catch': catch, 'gear': gear}
         str_commands = 'http://' + str(self.robot_host) + '/?'
 
         for item in self.saved_command:
-            print('DBG send_command_data_with_saved_params got command: {}={}'.format(item, self.saved_command))
+            print('DBG send_command_data_with_saved_params got command: {}={}'.format(item, self.saved_command[item]))
 
             # str_commands += item + '=' + str(self.saved_command[item]) + '&'
             str_commands += item + '=' + str('{}'.format(self.saved_command[item])) + '&'
@@ -995,7 +1034,7 @@ class RoboPad(FloatLayout):
         self.last_command_sent_at = time.time()
 
         # erase self.saved_command for future runs and set command sent flag  # re-write needed for async native flags
-        self.saved_command = {}
+        # self.saved_command = {}
         self.command_sent = True
 
 
