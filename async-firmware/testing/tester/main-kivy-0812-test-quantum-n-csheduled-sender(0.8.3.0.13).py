@@ -255,19 +255,18 @@ class RoboPad(FloatLayout):
 
         self.current_command['gear'] = self.gear
 
-        # self.current_command['handy'] = self.recalculate_servo_position(y)
         print('DBG start OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
 
-        # if self.accept_command_with_saved_params(self.current_command):
-        #     # self.command_sent = False
-        #     print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
-        #     self.send_command_data_with_saved_params(self.current_command)
-        # else:
-        #     print('DBG OnSliderGearFactorValueChange not allowed to call send_command: {}'.format(self.current_command))
-        #     # pass
+        if self.accept_command_with_saved_params(self.current_command):
+            # self.command_sent = False
+            print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
+            self.send_command_data_with_saved_params(self.current_command)
+        else:
+            print('DBG OnSliderGearFactorValueChange not allowed to call send_command: {}'.format(self.current_command))
+            # pass
 
-        print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
-        self.send_command_data_with_saved_params(self.current_command)
+        # print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
+        # self.send_command_data_with_saved_params(self.current_command)
 
         print('DBG end OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
 
@@ -1066,12 +1065,13 @@ class RoboPad(FloatLayout):
         # stored_commands = self.stored_command
 
         print('DBG start accept_command_with_saved_params: {}'.format(current_command))
-        print('DBG accept_command_with_saved_params IS EQ? current {}\n'
-              '                                              saved {}\n'
-              '                                              equal {}\n'.format(
-            current_command,
-            self.stored_command,
-            self.stored_command == current_command))
+        print('DBG accept_command_with_saved_params CHECK EQUAL? current {} {}\n'
+              '                                                    saved {} {}\n'
+              '                                                    equal {}\n'
+              '                                                         ------'.format(
+               id(current_command), current_command,
+               id(self.stored_command), self.stored_command,
+               self.stored_command == current_command))
 
         try:
             # if self.command_sent:
@@ -1100,12 +1100,12 @@ class RoboPad(FloatLayout):
 
             if current_command != self.stored_command:
                 # new command
-                print('DBG accept_command_with_saved_params NOT EQ current {} {}\n'
-                      '                                              saved {} {}\n'
-                      '                                             equual {}\n'. format(
-                      id(current_command), current_command,
-                      id(self.stored_command), self.stored_command,
-                      self.stored_command == current_command))
+                print('DBG accept_command_with_saved_params NOT EQ current {}\n'
+                      '                                              saved {}\n'
+                      '                                              equal {}'. format(
+                       current_command,
+                       self.stored_command,
+                       self.stored_command == current_command))
 
                 # save this command to ignore same future runs
 
@@ -1121,18 +1121,17 @@ class RoboPad(FloatLayout):
                         ' sender ready for new command: {}'.format(self.current_command))
                     return True
                 else:
-                   print(
-                        'DBG accept_command_with_saved_params'
-                        ' sender NOT READY for new command: {}'.format(self.current_command))
+                    print('DBG accept_command_with_saved_params'
+                          ' sender NOT READY for new command: {}'.format(self.current_command))
                 return False
             else:
                 # same command
-                print('DBG accept_command_with_saved_params EQUAL current {} {}\n'
-                      '                                             saved {} {}\n'
-                      '                                            equual {}\n'. format(
-                      id(current_command), current_command,
-                      id(self.stored_command), self.stored_command,
-                      self.stored_command == current_command))
+                print('DBG accept_command_with_saved_params EQUAL current {}\n'
+                      '                                              saved {}\n'
+                      '                                              equal {}'. format(
+                       current_command,
+                       self.stored_command,
+                       self.stored_command == current_command))
 
                 print(
                     'DBG accept_command_with_saved_params same command, delayed: {}'.format(self.delayed_command))

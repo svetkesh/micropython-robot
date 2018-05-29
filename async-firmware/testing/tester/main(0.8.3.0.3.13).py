@@ -55,13 +55,15 @@ headx=71
 0.8.3.0.11 - added gears forward and backward
 0.8.3.0.3.13 debug version of 0.8.3.0.3.11
              eliminating delays
+
+             TODO: change 77 to CONSTANT
 """
 
 import uasyncio as asyncio
 
 
 def _handler(reader, writer):
-    print('New connection')
+    # print('DBG _handler : New connection')
     line = yield from reader.readline()
     # print(line)
     # driverobot(line)
@@ -89,7 +91,7 @@ try:
     import machine
     print('DBG: import "machine" library - done')
 except ImportError:
-    print('DBG: Could not import "machine" library')
+    print('ERR: Could not import "machine" library')
 
 try:
     import ure as re
@@ -99,7 +101,7 @@ except ImportError:
         import re
         print('DBG: import standard library RE "re" successful')
     except ImportError:
-        print('DBG: import could not be done neither re neither micro "ure"')
+        print('ERR: import could not be done neither re neither micro "ure"')
         raise SystemExit
 import utime as time
 import sys
@@ -170,9 +172,9 @@ def give_up():
     motor_a_p.duty(0)
     # print('DBG: # give_up')
 
+# # compile regex
 try:
-    # compile regex
-    # compile re number
+    # # compile re number
     float_number = re.compile("0\.(\d+)")
     r_number = re.compile("(\d+)")
 
@@ -189,7 +191,7 @@ try:
     #  get gear factor
     r_gear = re.compile("gear=(\d+)")  #
 except:
-    print('DBG: error compiling regex')
+    print('ERR: error compiling regex')
     # blink_report(4)
     # blink_report(4)
 
@@ -251,21 +253,16 @@ def robotlistener(request):  # test to ensure command passes to robot driver
     workers += 1
 
     current_commands_servos = {}
-    # current_commands_servos_max = 0
+    current_commands_servos_max = 0
     # current_commands_dcdrive = {}
     global last_commands_servos
     # global last_commands_dcdrive
 
     global mean_times
 
-
-
-
-
     time_loose = 0.0  # initial time out since last game loose - hall sensor trigger
 
-
-
+    # # lookup for command
     request = str(request)
     # # get head position
     # r_headx = re.compile("headx=0\.(\d+)")
@@ -286,7 +283,7 @@ def robotlistener(request):  # test to ensure command passes to robot driver
     # get gear factor gear_factor
     m_gear = r_gear.search(request)
 
-
+    # # processing command
     try:
         if hall_sensor.value() == 1:  # just caught !
             time_loose = time.ticks_ms()
@@ -298,10 +295,11 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                 # still give_up
                 # print('DBG: # still give_up')
             else:
+                # robot in action!
                 # print('DBG: # robot in action!')
                 networkpin.off()
-                # robot in action!
 
+                # processing regex m_
                 try:
                     m_headx = r_headx.search(request)
                     m_handy = r_handy.search(request)
@@ -311,8 +309,9 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                     m_gear = r_gear.search(request)
 
                 except Exception as e:
-                    print('Error while regex m_ {}, {}'.format(type(e), e))
+                    print('Error while processing regex m_ {}, {}'.format(type(e), e))
 
+                # processing servo and dcdrive commands
                 try:
 
                     if r_gear.search(request) is not None:
@@ -445,20 +444,33 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                 except Exception as e:
                     print('Error while processing servo and dcdrive commands  {}, {}'.format(type(e), e))
 
-
+        # # making robot reply
         # html = """<!DOCTYPE html>
         # <html lang="en">
         # mean_time_robotlistener = """ + str(mean_time_robotlistener) + """</html>
         #
         # """
 
-        # for command in current_commands_servos:
-        #     current_commands_servos_max = (current_commands_servos_max,
-        #                                    last_commands_servos[command] - current_commands_servos[command])
-
-            # last_commands_servos[command] = current_commands_servos[command]
-
+        # # processing stats
         try:
+            for command in current_commands_servos:
+                # print('DBG: command in current_commands_servos {} {}:{} {}'.format(type(command),
+                #                                                                    command,
+                #                                                                    current_commands_servos[command],
+                #                                                                    type(current_commands_servos[command])))
+
+                # # compare with last_commands_servos
+                try:
+                    current_commands_servos_max = max(current_commands_servos_max,
+                                                      abs(last_commands_servos[command] - current_commands_servos[command]))
+
+                except Exception as e:
+                    current_commands_servos_max = abs(77 - current_commands_servos[command])
+                    print('Error while compare with '
+                          'last_commands_servos {}, {} set max :{}'.format(type(e), e, current_commands_servos_max))
+
+                last_commands_servos[command] = current_commands_servos[command]
+                # print('DBG: command in last_commands_servos {}:{}'.format(command, last_commands_servos[command]))
 
             robotlistener_time = time.ticks_ms() - start_timer
             # mean_times['robotlistener_time'] = means(mean_times['robotlistener_time'], robotlistener_time, command_counter)
@@ -467,10 +479,12 @@ def robotlistener(request):  # test to ensure command passes to robot driver
             # print('DBG meaning times: {}, speed:{}'.format(mean_times,))
             # print('DBG meaning times: {}, speed:{}'.format(mean_times, # current_commands_servos_max / robotlistener_time))
 
-            print('DBG ms:{}, count_robotlistener: {} , {}'.format(
+            print('DBG ms:{}, servos_max: {}, speed: {} \ncount_robotlistener: {} , {}'.format(
                   robotlistener_time,
-                count_robotlistener,
-                current_commands_servos))
+                  current_commands_servos_max,
+                  str(current_commands_servos_max / robotlistener_time)[0:5],
+                  count_robotlistener,
+                  current_commands_servos))
         except Exception as e:
             print('Error while processing stats {}, {}'.format(type(e), e))
 
