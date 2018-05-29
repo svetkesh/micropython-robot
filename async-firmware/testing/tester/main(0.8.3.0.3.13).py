@@ -158,7 +158,7 @@ hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
 # some debug and stats
 start_timer = 0.0
 command_counter = 0
-# mean_times = {}
+mean_times = {}
 last_commands_servos = {}
 # last_commands_dcdrive = {}
 
@@ -473,18 +473,30 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                 # print('DBG: command in last_commands_servos {}:{}'.format(command, last_commands_servos[command]))
 
             robotlistener_time = time.ticks_ms() - start_timer
-            # mean_times['robotlistener_time'] = means(mean_times['robotlistener_time'], robotlistener_time, command_counter)
-            # mean_times['robotlistener_time'] = means(mean_times['robotlistener_time'], robotlistener_time, command_counter)
+
+            # # collecting meanings
+            try:
+                mean_times['robotlistener_time'] = means(mean_times['robotlistener_time'],
+                                                         robotlistener_time,
+                                                         command_counter)
+            except Exception as e:
+                mean_times['robotlistener_time'] = robotlistener_time
+                print('Error while collecting meanings {}, {}, set as: {}'.format(type(e),
+                                                                              e,
+                                                                              mean_times['robotlistener_time']))
 
             # print('DBG meaning times: {}, speed:{}'.format(mean_times,))
-            # print('DBG meaning times: {}, speed:{}'.format(mean_times, # current_commands_servos_max / robotlistener_time))
+            # print('DBG meaning times: {}, speed:{}'.format(mean_times,
+            #                                               current_commands_servos_max / robotlistener_time))
 
-            print('DBG ms:{}, servos_max: {}, speed: {} \ncount_robotlistener: {} , {}'.format(
-                  robotlistener_time,
-                  current_commands_servos_max,
-                  str(current_commands_servos_max / robotlistener_time)[0:5],
-                  count_robotlistener,
-                  current_commands_servos))
+            print('DBG ms:{}, servos_max: {}, speed: {} \n'
+                  'count_robotlistener: {}, mean_times[\'robotlistener_time\'] :{}, command_servos {}'.format(
+                robotlistener_time,
+                current_commands_servos_max,
+                str(current_commands_servos_max / robotlistener_time)[0:5],
+                count_robotlistener,
+                mean_times['robotlistener_time'],
+                current_commands_servos))
         except Exception as e:
             print('Error while processing stats {}, {}'.format(type(e), e))
 

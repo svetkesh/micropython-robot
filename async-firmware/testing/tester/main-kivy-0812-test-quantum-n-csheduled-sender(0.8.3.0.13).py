@@ -1115,7 +1115,7 @@ class RoboPad(FloatLayout):
 
                 #  check for possible delays
 
-                if time.time() > self.last_command_sent_at + 0.1:    #####  warning!!!!! DELAY!!!!
+                if time.time() > self.last_command_sent_at + 0.05:    #####  warning!!!!! DELAY!!!!
                     print(
                         'DBG accept_command_with_saved_params'
                         ' sender ready for new command: {}'.format(self.current_command))
