@@ -63,6 +63,14 @@ import uasyncio as asyncio
 
 
 def _handler(reader, writer):
+
+    start_timer = time.ticks_ms()
+    global command_counter
+
+    global mean_times
+
+    # # orig _handler
+
     # print('DBG _handler : New connection')
     line = yield from reader.readline()
     # print(line)
@@ -75,6 +83,30 @@ def _handler(reader, writer):
         print('DBG: workers count: {}'.format(workers))
     yield from writer.awrite('Gotcha!')
     yield from writer.aclose()
+
+    # # end original _handler
+
+    # # collecting meanings for handler_time
+    try:
+        handler_time = time.ticks_ms() - start_timer
+        try:
+            mean_times['handler_time'] = means(abs(mean_times['handler_time'] - mean_times['robotlistener_time']),
+                                               handler_time,
+                                               command_counter)
+        except Exception as e:
+            mean_times['handler_time'] = handler_time
+            print('Error while calculating meanings for handler_time'
+                  ' {}, {}, set as: {}'.format(type(e), e, mean_times['handler_time']))
+
+        # # full DBG handler_time
+        print('DBG handler count : {}, '
+              'current handler : {}, '
+              'mean_times[\'handler_time\'] : {}'.format(count_robotlistener,
+                                                         handler_time,
+                                                         mean_times['handler_time']))
+
+    except Exception as e:
+        print('Error while processing meanings for handler_time {}, {}'.format(type(e), e))
 
 
 # def run(host="127.0.0.1", port=8081, loop_forever=True, backlog=16): # orig
@@ -489,7 +521,9 @@ def robotlistener(request):  # test to ensure command passes to robot driver
             # print('DBG meaning times: {}, speed:{}'.format(mean_times,
             #                                               current_commands_servos_max / robotlistener_time))
 
-            print('DBG ms:{}, servos_max: {}, speed: {} \n'
+
+            # # full DBG robotlistener
+            print('DBG robotlistener ms:{}, servos_max: {}, speed: {} \n'
                   'count_robotlistener: {}, mean_times[\'robotlistener_time\'] :{}, command_servos {}'.format(
                 robotlistener_time,
                 current_commands_servos_max,
@@ -497,6 +531,10 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                 count_robotlistener,
                 mean_times['robotlistener_time'],
                 current_commands_servos))
+
+
+
+
         except Exception as e:
             print('Error while processing stats {}, {}'.format(type(e), e))
 
