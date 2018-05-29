@@ -156,7 +156,9 @@ hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
 # some debug and stats
 start_timer = 0.0
 command_counter = 0
-mean_times = {}
+# mean_times = {}
+last_commands_servos = {}
+# last_commands_dcdrive = {}
 
 workers = 0
 
@@ -195,13 +197,22 @@ def means(m, x=0.0, t=1):
     # previous mean time for x values
     # given x
     # given count
-    print(m, x, t)
-    if t == 1:
-        # print('return first value')
+
+    # print(m, x, t)
+    try:
+        if t == 0:
+            # print('return first value, avoid zero division')
+            return x
+        elif t < 2:
+            # print('return first value')
+            return x
+        else:
+            # print('calculating...')
+            return (m * (t-1) + x) / t
+    except Exception as e:
+        # print('return first value, supress arithmetic errors')
+        print('ERR while calculating meaning values {}, {}'.format(type(e), e))
         return x
-    else:
-        # print('calculating...')
-        return (m * (t-1) + x) / t
 
 
 def robotworkers():  # test to ensure command passes to robot driver
@@ -227,8 +238,8 @@ def robotlistener(request):  # test to ensure command passes to robot driver
     global HOLD_LOOSE_TIMEOUT
 
     global mean_time_robotlistener
-    start_robotlistener = time.time()
-    start_timert = time.time()
+    start_robotlistener = time.ticks_ms()
+    start_timer = time.ticks_ms()
     global command_counter
     command_counter += 1
     global count_robotlistener
@@ -239,9 +250,19 @@ def robotlistener(request):  # test to ensure command passes to robot driver
 
     workers += 1
 
+    current_commands_servos = {}
+    # current_commands_servos_max = 0
+    # current_commands_dcdrive = {}
+    global last_commands_servos
+    # global last_commands_dcdrive
+
+    global mean_times
 
 
-    time_loose = 0  # initial time out since last game loose - hall sensor trigger
+
+
+
+    time_loose = 0.0  # initial time out since last game loose - hall sensor trigger
 
 
 
@@ -268,11 +289,11 @@ def robotlistener(request):  # test to ensure command passes to robot driver
 
     try:
         if hall_sensor.value() == 1:  # just caught !
-            time_loose = time.time()
+            time_loose = time.ticks_ms()
             give_up()
             # print('DBG: # just caught !')
         else:
-            if (time.time() - time_loose) < HOLD_LOOSE_TIMEOUT:
+            if (time.ticks_ms() - time_loose) < HOLD_LOOSE_TIMEOUT:
                 pass
                 # still give_up
                 # print('DBG: # still give_up')
@@ -281,153 +302,184 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                 networkpin.off()
                 # robot in action!
 
-                m_headx = r_headx.search(request)
-                m_handy = r_handy.search(request)
-                m_turnx = r_turnx.search(request)
-                m_runy = r_runy.search(request)
-                m_catch = r_catch.search(request)
-                m_gear = r_gear.search(request)
+                try:
+                    m_headx = r_headx.search(request)
+                    m_handy = r_handy.search(request)
+                    m_turnx = r_turnx.search(request)
+                    m_runy = r_runy.search(request)
+                    m_catch = r_catch.search(request)
+                    m_gear = r_gear.search(request)
 
-                if r_gear.search(request) is not None:
-                    s_gear = str(m_gear.group(0))
-                    gear = r_number.search(s_gear)
-                    gear_factor = int(gear.group(0))
-                    print('DBG: updated gear_factor: {}'.format(gear_factor))
+                except Exception as e:
+                    print('Error while regex m_ {}, {}'.format(type(e), e))
 
-                # if r_headx.search(request) is not None:
-                #     s_headx = str(m_headx.group(0))
-                #     headx = r_number.search(s_headx)
-                #     f_headx = float(headx.group(0))
-                #     posx = int(f_headx * 75 + 40)
-                #     servo_head_x.duty(posx)
+                try:
 
-                # new in 0.3.0.3.8 with integers only
-                if r_headx.search(request) is not None:
-                    s_headx = str(m_headx.group(0))
-                    headx = r_number.search(s_headx)
-                    posx = int(headx.group(0))
-                    servo_head_x.duty(posx)
+                    if r_gear.search(request) is not None:
+                        s_gear = str(m_gear.group(0))
+                        gear = r_number.search(s_gear)
+                        gear_factor = int(gear.group(0))
+                        print('DBG: updated gear_factor: {}'.format(gear_factor))
 
-                # if r_handy.search(request) is not None:
-                #     s_handy = str(m_handy.group(0))
-                #     handy = r_number.search(s_handy)
-                #     f_handy = 1 - float(handy.group(0))  # inverse Y axis
-                #     posy = int(f_handy * 75 + 40)
-                #     servo_hand_y.duty(posy)
-
-                # new in 0.3.0.3.8 with integers only
-                if r_handy.search(request) is not None:
-                    s_handy = str(m_handy.group(0))
-                    handy = r_number.search(s_handy)
-                    # f_handy = 1 - float(handy.group(0))  # inverse Y axis
-                    posy = 155 - int(handy.group(0))       # inverse Y axis
-                    servo_hand_y.duty(posy)
-
-                # if r_turnx.search(request) is not None:
-                #     s_turnx = str(m_turnx.group(0))
-                #     turnx = r_number.search(s_turnx)
-                #     f_turnx = 1 - float(turnx.group(0))   # inverse Y axis
-                #     directionx = int(f_turnx * 75 + 40)
-                #     servo_direction.duty(directionx)
+                    # if r_headx.search(request) is not None:
+                    #     s_headx = str(m_headx.group(0))
+                    #     headx = r_number.search(s_headx)
+                    #     f_headx = float(headx.group(0))
+                    #     posx = int(f_headx * 75 + 40)
+                    #     servo_head_x.duty(posx)
 
                     # new in 0.3.0.3.8 with integers only
-                if r_turnx.search(request) is not None:
-                    s_turnx = str(m_turnx.group(0))
-                    turnx = r_number.search(s_turnx)
-                    # f_turnx = 1 - float(turnx.group(0))   # inverse Y axis
-                    directionx = 155 - int(turnx.group(0))  # inverse Y axis
-                    servo_direction.duty(directionx)
+                    if r_headx.search(request) is not None:
+                        s_headx = str(m_headx.group(0))
+                        headx = r_number.search(s_headx)
+                        posx = int(headx.group(0))
+                        servo_head_x.duty(posx)
+                        current_commands_servos['posx'] = posx
 
-                # if r_runy.search(request) is not None:
-                #     s_runy = str(m_runy.group(0))
-                #     runy = r_number.search(s_runy)
-                #     f_runy = float(runy.group(0))
-                #
-                #     if f_runy < 0.5:
-                #         m_duty = -1
-                #     else:
-                #         m_duty = 1
-                #
-                #     p_duty = int(abs(f_runy * 3000) - 1500)
-                #
-                #     # print('got position from joystick hand x,y : {} , {}'
-                #     #       'got position from joystick run turn : {} \n'
-                #     #       'direction , speed : {} , {}'.format('-',
-                #     #                                            '-',
-                #     #                                            '-',
-                #     #                                            m_duty,
-                #     #                                            p_duty))
-                #     motor_a_p.duty(p_duty)
-                #     motor_a_m.duty(m_duty)
+                    # if r_handy.search(request) is not None:
+                    #     s_handy = str(m_handy.group(0))
+                    #     handy = r_number.search(s_handy)
+                    #     f_handy = 1 - float(handy.group(0))  # inverse Y axis
+                    #     posy = int(f_handy * 75 + 40)
+                    #     servo_hand_y.duty(posy)
 
-                # for firmware dated after 2018-04-xx
+                    # new in 0.3.0.3.8 with integers only
+                    if r_handy.search(request) is not None:
+                        s_handy = str(m_handy.group(0))
+                        handy = r_number.search(s_handy)
+                        # f_handy = 1 - float(handy.group(0))  # inverse Y axis
+                        posy = 155 - int(handy.group(0))       # inverse Y axis
+                        servo_hand_y.duty(posy)
+                        current_commands_servos['posy'] = posy
 
-                if r_runy.search(request) is not None:
-                    s_runy = str(m_runy.group(0))
-                    runy = r_number.search(s_runy)
-                    # f_runy = float(runy.group(0))
-                    i_runy = int(runy.group(0))
+                    # if r_turnx.search(request) is not None:
+                    #     s_turnx = str(m_turnx.group(0))
+                    #     turnx = r_number.search(s_turnx)
+                    #     f_turnx = 1 - float(turnx.group(0))   # inverse Y axis
+                    #     directionx = int(f_turnx * 75 + 40)
+                    #     servo_direction.duty(directionx)
 
-                    # pre - 0.8.0.3.8
+                        # new in 0.3.0.3.8 with integers only
+                    if r_turnx.search(request) is not None:
+                        s_turnx = str(m_turnx.group(0))
+                        turnx = r_number.search(s_turnx)
+                        # f_turnx = 1 - float(turnx.group(0))   # inverse Y axis
+                        directionx = 155 - int(turnx.group(0))  # inverse Y axis
+                        servo_direction.duty(directionx)
+                        current_commands_servos['directionx'] = directionx
 
-                    # if f_runy < 0.5:
-                    #     # m_duty = -1
-                    #     m_duty = -300
-                    #     p_duty = int(1000 - 2000 * f_runy)
+                    # if r_runy.search(request) is not None:
+                    #     s_runy = str(m_runy.group(0))
+                    #     runy = r_number.search(s_runy)
+                    #     f_runy = float(runy.group(0))
                     #
-                    # elif f_runy == 0.5:
-                    #     m_duty = 0
-                    #     p_duty = 0
-                    # else:
-                    #     m_duty = int(f_runy * 1000)
-                    #     p_duty = int(f_runy * 1000)
+                    #     if f_runy < 0.5:
+                    #         m_duty = -1
+                    #     else:
+                    #         m_duty = 1
+                    #
+                    #     p_duty = int(abs(f_runy * 3000) - 1500)
+                    #
+                    #     # print('got position from joystick hand x,y : {} , {}'
+                    #     #       'got position from joystick run turn : {} \n'
+                    #     #       'direction , speed : {} , {}'.format('-',
+                    #     #                                            '-',
+                    #     #                                            '-',
+                    #     #                                            m_duty,
+                    #     #                                            p_duty))
+                    #     motor_a_p.duty(p_duty)
+                    #     motor_a_m.duty(m_duty)
 
-                    # new in 0.3.0.3.8 with integers only
-                    if i_runy < 77:
-                        # m_duty = -1
-                        m_duty = -200
-                        m_duty = -70 * gear_factor
-                        p_duty = int((924 - 12 * i_runy))
+                    # for firmware dated after 2018-04-xx
 
-                    elif i_runy == 77:
-                        m_duty = 0
-                        p_duty = 0
-                    else:
-                        m_duty = int((i_runy-70) * 5 * gear_factor)
-                        p_duty = int((i_runy-70) * 5 * gear_factor)
+                    if r_runy.search(request) is not None:
+                        s_runy = str(m_runy.group(0))
+                        runy = r_number.search(s_runy)
+                        # f_runy = float(runy.group(0))
+                        i_runy = int(runy.group(0))
+                        # current_commands_dcdrive['i_runy'] = i_runy
 
-                    # print('DBG f_runy {}, m_duty {}, p_duty {}'.format(f_runy, m_duty, p_duty))
-                    print('DBG i_runy {}, m_duty {}, p_duty {}'.format(i_runy, m_duty, p_duty))
+                        # pre - 0.8.0.3.8
 
-                    motor_a_p.duty(p_duty)
-                    motor_a_m.duty(m_duty)
+                        # if f_runy < 0.5:
+                        #     # m_duty = -1
+                        #     m_duty = -300
+                        #     p_duty = int(1000 - 2000 * f_runy)
+                        #
+                        # elif f_runy == 0.5:
+                        #     m_duty = 0
+                        #     p_duty = 0
+                        # else:
+                        #     m_duty = int(f_runy * 1000)
+                        #     p_duty = int(f_runy * 1000)
 
-                if r_catch.search(request) is not None:
-                    # print('DBG servo_catch.duty() : {}'.format(
-                    #     servo_catch.duty()))
+                        # new in 0.3.0.3.8 with integers only
+                        if i_runy < 77:
+                            # m_duty = -1
+                            m_duty = -200
+                            m_duty = -70 * gear_factor
+                            p_duty = int((924 - 12 * i_runy))
 
-                    if servo_catch.duty() < 75:
-                        servo_catch.duty(110)
-                    else:
-                        servo_catch.duty(40)
+                        elif i_runy == 77:
+                            m_duty = 0
+                            p_duty = 0
+                        else:
+                            m_duty = int((i_runy-70) * 5 * gear_factor)
+                            p_duty = int((i_runy-70) * 5 * gear_factor)
 
-        mean_time_robotlistener = (mean_time_robotlistener * count_robotlistener + (time.time() - start_robotlistener))\
-                                / (count_robotlistener + 1)
+                        # print('DBG f_runy {}, m_duty {}, p_duty {}'.format(f_runy, m_duty, p_duty))
+                        # print('DBG i_runy {}, m_duty {}, p_duty {}'.format(i_runy, m_duty, p_duty))
+
+                        motor_a_p.duty(p_duty)
+                        motor_a_m.duty(m_duty)
+
+                    if r_catch.search(request) is not None:
+                        # print('DBG servo_catch.duty() : {}'.format(
+                        #     servo_catch.duty()))
+
+                        if servo_catch.duty() < 75:
+                            servo_catch.duty(110)
+                        else:
+                            servo_catch.duty(40)
+
+                except Exception as e:
+                    print('Error while processing servo and dcdrive commands  {}, {}'.format(type(e), e))
+
 
         # html = """<!DOCTYPE html>
         # <html lang="en">
         # mean_time_robotlistener = """ + str(mean_time_robotlistener) + """</html>
         #
         # """
-        print('DBG: mean_time_robotlistener : {} {}'.format(time.time() - start_robotlistener,
-                                                            mean_time_robotlistener))
+
+        # for command in current_commands_servos:
+        #     current_commands_servos_max = (current_commands_servos_max,
+        #                                    last_commands_servos[command] - current_commands_servos[command])
+
+            # last_commands_servos[command] = current_commands_servos[command]
+
+        try:
+
+            robotlistener_time = time.ticks_ms() - start_timer
+            # mean_times['robotlistener_time'] = means(mean_times['robotlistener_time'], robotlistener_time, command_counter)
+            # mean_times['robotlistener_time'] = means(mean_times['robotlistener_time'], robotlistener_time, command_counter)
+
+            # print('DBG meaning times: {}, speed:{}'.format(mean_times,))
+            # print('DBG meaning times: {}, speed:{}'.format(mean_times, # current_commands_servos_max / robotlistener_time))
+
+            print('DBG ms:{}, count_robotlistener: {} , {}'.format(
+                  robotlistener_time,
+                count_robotlistener,
+                current_commands_servos))
+        except Exception as e:
+            print('Error while processing stats {}, {}'.format(type(e), e))
 
         count_robotlistener += 1
 
         workers -= 1
 
     except Exception as e:
-        # print('Error searching exact values in received command , {}'.format(type(e), e))
+        print('Error while processing command {}, {}'.format(type(e), e))
         # # hard reset
         machine.reset()
         # soft reset
@@ -441,171 +493,6 @@ def give_up():
     motor_a_p.duty(0)
     # print('DBG: # give_up')
 
-
-def driverobot(request):
-    try:
-        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # s.bind(('', 80))
-        # s.listen(5)
-        # print('DBG: opened connection to port 80')
-        while True:
-            try:
-                # # networkpin.on()
-                # conn, addr = s.accept()
-                # # print("Got a connection from %s" % str(addr))
-                # request = conn.recv(1024)
-                # # print("Content = %s" % str(request))  # print full request
-                request = str(request)
-
-                # compile re number
-                # r_number = re.compile("0\.(\d+)")
-
-                # # get head position
-                # r_headx = re.compile("headx=0\.(\d+)")
-                m_headx = r_headx.search(request)
-                #
-                # # get hand position
-                # r_handy = re.compile("handy=0\.(\d+)")  #
-                m_handy = r_handy.search(request)
-
-                # get body direction turnx
-                # r_turnx = re.compile("turnx=0\.(\d+)")  #
-                m_turnx = r_turnx.search(request)
-
-                # get body speed runy
-                # r_runy = re.compile("runy=0\.(\d+)")  #
-                m_runy = r_runy.search(request)
-
-                # get catch-release trigger
-                # r_catch = re.compile("catch=catch")  #
-                m_catch = r_catch.search(request)
-
-                try:
-                    # default values for positions and speed and direction
-                    f_headx = 0.5
-                    f_handy = 0.5
-                    f_turnx = 0.5
-                    f_runy = 0.5
-
-                    # selecting only actual commands without defaults values
-                    # >>> print('not') if None != re_compiled.search(search_string) else print('yes')
-                    # not
-
-                    if r_headx.search(request) is not None:
-
-                        s_headx = str(m_headx.group(0))
-                        # print('source string: {}'.format(s_headx))
-                        headx = r_number.search(s_headx)
-                        # print('  value found: {}'.format(headx.group(0)))
-                        f_headx = float(headx.group(0))
-                        # print('  float value: {} , value+2 = {} '.format(f_headx, f_headx + 2))  # testing float conv
-                        posx = int(f_headx * 75 + 40)
-                        servo_head_x.duty(posx)
-
-                        # print('got position from joystick hand x,y : {} , {}\n'
-                        #       'got position from joystick run turn : {} \n'
-                        #       'direction , speed : {} , {}'.format(posx,
-                        #                                            '-',
-                        #                                            '-',
-                        #                                            '-',
-                        #                                            '-'))
-                    #
-                    if r_handy.search(request) is not None:
-                        s_handy = str(m_handy.group(0))
-                        # print('source string: {}'.format(s_handy))
-                        handy = r_number.search(s_handy)
-                        # print('  value found: {}'.format(handy.group(0)))
-                        f_handy = 1 - float(handy.group(0))               # inverse Y axis
-                        posy = int(f_handy * 75 + 40)
-                        servo_hand_y.duty(posy)
-
-                        # print('got position from joystick hand x,y : {} , {}'
-                        #       'got position from joystick run turn : {} \n'
-                        #       'direction , speed : {} , {}'.format('-',
-                        #                                            posy,
-                        #                                            '-',
-                        #                                            '-',
-                        #                                            '-'))
-
-                    if r_turnx.search(request) is not None:
-                        s_turnx = str(m_turnx.group(0))
-                        # print('source string: {}'.format(s_turnx))
-                        turnx = r_number.search(s_turnx)
-                        # print('  value found: {}'.format(turnx.group(0)))
-                        f_turnx = float(turnx.group(0))
-                        directionx = int(f_turnx * 75 + 40)
-                        servo_direction.duty(directionx)
-
-                        # print('got position from joystick hand x,y : {} , {}'
-                        #       'got position from joystick run turn : {} \n'
-                        #       'direction , speed : {} , {}'.format('-',
-                        #                                            '-',
-                        #                                            directionx,
-                        #                                            '-',
-                        #                                            '-'))
-
-                    if r_runy.search(request) is not None:
-                        s_runy = str(m_runy.group(0))
-                        # print('source string: {}'.format(s_runy))
-                        runy = r_number.search(s_runy)
-                        # print('  value found: {}'.format(runy.group(0)))
-                        f_runy = float(runy.group(0))
-
-                        if f_runy < 0.5:
-                            m_duty = -1
-                        else:
-                            m_duty = 1
-
-                        p_duty = int(abs(f_runy * 3000) - 1500)
-
-                        # print('got position from joystick hand x,y : {} , {}'
-                        #       'got position from joystick run turn : {} \n'
-                        #       'direction , speed : {} , {}'.format('-',
-                        #                                            '-',
-                        #                                            '-',
-                        #                                            m_duty,
-                        #                                            p_duty))
-                        motor_a_p.duty(p_duty)
-                        motor_a_m.duty(m_duty)
-                        # networkpin.off()
-
-                    if r_catch.search(request) is not None:
-                        # print('DBG servo_catch.duty() : {}'.format(
-                        #     servo_catch.duty()))
-
-                        if servo_catch.duty() < 75:
-                            servo_catch.duty(110)
-                        else:
-                            servo_catch.duty(40)
-                        # time.sleep(0.05)
-
-                except Exception as e:
-                    print('Error searching exact values in received command , {}'.format(type(e), e))
-                    # blink_report(5)
-                    # blink_report(5)
-
-                # networkpin.off()
-
-                # response = html
-                # conn.send(response)
-                # conn.close()
-            except Exception as e:
-                print('ERR: Catch Exception while processing requests: {} , {}'.format(type(e), e))
-                print('DBG: about to reset in few seconds')
-                # blink_report(6)
-                # blink_report(6)
-                # networkpin.off()
-                #
-                # utime.sleep(LONG_SLEEP)
-                #
-                time.sleep(SHORT_SLEEP)
-                # # hard reset
-                # machine.reset()
-                # soft reset
-                # sys.exit()
-                pass
-    finally:
-        pass
 
 if __name__ == '__main__':
     run()

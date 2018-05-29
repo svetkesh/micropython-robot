@@ -245,9 +245,31 @@ class RoboPad(FloatLayout):
         # self.stored_command = {}   # updated storage for commands
         # self.delayed_command = {}  # updated storage for commands
         # print(type(value), value, self.gear)
-        self.gear = round(value)
+
         # self.send_command_data(gear=self.gear)
-        self.saved_command['gear'] = self.gear
+        # self.saved_command['gear'] = self.gear
+
+        self.current_command = {}
+
+        self.gear = round(value)
+
+        self.current_command['gear'] = self.gear
+
+        # self.current_command['handy'] = self.recalculate_servo_position(y)
+        print('DBG start OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
+
+        # if self.accept_command_with_saved_params(self.current_command):
+        #     # self.command_sent = False
+        #     print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
+        #     self.send_command_data_with_saved_params(self.current_command)
+        # else:
+        #     print('DBG OnSliderGearFactorValueChange not allowed to call send_command: {}'.format(self.current_command))
+        #     # pass
+
+        print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
+        self.send_command_data_with_saved_params(self.current_command)
+
+        print('DBG end OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
 
     def OnSliderTimeoutTimerStartValueChange(self, instance, value):
         # self.command_sent = False
@@ -385,23 +407,22 @@ class RoboPad(FloatLayout):
         # self.stored_command = {}   # updated storage for commands
         # self.delayed_command = {}  # updated storage for commands
 
-        RUN_Y_STEP = 2  # steps to final acceleration
-        RUN_Y_SLEEP = 0.04  # steps to final acceleration
+        self.current_command = {}
 
         x = self.squaredround(pad[0])
         y = self.squaredround(pad[1])
 
-        self.current_pos['headx'] = x
-        self.current_pos['handy'] = y
+        self.current_command['headx'] = self.recalculate_servo_position(x)
+        self.current_command['handy'] = self.recalculate_servo_position(y)
+        print('DBG start update_coordinates_hand self.current_command: {}'.format(self.current_command))
 
-        if self.command_sent:
-
-            self.saved_command['headx'] = self.recalculate_servo_position(x)
-            self.saved_command['handy'] = self.recalculate_servo_position(y)
-            self.command_sent = False
-            self.send_command_data_with_saved_params()
+        if self.accept_command_with_saved_params(self.current_command):
+            # self.command_sent = False
+            print('DBG update_coordinates_hand calls send_command_data_({}): '.format(self.current_command))
+            self.send_command_data_with_saved_params(self.current_command)
         else:
-            pass
+            print('DBG update_coordinates_hand not allowed to call send_command: {}'.format(self.current_command))
+            # pass
 
     def update_catch_release(self, instance):
         # self.command_sent = False
@@ -410,11 +431,24 @@ class RoboPad(FloatLayout):
 
         # # print('DBG: button pressed!')
         # catch = catch
-        if self.command_sent:
 
-            self.saved_command['catch'] = 'catch'
-            self.command_sent = False
-            self.send_command_data_with_saved_params()
+        self.current_command = {}
+
+        self.current_command['catch'] = 'catch'
+
+        print('DBG start update_catch_release self.current_command: {}'.format(self.current_command))
+
+        # if self.accept_command_with_saved_params(self.current_command):
+        #     # self.command_sent = False
+        #     print('DBG update_catch_release calls send_command_data_({}): '.format(self.current_command))
+        #     self.send_command_data_with_saved_params(self.current_command)
+        # else:
+        #     print('DBG update_catch_release not allowed to call send_command: {}'.format(self.current_command))
+        #     # pass
+
+        print('DBG update_catch_release calls send_command_data_({}): '.format(self.current_command))
+        self.send_command_data_with_saved_params(self.current_command)
+        print('DBG end update_catch_release self.current_command: {}'.format(self.current_command))
 
     def update_hiphop(self, instance):
         self.hiphop = 50
@@ -1110,7 +1144,6 @@ class RoboPad(FloatLayout):
 
         finally:
             print('DBG end accept_command_with_saved_params self.stored_command: {}'.format(self.stored_command))
-
 
     def send_command_data_with_saved_params(self, commands):
         # self.command_sent = False
