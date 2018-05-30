@@ -56,68 +56,16 @@ headx=71
 0.8.3.0.3.13 debug version of 0.8.3.0.3.11
              eliminating delays
 
-             TODO: change 77 to CONSTANT
+
+TODO: change: 77 to CONSTANT
+             in def run change host="192.168.4.1" to "robot_ip" 
+             
+    change: robot_listener(request):return: None -> ...
+            
+    make time_loose global
 """
 
 import uasyncio as asyncio
-
-
-def _handler(reader, writer):
-
-    start_timer = time.ticks_ms()
-    global command_counter
-
-    global mean_times
-
-    # # orig _handler
-
-    # print('DBG _handler : New connection')
-    line = yield from reader.readline()
-    # print(line)
-    # driverobot(line)
-
-    if workers < 4:
-        robotlistener(line)
-        # robotworkers()
-    else:
-        print('DBG: workers count: {}'.format(workers))
-    yield from writer.awrite('Gotcha!')
-    yield from writer.aclose()
-
-    # # end original _handler
-
-    # # collecting meanings for handler_time
-    try:
-        handler_time = time.ticks_ms() - start_timer
-        try:
-            mean_times['handler_time'] = means(abs(mean_times['handler_time'] - mean_times['robotlistener_time']),
-                                               handler_time,
-                                               command_counter)
-        except Exception as e:
-            mean_times['handler_time'] = handler_time
-            print('Error while calculating meanings for handler_time'
-                  ' {}, {}, set as: {}'.format(type(e), e, mean_times['handler_time']))
-
-        # # full DBG handler_time
-        print('DBG handler count : {}, '
-              'current handler : {}, '
-              'mean_times[\'handler_time\'] : {}'.format(count_robotlistener,
-                                                         handler_time,
-                                                         mean_times['handler_time']))
-
-    except Exception as e:
-        print('Error while processing meanings for handler_time {}, {}'.format(type(e), e))
-
-
-# def run(host="127.0.0.1", port=8081, loop_forever=True, backlog=16): # orig
-def run(host="192.168.4.1", port=80, loop_forever=True, backlog=16):
-    loop = asyncio.get_event_loop()
-    print("* Starting Server at {}:{}".format(host, port))
-    loop.create_task(asyncio.start_server(_handler, host, port, backlog=backlog))
-    if loop_forever:
-        loop.run_forever()
-        loop.close()
-
 
 try:
     import machine
@@ -152,9 +100,9 @@ sta_if = network.WLAN(network.STA_IF)
 # if sta_if.active():
 #     print('sta_if: {}, {}, {}'.format(sta_if.active(), type(sta_if.ifconfig()), sta_if.ifconfig()))
 #     robot_ip = sta_if.ifconfig()[0]
-#     print('robot_ip : {}'. format(robot_ip))
+#     print('robot_ip: {}'. format(robot_ip))
 
-print('Robot IP robot_ip : {}'. format(robot_ip))
+print('Robot IP robot_ip: {}'. format(robot_ip))
 
 # HTML to send to browsers
 # hardcoded ip address html reply
@@ -165,9 +113,6 @@ ok
 </html>
 
 """
-
-mean_time_robotlistener = 0.0
-count_robotlistener = 1
 
 # set game timers
 HOLD_LOOSE_TIMEOUT = 5
@@ -188,12 +133,13 @@ networkpin = machine.Pin(2, machine.Pin.OUT)
 hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
 
 # some debug and stats
-start_timer = 0.0
-command_counter = 0
-mean_times = {}
+# start_timer = 0.0  # del
+mean_times = {}                      # store mean time of runnings
 last_commands_servos = {}
 # last_commands_dcdrive = {}
 
+count_robot_listener = 0
+count_handler = 0
 workers = 0
 
 
@@ -227,6 +173,7 @@ except:
     # blink_report(4)
     # blink_report(4)
 
+
 def means(m, x=0.0, t=1):
     # previous mean time for x values
     # given x
@@ -249,7 +196,8 @@ def means(m, x=0.0, t=1):
         return x
 
 
-def robotworkers():  # test to ensure command passes to robot driver
+def robotworkers():
+    """test to ensure command passes to robot driver"""
     global workers
 
     workers += 1
@@ -257,8 +205,16 @@ def robotworkers():  # test to ensure command passes to robot driver
     workers -= 1
 
 
-def robotlistener(request):  # test to ensure command passes to robot driver
-
+def robot_listener(request):
+    """
+    Listen to commands and
+    running with servos and dc drives.
+   :param request: 
+   :return: None
+    """
+    
+    start_timer = time.ticks_ms()
+    
     global motor_a_p
     global motor_a_m
     global servo_direction
@@ -266,33 +222,26 @@ def robotlistener(request):  # test to ensure command passes to robot driver
     global servo_hand_y
     global servo_catch
     global networkpin
-
+    global gear_factor
+    
     global html
 
     global HOLD_LOOSE_TIMEOUT
-
-    global mean_time_robotlistener
-    start_robotlistener = time.ticks_ms()
-    start_timer = time.ticks_ms()
-    global command_counter
-    command_counter += 1
-    global count_robotlistener
-
-    global gear_factor
-
-    global workers
-
-    workers += 1
-
+  
+    global last_commands_servos
+    # global last_commands_dcdrive
+    
+    global count_robot_listener
+    global mean_times
+    
+    count_robot_listener += 1
+    
     current_commands_servos = {}
     current_commands_servos_max = 0
     # current_commands_dcdrive = {}
-    global last_commands_servos
-    # global last_commands_dcdrive
-
-    global mean_times
-
-    time_loose = 0.0  # initial time out since last game loose - hall sensor trigger
+    # current_commands_dcdrive_max = 0
+    
+    time_loose = 0.0                  # initial time out since last game loose - hall sensor trigger
 
     # # lookup for command
     request = str(request)
@@ -411,9 +360,9 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                     #
                     #     p_duty = int(abs(f_runy * 3000) - 1500)
                     #
-                    #     # print('got position from joystick hand x,y : {} , {}'
-                    #     #       'got position from joystick run turn : {} \n'
-                    #     #       'direction , speed : {} , {}'.format('-',
+                    #     # print('got position from joystick hand x,y: {} , {}'
+                    #     #       'got position from joystick run turn: {} \n'
+                    #     #       'direction , speed: {} , {}'.format('-',
                     #     #                                            '-',
                     #     #                                            '-',
                     #     #                                            m_duty,
@@ -465,7 +414,7 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                         motor_a_m.duty(m_duty)
 
                     if r_catch.search(request) is not None:
-                        # print('DBG servo_catch.duty() : {}'.format(
+                        # print('DBG servo_catch.duty(): {}'.format(
                         #     servo_catch.duty()))
 
                         if servo_catch.duty() < 75:
@@ -476,12 +425,7 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                 except Exception as e:
                     print('Error while processing servo and dcdrive commands  {}, {}'.format(type(e), e))
 
-        # # making robot reply
-        # html = """<!DOCTYPE html>
-        # <html lang="en">
-        # mean_time_robotlistener = """ + str(mean_time_robotlistener) + """</html>
-        #
-        # """
+
 
         # # processing stats
         try:
@@ -499,54 +443,47 @@ def robotlistener(request):  # test to ensure command passes to robot driver
                 except Exception as e:
                     current_commands_servos_max = abs(77 - current_commands_servos[command])
                     print('Error while compare with '
-                          'last_commands_servos {}, {} set max :{}'.format(type(e), e, current_commands_servos_max))
+                          'last_commands_servos {}, {} set max:{}'.format(type(e), e, current_commands_servos_max))
 
                 last_commands_servos[command] = current_commands_servos[command]
                 # print('DBG: command in last_commands_servos {}:{}'.format(command, last_commands_servos[command]))
 
-            robotlistener_time = time.ticks_ms() - start_timer
+            robot_listener_time = time.ticks_ms() - start_timer
 
             # # collecting meanings
             try:
-                mean_times['robotlistener_time'] = means(mean_times['robotlistener_time'],
-                                                         robotlistener_time,
-                                                         command_counter)
+                mean_times['robot_listener_time'] = means(mean_times['robot_listener_time'],
+                                                         robot_listener_time,
+                                                         count_robot_listener)
             except Exception as e:
-                mean_times['robotlistener_time'] = robotlistener_time
-                print('Error while collecting meanings {}, {}, set as: {}'.format(type(e),
-                                                                              e,
-                                                                              mean_times['robotlistener_time']))
+                mean_times['robot_listener_time'] = robot_listener_time
+                print('Error while collecting meanings {}, {}, set as: {}'
+                      ''.format(type(e), e, mean_times['robot_listener_time']))
 
-            # print('DBG meaning times: {}, speed:{}'.format(mean_times,))
-            # print('DBG meaning times: {}, speed:{}'.format(mean_times,
-            #                                               current_commands_servos_max / robotlistener_time))
-
-
-            # # full DBG robotlistener
-            print('DBG robotlistener ms:{}, servos_max: {}, speed: {} \n'
-                  'count_robotlistener: {}, mean_times[\'robotlistener_time\'] :{}, command_servos {}'.format(
-                robotlistener_time,
-                current_commands_servos_max,
-                str(current_commands_servos_max / robotlistener_time)[0:5],
-                count_robotlistener,
-                mean_times['robotlistener_time'],
-                current_commands_servos))
-
-
-
-
+            # # full DBG robot_listener
+            print('DBG robot_listener count: {}, ms: {}, mean: {}\n'
+                  'DBG robot_listener servos_max: {}, speed: {}, command: {}'
+                  ''.format(count_robot_listener, robot_listener_time, mean_times['robot_listener_time'],
+                            current_commands_servos_max,
+                            str(current_commands_servos_max / robot_listener_time)[0:5], 
+                            current_commands_servos))
+            
+            # # making robot reply
+            # html = """<!DOCTYPE html>
+            # <html lang="en">
+            # mean_time_robot_listener = """ + str(mean_times['robot_listener_time']) + """</html>
+            #
+            # """
+            
         except Exception as e:
             print('Error while processing stats {}, {}'.format(type(e), e))
-
-        count_robotlistener += 1
-
-        workers -= 1
 
     except Exception as e:
         print('Error while processing command {}, {}'.format(type(e), e))
         # # hard reset
         machine.reset()
-        # soft reset
+        
+        # # soft reset
         # sys.exit()
 
 
@@ -556,6 +493,80 @@ def give_up():
     networkpin.on()
     motor_a_p.duty(0)
     # print('DBG: # give_up')
+    
+    
+def _handler(reader, writer):
+
+    start_timer = time.ticks_ms()
+    
+    global count_handler
+    global count_robot_listener
+    global mean_times
+    global workers   # test async runner
+    
+    count_handler += 1
+    
+    # # orig _handler
+
+    # print('DBG _handler: New connection')
+    line = yield from reader.readline()
+    # print(line)
+    # driverobot(line)
+
+    robot_listener(line)
+
+    # # test async runner
+    # if workers < 4:
+    #     robot_listener(line)
+    #     # robotworkers()
+    # else:
+    #     print('DBG: workers count: {}'.format(workers))
+        
+    yield from writer.awrite('Gotcha!')
+    yield from writer.aclose()
+
+    # # end original _handler
+
+    # # collecting meanings for handler_time
+    try:
+        handler_time = time.ticks_ms() - start_timer
+        try:
+            mean_times['handler_time'] = means(mean_times['handler_time'],
+                                               handler_time - mean_times['robot_listener_time'],
+                                               count_handler)
+        except Exception as e:
+            mean_times['handler_time'] = handler_time
+            print('Error while calculating meanings for handler_time'
+                  ' {}, {}, set as: {}'.format(type(e), e, mean_times['handler_time']))
+
+        # # full DBG handler_time
+        print('DBG handler count_______: {}, ms: {}, mean: {}'
+              ''.format(count_handler,
+                        handler_time,
+                        mean_times['handler_time']))
+
+        # # aggregate DBG
+        try:
+            print('DBG handler / robot: {} / {}, mean ms: {} + {}'
+                  ''.format(count_handler,
+                            count_robot_listener,
+                            str(mean_times['handler_time'])[0:5],
+                            str(mean_times['robot_listener_time'])[0:5]))
+        except:
+            print('DBG handler /robot: _ / _, mean ms: ____ + ____')
+
+    except Exception as e:
+        print('Error while processing meanings for handler_time {}, {}'.format(type(e), e))
+
+
+# def run(host="127.0.0.1", port=8081, loop_forever=True, backlog=16): # orig
+def run(host="192.168.4.1", port=80, loop_forever=True, backlog=16):
+    loop = asyncio.get_event_loop()
+    print("* Starting Server at {}:{}".format(host, port))
+    loop.create_task(asyncio.start_server(_handler, host, port, backlog=backlog))
+    if loop_forever:
+        loop.run_forever()
+        loop.close()
 
 
 if __name__ == '__main__':
