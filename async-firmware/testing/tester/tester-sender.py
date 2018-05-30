@@ -179,10 +179,16 @@ def random_sender():
     def generate_commands(timeout=0, cycle=0):
         send_command_data(timeout=0,
                           cycle=0,
-                          headx=random.choice(['z', random.random()]),
-                          handy=random.choice(['z', random.random()]),
-                          turnx=random.choice(['z', random.random()]),
-                          runy=random.choice(['z', random.random()]),
+                          # headx=random.choice(['z', random.random()]),  # uses normalized 0..1 format for command
+                          # handy=random.choice(['z', random.random()]),
+                          # turnx=random.choice(['z', random.random()]),
+                          # runy=random.choice(['z', random.random()]),
+                          # catch=random.choice(['z', 'catch']))
+
+                          headx=random.choice(['z', random.randint(40, 115)]),
+                          handy=random.choice(['z', random.randint(40, 115)]),
+                          turnx=random.choice(['z', random.randint(40, 115)]),
+                          # runy=random.choice(['z', random.randint(40, 115)]),
                           catch=random.choice(['z', 'catch']))
 
     def send_command_data(timeout=0, cycle=0, headx='z', handy='z', turnx='z', runy='z', catch='z'):
@@ -215,9 +221,13 @@ def random_sender():
             # add normalization
             if dict_commands[item] != 'z':
                 if dict_commands[item] != 'catch':
+                    # str_commands += item + \
+                    #                 '=' + \
+                    #                 str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) + \
+                    #                 '&'
                     str_commands += item + \
                                     '=' + \
-                                    str('{0:.2f}'.format((float(dict_commands[item]) + 1) / 2)) + \
+                                    str('{}'.format(dict_commands[item])) + \
                                     '&'
                 else:
                     str_commands += item + \
@@ -258,15 +268,70 @@ def random_sender():
         ini_timeout = 100
         step_timeout = 500
 
+        cycles = 100
+
+        total_more_than_03 = 0
+        total_more_than_09 = 0
+        total_more_than_30 = 0
+        averages = []
+
         count = 1
 
         for timeout in range(ini_timeout, 1, -1):
+            start_timer = time.time()
+            cycle_max = 0
+            more_than_03 = 0
+            more_than_09 = 0
+            more_than_30 = 0
             print('DBG: current timeout: {}, count: {}'.format(timeout / step_timeout, count))
-            for cycle in range(0, 10000):
+            for cycle in range(0, cycles):
+                inner_start_timer = time.time()
                 # print('DBG: current timeout: {}, cycle: {}'.format(timeout / step_timeout, cycle))
                 generate_commands(timeout, cycle)
                 time.sleep(timeout / step_timeout)
                 count += 1
+                cycle_max = max(cycle_max, time.time() - inner_start_timer)
+                if (time.time() - inner_start_timer) > 3.0:
+                    # print('more_than_30 ')
+                    more_than_30 += 1
+                elif (time.time() - inner_start_timer) > 0.9:
+                    # print('more_than_09 ')
+                    more_than_09 += 1
+                elif (time.time() - inner_start_timer) > 0.3:
+                    # print('more_than_03 ')
+                    more_than_03 += 1
+                else:
+                    pass
+
+            print('DBG: run time: {}, count: {}, mean: {}, max: {}\n'
+                  'DBG falls: {}%, delays long: {}%,  short: {}%\n'
+                  ''.format(str(time.time() - start_timer)[0:5],
+                            cycles,
+                            str((time.time() - start_timer) / cycles)[0:5],
+                            str(cycle_max)[0:5],
+                            str(float(100 * more_than_30 / cycles))[0:4],
+                            str(float(100 * more_than_09 / cycles))[0:4],
+                            str(float(100 * more_than_03 / cycles))[0:4]
+                            )
+
+                  )
+
+            averages.append((time.time() - start_timer) / cycles)
+            total_more_than_03 += more_than_30
+            total_more_than_09 += more_than_09
+            total_more_than_30 += more_than_03
+
+        print('------------------------------------------------'
+              'DBG: count: {}, mean: {}\n'
+              'DBG: falls: {}%, delays long: {}%,  short: {}%\n'
+              ''.format(count,
+                        str((sum(averages)/len(averages)))[0:5],
+                        str(float(100 * total_more_than_03 / count))[0:4],
+                        str(float(100 * total_more_than_09 / count))[0:4],
+                        str(float(100 * total_more_than_03 / count))[0:4]
+                        )
+
+              )
 
     cycle_timeouted()
 

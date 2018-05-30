@@ -223,6 +223,7 @@ def robot_listener(request):
     global servo_catch
     global networkpin
     global gear_factor
+    global workers
     
     global html
 
@@ -235,6 +236,7 @@ def robot_listener(request):
     global mean_times
     
     count_robot_listener += 1
+    workers += 1
     
     current_commands_servos = {}
     current_commands_servos_max = 0
@@ -486,6 +488,9 @@ def robot_listener(request):
         # # soft reset
         # sys.exit()
 
+    finally:
+        workers -= 1
+
 
 def give_up():
     servo_head_x.duty(75)
@@ -547,11 +552,12 @@ def _handler(reader, writer):
 
         # # aggregate DBG
         try:
-            print('DBG handler / robot: {} / {}, mean ms: {} + {}'
+            print('DBG handler / robot: {} / {}, mean ms: {} + {} workers: {}'
                   ''.format(count_handler,
                             count_robot_listener,
                             str(mean_times['handler_time'])[0:5],
-                            str(mean_times['robot_listener_time'])[0:5]))
+                            str(mean_times['robot_listener_time'])[0:5],
+                            workers))
         except:
             print('DBG handler /robot: _ / _, mean ms: ____ + ____')
 
