@@ -149,7 +149,7 @@ class SettingsWriter:
                     item,
                     self.j[item]
                 ))
-            self.valid_formatted_json =True
+            self.valid_formatted_json = True
             print('DBG: JSON data loaded OK')
         except json.JSONDecodeError as e:
             print(type(e), e)

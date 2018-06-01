@@ -128,3 +128,214 @@ latest firmvare 1.9.3 uses
 >>> servo_head_x.duty(125)  max
 >>> servo_head_x.duty(35)  min
 >>> servo_head_x.duty(80) mid
+
+
+----
+# smooth servo running
+
+def smooth(a, b, s=1, t=30):
+import machine
+servo_direction = machine.PWM(machine.Pin(12), freq=50)
+servo_direction.duty(a)
+print('position start: {}\n           end: {}\n         steps: {}\n       timeout: {}\n'.format(a, b, s, t))
+time.sleep_ms(1000)
+for i in range(a, b, s):
+servo_direction.duty(i)
+time.sleep_ms(t)
+
+def test_smooth():
+for s in range(1, 12, 2):
+for t in range(10, 100, 20):
+smooth(40, 115, t=t)
+time.sleep_ms(2000)
+
+----
+>>> s='{"debug":"True"}'
+>>> s
+'{"debug":"True"}'
+>>> sw = SettingsWriter(s)
+DBG: json items: debug:True
+DBG: JSON data loaded OK
+>>> sw.write_settings()
+DBG: 186 j         :{'debug': 'True'}
+DBG: 187 self.j_str:{"debug":"True"}
+True
+
+>>>
+>>> from settingsreader import SettingsReader
+>>> sr = SettingsReader()
+>>> sr
+id: 1073684928, Settings from: settings.txt: {'debug': 'True'}
+
+>>> reader = sr
+>>> reader
+id: 1073684928, Settings from: settings.txt: {'debug': 'True'}
+
+>>> sr
+id: 1073684928, Settings from: settings.txt: {'debug': 'True'}
+>>> type(sr)
+<class 'SettingsReader'>
+>>> sr = SettingsReader()
+>>> sr.read_settings()
+{'debug': 'True'}
+>>> print(sr)
+id: 1073691936, Settings from: settings.txt: {'debug': 'True'}
+
+>>> print(type(sr))
+<class 'SettingsReader'>
+>>> print(type(sr.read_settings()))
+<class 'dict'>
+
+>>> print(type(sr.read_settings()))
+<class 'dict'>
+>>> r = sr.read_settings()
+>>> r
+{'debug': 'True'}
+>>> for key in sr.read_settings():
+...     print(key)
+...
+debug
+>>> for key in sr.read_settings():
+...     print(key, sr.read_settings()[key])
+
+debug True
+
+>>>
+>>> r['debug']
+'True'
+>>> type(r['debug'])
+<class 'str'>
+
+>>> s
+'{"debug":"True"}'
+>>>
+>>> sr = SettingsReader()
+>>> reader = sr.read_settings()
+>>> re
+re              reader
+>>> reader
+{'debug': 'True'}
+>>> val = sr.read_value('debug')
+>>> val
+'True'
+
+
+----
+>>> r_update_settings = re.compile("settings=(\.+)")
+>>>
+>>>
+>>> s
+'{"debug":"True"}'
+>>>
+>>> request = '&settings='+s+'&'
+>>>
+>>> request
+'&settings={"debug":"True"}&'
+>>>
+>>> m_update_settings = r_update_settings.search(request)
+>>>
+>>> m_update_settings
+>>> print(m_update_settings)
+None
+>>> r_update_settings
+<re 3fff37d0>
+>>> request
+'&settings={"debug":"True"}&'
+
+--
+>>> request = '&settings={"debug":"True"}&'
+>>> #r_update_settings = re.compile("{(.*)}")
+>>> #m_update_settings = r_update_settings.search(request)
+>>> #r_update_settings
+#<re 3fff38e0>
+#>>> print(m_update_settings.group(0))
+#{"debug":"True"}
+
+
+>>> request = '&settings={"debug":"True"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> m_update_settings = r_update_settings.search(request)
+
+>>> print(m_update_settings.group(0))
+settings={"debug":"True"}
+>>> print(m_update_settings.group(1))
+"debug":"True"
+
+--
+
+request = '&settings={"debug":"True"}&'
+r_update_settings = re.compile("settings={(.*)}")
+r_k = re.compile("\"(.*)\":")
+r_v = re.compile(":\"(.*)\"")
+m_update_settings = r_update_settings.search(request)
+print(m_update_settings.group(0))
+# settings={"debug":"True"}
+print(m_update_settings.group(1))
+# "debug":"True"
+m_k = r_k.search(m_update_settings.group(1))
+m_v = r_v.search(m_update_settings.group(1))
+print(m_k.group(0), m_k.group(1))
+
+>>>
+>>> request = '&settings={"debug":"True"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> r_k = re.compile("\"(.*)\":")
+>>> r_v = re.compile(":\"(.*)\"")
+>>> m_update_settings = r_update_settings.search(request)
+>>> print(m_update_settings.group(0))
+settings={"debug":"True"}
+>>> # settings={"debug":"True"}
+>>> print(m_update_settings.group(1))
+# "debug":"True"
+>>> # "debug":"True"
+>>> m_k = r_k.search(m_update_settings.group(1))
+>>> m_v = r_v.search(m_update_settings.group(1))
+>>> print(m_k.group(0), m_k.group(1))
+# "debug": debug
+>>> print(m_v.group(0), m_v.group(1))
+# :"True" True
+
+OK!!!
+--
+
+>>> request = '&settings={"debug":"True"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> r_k = re.compile("\"(.*)\":")
+>>> r_v = re.compile(":\"(.*)\"")
+>>> m_update_settings = r_update_settings.search(request)
+>>> print(m_update_settings.group(0))
+settings={"debug":"True"}
+>>> # settings={"debug":"True"}
+>>> print(m_update_settings.group(1))
+# "debug":"True"
+>>> # "debug":"True"
+>>> m_k = r_k.search(m_update_settings.group(1))
+>>> m_v = r_v.search(m_update_settings.group(1))
+>>> print(m_k.group(0), m_k.group(1))
+# "debug": debug
+>>> print(m_v.group(0), m_v.group(1))
+# :"True" True
+
+---
+request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+
+r_update_settings = re.compile("settings={(.*)}")
+r_kv = re.compile("\"(.*?)\":\"(.*?)\"")
+r_k = re.compile("\"(.*?)\":")
+r_v = re.compile(":\"(.*?)\"")
+
+m_update_settings = r_update_settings.search(request)
+print(m_update_settings.group(0))
+
+print(m_update_settings.group(1))
+
+m_kv = r_kv.search(m_update_settings(1))
+print(m_kv.group(0), m_kv.group(1))
+
+
+m_k = r_k.search(m_update_settings.group(1))
+m_v = r_v.search(m_update_settings.group(1))
+print(m_k.group(0), m_k.group(1))
+# "debug": debug
+print(m_v.group(0), m_v.group(1))
+# :"True" True
