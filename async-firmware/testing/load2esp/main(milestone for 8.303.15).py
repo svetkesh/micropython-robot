@@ -6,49 +6,12 @@
 0.8.3.0.8 operates integers only
 0.8.3.0.3.9 - added listener for gear lever
 
-
-re notes:
 ----------------------------------------------------------------
 r_number = re.compile("(\d+)")
 r_headx = re.compile("headx=(\d+)")
 
 request='http://192.168.4.1/?turnx=77&headx=71&runy=72&handy=73&'
 print(request)
-
-m_headx = r_headx.search(request)
-print(m_headx)
-
-s_headx = str(m_headx.group(0))
-print(s_headx)
-
-headx = r_number.search(s_headx)
-print(headx)
-
-f_headx = int(headx.group(0))
-print(f_headx)
-
->>> r_number = re.compile("(\d+)")
->>> r_headx = re.compile("headx=(\d+)")
->>>
->>> request='http://192.168.4.1/?turnx=77&headx=71&runy=72&handy=73&'
->>> print(request)
-http://192.168.4.1/?turnx=77&headx=71&runy=72&handy=73&
->>>
->>> m_headx = r_headx.search(request)
->>> print(m_headx)
-<match num=2>
->>>
->>> s_headx = str(m_headx.group(0))
->>> print(s_headx)
-headx=71
->>>
->>> headx = r_number.search(s_headx)
->>> print(headx)
-<match num=2>
->>>
->>> f_headx = int(headx.group(0))
->>> print(f_headx)
-71
 
 ----------------------------------------------------------------
 
@@ -59,17 +22,6 @@ headx=71
 0.8.3.0.15 - added setting reader and writer
              accept JSON
 
-
-TODO: change: 77 to CONSTANT
-             in def run change host="192.168.4.1" to "robot_ip" 
-             
-    change: robot_listener(request):return: None -> ...
-            
-    make time_loose global
-
-    try not to search one more time but try not to search one more time but use 'm_settings':
-    if r_settings.search(request) is not None:  # gonna test - try not to search one more time
-                                            # try not to search one more time
 """
 
 import uasyncio as asyncio
@@ -102,11 +54,8 @@ except ImportError:
         print('ERR: import could not be done neither ujson neither JSON')
         raise SystemExit
 
-# from settingsreader import SettingsReader
-# from settingwriter import SettingsWriter
-
 import utime as time
-import sys
+# import sys
 
 import network
 
@@ -162,12 +111,6 @@ last_commands_servos = {}
 count_robot_listener = 0
 count_handler = 0
 workers = 0
-
-robot_settings = {}
-robot_settings_file = 'settings.txt'
-
-
-
 
 
 def give_up():
@@ -265,8 +208,6 @@ def robot_listener(request):
     
     global count_robot_listener
     global mean_times
-
-    global robot_settings
     
     count_robot_listener += 1
     workers += 1
@@ -280,6 +221,7 @@ def robot_listener(request):
 
     # # lookup for command
     request = str(request)
+    # print('DBG request: {}'.format(request))
     # # # get head position
     # # r_headx = re.compile("headx=0\.(\d+)")
     # m_headx = r_headx.search(request)
@@ -340,12 +282,6 @@ def robot_listener(request):
                         gear_factor = int(gear.group(0))
                         print('DBG: updated gear_factor: {}'.format(gear_factor))
 
-                    # if r_headx.search(request) is not None:
-                    #     s_headx = str(m_headx.group(0))
-                    #     headx = r_number.search(s_headx)
-                    #     f_headx = float(headx.group(0))
-                    #     posx = int(f_headx * 75 + 40)
-                    #     servo_head_x.duty(posx)
 
                     # new in 0.3.0.3.8 with integers only
                     if r_headx.search(request) is not None:
@@ -355,12 +291,6 @@ def robot_listener(request):
                         servo_head_x.duty(posx)
                         current_commands_servos['posx'] = posx
 
-                    # if r_handy.search(request) is not None:
-                    #     s_handy = str(m_handy.group(0))
-                    #     handy = r_number.search(s_handy)
-                    #     f_handy = 1 - float(handy.group(0))  # inverse Y axis
-                    #     posy = int(f_handy * 75 + 40)
-                    #     servo_hand_y.duty(posy)
 
                     # new in 0.3.0.3.8 with integers only
                     if r_handy.search(request) is not None:
@@ -371,13 +301,6 @@ def robot_listener(request):
                         servo_hand_y.duty(posy)
                         current_commands_servos['posy'] = posy
 
-                    # if r_turnx.search(request) is not None:
-                    #     s_turnx = str(m_turnx.group(0))
-                    #     turnx = r_number.search(s_turnx)
-                    #     f_turnx = 1 - float(turnx.group(0))   # inverse Y axis
-                    #     directionx = int(f_turnx * 75 + 40)
-                    #     servo_direction.duty(directionx)
-
                         # new in 0.3.0.3.8 with integers only
                     if r_turnx.search(request) is not None:
                         s_turnx = str(m_turnx.group(0))
@@ -387,28 +310,6 @@ def robot_listener(request):
                         servo_direction.duty(directionx)
                         current_commands_servos['directionx'] = directionx
 
-                    # if r_runy.search(request) is not None:
-                    #     s_runy = str(m_runy.group(0))
-                    #     runy = r_number.search(s_runy)
-                    #     f_runy = float(runy.group(0))
-                    #
-                    #     if f_runy < 0.5:
-                    #         m_duty = -1
-                    #     else:
-                    #         m_duty = 1
-                    #
-                    #     p_duty = int(abs(f_runy * 3000) - 1500)
-                    #
-                    #     # print('got position from joystick hand x,y: {} , {}'
-                    #     #       'got position from joystick run turn: {} \n'
-                    #     #       'direction , speed: {} , {}'.format('-',
-                    #     #                                            '-',
-                    #     #                                            '-',
-                    #     #                                            m_duty,
-                    #     #                                            p_duty))
-                    #     motor_a_p.duty(p_duty)
-                    #     motor_a_m.duty(m_duty)
-
                     # for firmware dated after 2018-04-xx
 
                     if r_runy.search(request) is not None:
@@ -417,20 +318,6 @@ def robot_listener(request):
                         # f_runy = float(runy.group(0))
                         i_runy = int(runy.group(0))
                         # current_commands_dcdrive['i_runy'] = i_runy
-
-                        # pre - 0.8.0.3.8
-
-                        # if f_runy < 0.5:
-                        #     # m_duty = -1
-                        #     m_duty = -300
-                        #     p_duty = int(1000 - 2000 * f_runy)
-                        #
-                        # elif f_runy == 0.5:
-                        #     m_duty = 0
-                        #     p_duty = 0
-                        # else:
-                        #     m_duty = int(f_runy * 1000)
-                        #     p_duty = int(f_runy * 1000)
 
                         # new in 0.3.0.3.8 with integers only
                         if i_runy < 77:
@@ -475,14 +362,12 @@ def robot_listener(request):
 
                             j_settings = json.loads(s_settings)
                             print('DBG json.loads() commands, j_settings: {}, {}'.format(type(j_settings), j_settings))
-
                             for js in j_settings:
                                 print('DBG json.loads() command: {}:{}'.format(js, j_settings[js]))
 
-                            #
-
                         except Exception as e:
                             print('Error while json.loads()  {}, {}'.format(type(e), e))
+
 
                 except Exception as e:
                     print('Error while processing servo and dcdrive commands  {}, {}'.format(type(e), e))
@@ -558,49 +443,6 @@ def give_up():
     networkpin.on()
     motor_a_p.duty(0)
     # print('DBG: # give_up')
-
-
-def update_settings(settings_to_update=None, file=robot_settings_file):
-    # robot_settings = {}
-    # robot_settings_file = 'settings.txt'
-
-    global robot_settings
-
-    if settings_to_update:
-        print('DBG settings_to_update: {}, {}'.format(type(settings_to_update), settings_to_update))
-        try:
-            print('DBG robot_settings b4 upd: {}, {}'.format(type(robot_settings), robot_settings))
-            # sw = SettingsWriter(settings_to_update, file)
-            # sw.write_settings()
-            # sr = SettingsReader(file)
-            # robot_settings = sr.read_settings()
-            pass
-            print('DBG robot_settings after upd: {}, {}'.format(type(robot_settings), robot_settings))
-        except Exception as e:
-            print('Error while updating settings {}, {}'.format(type(e), e))
-    else:
-        try:
-            # print('DBG robot_settings b4 reading: {}, {}'.format(type(robot_settings), robot_settings))
-            # sr = SettingsReader(file)
-            # # return sr.read_settings()
-            # robot_settings = sr.read_settings()
-            # print('DBG robot_settings read: {}, {}'.format(type(robot_settings), robot_settings))
-
-            with open(file, 'r') as f:
-                # print('DBG file content: {}'.format(f.read()))
-                try:
-                    robot_settings = json.load(f)
-                    # print('DBG: j = json.load(f): {}, {}'.format(type(j), str(j)))
-                    # for key in j:
-                    #     print('DBG: key:value of j: {}:{}'.format(key, j[key]))
-                except Exception as e:
-                    print('ERR loading settings from file: {}, '
-                          'json.load(f) {}, {}'.format(file, type(e), e))
-                    return False
-                return robot_settings
-
-        except Exception as e:
-            print('Error while reading settings {}, {}'.format(type(e), e))
     
     
 def _handler(reader, writer):
@@ -621,7 +463,9 @@ def _handler(reader, writer):
     # print(line)
     # driverobot(line)
 
-    robot_listener(line)  # line is type of bytes
+    print('DBG _handler get \"line\": {}'.format(type(line), line))
+
+    robot_listener(line)
 
     # # test async runner
     # if workers < 4:
@@ -679,5 +523,4 @@ def run(host="192.168.4.1", port=80, loop_forever=True, backlog=16):
 
 
 if __name__ == '__main__':
-    update_settings(settings_to_update=None, file=robot_settings_file)
     run()

@@ -57,6 +57,7 @@ headx=71
              eliminating delays
 
 0.8.3.0.15 - added setting reader and writer
+             accept JSON
 
 
 TODO: change: 77 to CONSTANT
@@ -65,6 +66,10 @@ TODO: change: 77 to CONSTANT
     change: robot_listener(request):return: None -> ...
             
     make time_loose global
+
+    try not to search one more time but try not to search one more time but use 'm_settings':
+    if r_settings.search(request) is not None:  # gonna test - try not to search one more time
+                                            # try not to search one more time
 """
 
 import uasyncio as asyncio
@@ -85,11 +90,25 @@ except ImportError:
     except ImportError:
         print('ERR: import could not be done neither re neither micro "ure"')
         raise SystemExit
+
+try:
+    import ujson as json
+    print('DBG: import "ujson" library successful')
+except ImportError:
+    try:
+        import json
+        print('DBG: import standard library "JSON" successful')
+    except ImportError:
+        print('ERR: import could not be done neither ujson neither JSON')
+        raise SystemExit
+
+# from settingsreader import SettingsReader
+# from settingwriter import SettingsWriter
+
 import utime as time
 import sys
 
 import network
-
 
 LONG_SLEEP = 3
 SHORT_SLEEP = 1
@@ -144,6 +163,12 @@ count_robot_listener = 0
 count_handler = 0
 workers = 0
 
+robot_settings = {}
+robot_settings_file = 'settings.txt'
+
+
+
+
 
 def give_up():
     servo_head_x.duty(75)
@@ -172,7 +197,8 @@ try:
     r_gear = re.compile("gear=(\d+)")  #
 
     # commands
-    r_update_settings = re.compile("settings=(\s+)")
+    # r_update_settings = re.compile("settings=(\s+)")
+    r_settings = re.compile("settings=({.*})")
 except:
     print('ERR: error compiling regex')
     # blink_report(4)
@@ -239,6 +265,8 @@ def robot_listener(request):
     
     global count_robot_listener
     global mean_times
+
+    global robot_settings
     
     count_robot_listener += 1
     workers += 1
@@ -252,24 +280,27 @@ def robot_listener(request):
 
     # # lookup for command
     request = str(request)
-    # # get head position
-    # r_headx = re.compile("headx=0\.(\d+)")
-    m_headx = r_headx.search(request)
+    # # # get head position
+    # # r_headx = re.compile("headx=0\.(\d+)")
+    # m_headx = r_headx.search(request)
+    # #
+    # # # get hand position
+    # # r_handy = re.compile("handy=0\.(\d+)")  #
+    # m_handy = r_handy.search(request)
     #
-    # # get hand position
-    # r_handy = re.compile("handy=0\.(\d+)")  #
-    m_handy = r_handy.search(request)
-
-    # get body direction turnx
-    # r_turnx = re.compile("turnx=0\.(\d+)")  #
-    m_turnx = r_turnx.search(request)
-
-    # get body speed runy
-    # r_runy = re.compile("runy=0\.(\d+)")  #
-    m_runy = r_runy.search(request)
-
-    # get gear factor gear_factor
-    m_gear = r_gear.search(request)
+    # # get body direction turnx
+    # # r_turnx = re.compile("turnx=0\.(\d+)")  #
+    # m_turnx = r_turnx.search(request)
+    #
+    # # get body speed runy
+    # # r_runy = re.compile("runy=0\.(\d+)")  #
+    # m_runy = r_runy.search(request)
+    #
+    # # get gear factor gear_factor
+    # m_gear = r_gear.search(request)
+    #
+    # # get json commands
+    # m_settings = r_settings.search(request)
 
     # # processing command
     try:
@@ -295,6 +326,7 @@ def robot_listener(request):
                     m_runy = r_runy.search(request)
                     m_catch = r_catch.search(request)
                     m_gear = r_gear.search(request)
+                    # m_settings = r_settings.search(request)
 
                 except Exception as e:
                     print('Error while processing regex m_ {}, {}'.format(type(e), e))
@@ -429,6 +461,29 @@ def robot_listener(request):
                         else:
                             servo_catch.duty(40)
 
+                    # processing json commands
+                    if r_settings.search(request) is not None:
+                        try:  # gonna test - try not to search one more time
+                            formatted_request = request.replace('%22', '\"')
+                            formatted_request = formatted_request.replace('%20', ' ')
+                            m_settings = r_settings.search(formatted_request)
+
+                            print('DBG processing json commands, request: {}, {}'.format(
+                                                                            type(request), formatted_request))
+                            s_settings = m_settings.group(1)
+                            print('DBG processing json commands, s_settings: {}, {}'.format(type(s_settings), s_settings))
+
+                            j_settings = json.loads(s_settings)
+                            print('DBG json.loads() commands, j_settings: {}, {}'.format(type(j_settings), j_settings))
+
+                            for js in j_settings:
+                                print('DBG json.loads() command: {}:{}'.format(js, j_settings[js]))
+
+                            #
+
+                        except Exception as e:
+                            print('Error while json.loads()  {}, {}'.format(type(e), e))
+
                 except Exception as e:
                     print('Error while processing servo and dcdrive commands  {}, {}'.format(type(e), e))
 
@@ -503,6 +558,49 @@ def give_up():
     networkpin.on()
     motor_a_p.duty(0)
     # print('DBG: # give_up')
+
+
+def update_settings(settings_to_update=None, file=robot_settings_file):
+    # robot_settings = {}
+    # robot_settings_file = 'settings.txt'
+
+    global robot_settings
+
+    if settings_to_update:
+        print('DBG settings_to_update: {}, {}'.format(type(settings_to_update), settings_to_update))
+        try:
+            print('DBG robot_settings b4 upd: {}, {}'.format(type(robot_settings), robot_settings))
+            # sw = SettingsWriter(settings_to_update, file)
+            # sw.write_settings()
+            # sr = SettingsReader(file)
+            # robot_settings = sr.read_settings()
+            pass
+            print('DBG robot_settings after upd: {}, {}'.format(type(robot_settings), robot_settings))
+        except Exception as e:
+            print('Error while updating settings {}, {}'.format(type(e), e))
+    else:
+        try:
+            # print('DBG robot_settings b4 reading: {}, {}'.format(type(robot_settings), robot_settings))
+            # sr = SettingsReader(file)
+            # # return sr.read_settings()
+            # robot_settings = sr.read_settings()
+            # print('DBG robot_settings read: {}, {}'.format(type(robot_settings), robot_settings))
+
+            with open(file, 'r') as f:
+                # print('DBG file content: {}'.format(f.read()))
+                try:
+                    robot_settings = json.load(f)
+                    # print('DBG: j = json.load(f): {}, {}'.format(type(j), str(j)))
+                    # for key in j:
+                    #     print('DBG: key:value of j: {}:{}'.format(key, j[key]))
+                except Exception as e:
+                    print('ERR loading settings from file: {}, '
+                          'json.load(f) {}, {}'.format(file, type(e), e))
+                    return False
+                return robot_settings
+
+        except Exception as e:
+            print('Error while reading settings {}, {}'.format(type(e), e))
     
     
 def _handler(reader, writer):
@@ -523,7 +621,7 @@ def _handler(reader, writer):
     # print(line)
     # driverobot(line)
 
-    robot_listener(line)
+    robot_listener(line)  # line is type of bytes
 
     # # test async runner
     # if workers < 4:
@@ -581,4 +679,5 @@ def run(host="192.168.4.1", port=80, loop_forever=True, backlog=16):
 
 
 if __name__ == '__main__':
+    update_settings(settings_to_update=None, file=robot_settings_file)
     run()

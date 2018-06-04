@@ -41,6 +41,7 @@ ver 0.8.2 test version with smooth joystik run
 
 
 0.8.3.0.15 - added setting reader and writer
+             (for accept JSON)
 
 '''
 

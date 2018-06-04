@@ -183,8 +183,8 @@ Process finished with exit code 0
                     # for key in j:
                     #     print('DBG: key:value of j: {}:{}'.format(key, j[key]))
                 except Exception as e:
-                    print('ERR loading settings from file: {}, j'
-                          'son.load(f) {}, {}'.format(self.file, type(e), e))
+                    print('ERR loading settings from file: {}, '
+                          'json.load(f) {}, {}'.format(self.file, type(e), e))
                     return False
                 return j
 

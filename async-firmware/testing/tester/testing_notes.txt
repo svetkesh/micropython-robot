@@ -320,11 +320,13 @@ settings={"debug":"True"}
 request = '&settings={"debug":"True","ssid":"Some SSID"}&'
 
 r_update_settings = re.compile("settings={(.*)}")
+r_j = re.compile("settings=({.*})")
 r_kv = re.compile("\"(.*?)\":\"(.*?)\"")
 r_k = re.compile("\"(.*?)\":")
 r_v = re.compile(":\"(.*?)\"")
 
 m_update_settings = r_update_settings.search(request)
+m_j = r_j.search(request)
 print(m_update_settings.group(0))
 
 print(m_update_settings.group(1))
@@ -339,3 +341,134 @@ print(m_k.group(0), m_k.group(1))
 # "debug": debug
 print(m_v.group(0), m_v.group(1))
 # :"True" True
+
+----
+>>> request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> m_update_settings = r_update_settings.search(request)
+>>> print(m_update_settings.group(0))
+settings={"debug":"True","ssid":"Some SSID"}
+>>>
+>>> print(m_update_settings.group(1))
+"debug":"True","ssid":"Some SSID"
+>>> r_j = re.compile("settings=({.*})")
+>>> m_j = r_j.search(request)
+>>> m_j
+<match num=2>
+>>> m_j.group(0)
+'settings={"debug":"True","ssid":"Some SSID"}'
+>>> m_j.group(1)
+'{"debug":"True","ssid":"Some SSID"}'
+>>>
+
+
+--
+#JSON loading: yuhuuu!!!!!!
+
+>>> request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+
+>>> r_j = re.compile("settings=({.*})")
+>>> m_j = r_j.search(request)
+>>> m_j
+<match num=2>
+>>> m_j.group(0)
+'settings={"debug":"True","ssid":"Some SSID"}'
+>>> m_j.group(1)
+'{"debug":"True","ssid":"Some SSID"}'
+>>>
+>>>
+>>> s = m_j.group(1)
+>>> s
+'{"debug":"True","ssid":"Some SSID"}'
+>>> import ujson as json
+>>> j = json.loads(s)
+>>> j
+{'debug': 'True', 'ssid': 'Some SSID'}
+
+>>> for item in j:
+...     print(item, j[item])
+...
+...
+...
+debug True
+ssid Some SSID
+
+
+---- time masure and compare uRE vs uJSON----
+
+start_timer = start_timer = time.ticks_ms()
+for i in range(1, 10001):
+m_j = r_j.search(request)
+print((time.ticks_ms() - start_timer)/i)
+
+
+>>> ms:
+0.918392
+0.9184
+
+--
+start_timer = start_timer = time.time()
+for i in range(1, 10001):
+m_j = r_j.search(request)
+print((time.time() - start_timer)/i)
+
+>> s:
+0.00110022
+0.00110011
+0.0011
+
+--
+start_timer = start_timer = time.ticks_ms()
+for i in range(1, 10001):
+j = json.loads(s)
+print((time.ticks_ms() - start_timer)/i)
+
+>>> ms:
+4.13681
+4.1368
+
+--
+start_timer = start_timer = time.time()
+for i in range(1, 10001):
+j = json.loads(s)
+print((time.time() - start_timer)/i)
+
+>>> s:
+0.00410041
+0.0041
+
+
+-----
+http://192.168.4.1/?turnx=40&headx=40&runy=77&handy=40&
+http://192.168.4.1/?turnx=77&headx=71&runy=77&handy=73&
+
+request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+bad_request = 'turnx=77&headx=71&runy=72&handy=73&'
+
+
+
+>>> r_j = re.compile("settings=({.*})")
+>>> m_j = r_j.search(request)
+>>> m_j
+<match num=2>
+>>> m_j.group(0)
+'settings={"debug":"True","ssid":"Some SSID"}'
+>>> m_j.group(1)
+'{"debug":"True","ssid":"Some SSID"}'
+>>>
+>>>
+>>> s = m_j.group(1)
+>>> s
+'{"debug":"True","ssid":"Some SSID"}'
+>>> import ujson as json
+>>> j = json.loads(s)
+>>> j
+{'debug': 'True', 'ssid': 'Some SSID'}
+
+>>> for item in j:
+...     print(item, j[item])
+...
+...
+...
+debug True
+ssid Some SSID
