@@ -83,36 +83,6 @@ class SettingsReader:
             self.valid_formatted_json = False
             return False
 
-    def rs(self):
-        print('DBG SettingsReader.rs() running')
-        # f = open(self.file)
-        print(os.getcwd())
-        cwd = os.getcwd()  # Get the current working directory (cwd)
-        files = os.listdir(cwd)  # Get all the files in that directory
-        print("Files in '%s': %s" % (cwd, files))
-        f = open(self.file, 'r')
-        rf = f.read()
-        print(rf)
-        f.close()
-
-    def ls(self):
-        print('DBG SettingsReader.ls() running')
-        # f = open(self.file)
-        print(os.getcwd())
-        cwd = os.getcwd()  # Get the current working directory (cwd)
-        files = os.listdir(cwd)  # Get all the files in that directory
-        print("Files in '%s': %s" % (cwd, files))
-        f = open(self.file, 'r')
-        print(f)
-        ls = json.load(f)
-        # ls = json.loads(f)
-        print('DBG: ls:'.format(ls))
-        # print(ls[1])
-        print('DBG: ls[\'ssid\']:'.format(ls['ssid']))
-        f.close()
-        # for item in ls:
-        #     print(item)
-
     def __repr__(self):
         return 'id: {}, Settings from: {}: {}'.format(id(self), self.file, self.read_settings())
 
