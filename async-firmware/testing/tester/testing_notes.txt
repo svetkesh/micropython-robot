@@ -472,3 +472,113 @@ bad_request = 'turnx=77&headx=71&runy=72&handy=73&'
 ...
 debug True
 ssid Some SSID
+
+
+----
+http://192.168.4.1/?&settings={"runy":"77","handy":"40"}&
+http://192.168.4.1/?&settings={"debug":"True","ssid":"Some SSID"}&
+http://192.168.4.1/?&run={"debug":"True","ssid":"Some SSID"}&
+
+http://192.168.4.1/?&settings={%22runy%22:%2277%22,%22handy%22:%2240%22}&
+http://192.168.4.1/?&settings={%22debug%22:%22True%22,%22ssid%22:%22Some%20SSID%22}&
+http://192.168.4.1/?&run={%22debug%22:%22True%22,%22ssid%22:%22Some%20SSID%22}&
+
+
+----
+
+>>> file = 'settings.txt'
+>>> j_str = '{"debug":"True","ssid":"Some SSID"}'
+>>> j_str
+'{"debug":"True","ssid":"Some SSID"}'
+
+>>> import ujson as json
+
+
+>>>
+>>>
+
+>>> for item in j_str:
+...     print('DBG: json items: {}:{}'.format(item, j_str[item]))
+...
+...
+...
+DBG: json items: debug:True
+DBG: json items: ssid:Some SSID
+>>>
+>>> file
+'settings.txt'
+
+
+>>> with open(file, 'w') as f:
+...     f.write(str(j_str))
+...
+...
+...
+38
+
+
+>>> j_str
+{'debug': 'True', 'ssid': 'Some SSID'}
+
+>>> True if j_str else False
+True
+>>> with open(file, 'r') as f:
+...     j = json.load(f)
+...
+...
+...
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+  File "<stdin>", line 2, in <module>
+ValueError: syntax error in JSON
+>>> with open(file, 'r') as f:
+...     print(f.read())
+...
+...
+...
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> j_str
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> type(j_str)
+<class 'dict'>
+>>> with open(file, 'w') as f:
+...     json.dump(j_str, file)
+...
+...
+...
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+  File "<stdin>", line 2, in <module>
+OSError: stream operation not supported
+>>> j = j_str
+>>> j
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> j_str = json.dumps(j)
+
+
+'{"debug": "True", "ssid": "Some SSID"}'
+
+
+>>> with open ('settings.txt', 'w') as f:
+...     f.write(j_str)
+...
+...
+...
+38
+>>> with open ('settings.txt', 'r') as f:
+...     print(f.read())
+...
+...
+...
+{"debug": "True", "ssid": "Some SSID"}
+>>> with open ('settings.txt', 'r') as f:
+...     j2 = json.load(f)
+...
+...
+...
+>>>
+>>> j2
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> type(j2)
+<class 'dict'>
+>>>

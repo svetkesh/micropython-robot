@@ -187,6 +187,7 @@ def update_settings(settings_to_update=None, file=robot_settings_file):
     if settings_to_update:
         try:
             write_settings(settings_to_update, file)
+            robot_settings = {}
             robot_settings = read_settings(file)
 
             print('DBG robot_settings after upd: {}, {}'.format(type(robot_settings), robot_settings))
@@ -202,37 +203,40 @@ def update_settings(settings_to_update=None, file=robot_settings_file):
 
 
 def read_settings(file):
+
+    # pass
+
     try:
-        print('DBG: read_settings from file:{}'.format(file))
         with open(file, 'r') as f:
-            print('DBG file content: {}'.format(f.read()))
-            try:
-                j = json.load(f)
-                print('DBG: j = json.load(f): {}, {}'.format(type(j), str(j)))
-                for key in j:
-                    print('DBG: key:value of j: {}:{}'.format(key, j[key]))
-                return j
-            except Exception as e:
-                print('ERR loading settings from file: {}, '
-                      'json.load(f) {}, {}'.format(file, type(e), e))
-                return False
+            # print('DBG read_settings file {} content: {}'.format(file, f.read()))
+            j = json.load(f)
+            #
+            # fstr = str(f.read())
+            # print('DBG fstr {}, {}'.format(type(fstr), fstr))
+            #
+            # j = json.loads(fstr)
+
+            print('DBG read_settings seems to be OK')
+            return j
     except Exception as e:
-        print('ERR reading file {}, {}'.format(type(e), e))
+        print('ERR read_settings from file: {}, '
+              ' {}, {}'.format(file, type(e), e))
         return False
 
 
-def write_settings(j_str, file='settings.txt'):
+def write_settings(j, file='settings.txt'):
+
+    # pass
+
     try:
-        j_str = json.loads(j_str)
-        for item in j_str:
-            print('DBG: json items: {}:{}'.format(
-                item,
-                j_str[item]
-            ))
+        for item in j:
+            print('DBG: json items: {}:{}'.format(item, j[item]))
+
+        j_str = json.dumps(j)
         print('DBG: JSON data loaded OK')
     except json.JSONDecodeError as e:
         print(type(e), e)
-        print('ERR: given data seems not to be valid JSON:{}'.format(j_str))
+        print('ERR: given data seems not to be valid JSON:{}'.format(str(j)))
 
     try:
         with open(file, 'w') as f:
@@ -340,8 +344,8 @@ def gear(key):
     print('DBG runing: {} key: {}'.format('gear', key))
 
 
-def read_settings(key):
-    print('DBG runing: {} key: {}'.format('read_settings', key))
+# def read_settings(key):
+#     print('DBG runing: {} key: {}'.format('read_settings', key))
 
 
 # def update_settings(key):
@@ -371,7 +375,7 @@ def _handler(reader, writer):
 
     # robot_listener(line)  # line is type of bytes
     robot_listener_json(line)  # line is type of bytes
-        
+
     yield from writer.awrite('Gotcha!')
     yield from writer.aclose()
 
@@ -389,5 +393,5 @@ def run(host="192.168.4.1", port=80, loop_forever=True, backlog=16):
 
 
 if __name__ == '__main__':
-    # update_settings(settings_to_update=None, file=robot_settings_file)
+    update_settings(settings_to_update=None, file=robot_settings_file)
     run()
