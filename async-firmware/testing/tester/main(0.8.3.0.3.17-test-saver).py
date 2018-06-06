@@ -250,20 +250,18 @@ def write_settings(j, file='settings.txt'):
 
 
 def robot_listener_json(request):
-    print('DBG robot_listener_json got: {}... first 120 can workout.'.format(str(request)[:120]))
+    print('DBG robot_listener_json got: {}'.format(str(request)))
     # robot_listener_json got: b'GET /?&settings={%22debug%22:%22True%22,%22ssid%22:%22Some%20SSID%22}& HTTP/1.1\r\n'
     # from string http://192.168.4.1/?&settings={%22debug%22:%22True%22,%22ssid%22:%22Some%20SSID%22}&
 
-    request = str(request)[:120]
-    formatted_request = request.replace('%22', '\"')
-    formatted_request = formatted_request.replace('%20', ' ')
+    request = str(request)
 
     # processing json commands
 
-    if r_run.search(formatted_request) is not None:
+    if r_run.search(request) is not None:
         try:  # gonna test - try not to search one more time
-            # formatted_request = request.replace('%22', '\"')
-            # formatted_request = formatted_request.replace('%20', ' ')
+            formatted_request = request.replace('%22', '\"')
+            formatted_request = formatted_request.replace('%20', ' ')
             m_run = r_run.search(formatted_request)
 
             print('DBG processing json commands in run, request: {}, {}'.format(
@@ -286,10 +284,10 @@ def robot_listener_json(request):
         except Exception as e:
             print('Error while processing run json.loads()  {}, {}'.format(type(e), e))
 
-    if r_settings.search(formatted_request) is not None:
+    if r_settings.search(request) is not None:
         try:  # gonna test - try not to search one more time
-            # formatted_request = request.replace('%22', '\"')
-            # formatted_request = formatted_request.replace('%20', ' ')
+            formatted_request = request.replace('%22', '\"')
+            formatted_request = formatted_request.replace('%20', ' ')
             m_settings = r_settings.search(formatted_request)
 
             print('DBG processing json commands for settings, request: {}, {}'.format(
@@ -369,80 +367,33 @@ tokens = {
 }
 
 
-# def _handler(reader, writer):
-#
-#     # # orig _handler
-#
-#     # print('DBG _handler: New connection')
-#     # line = yield from reader.readline()
-#     line = yield from reader.read()
-#     # print(line)
-#
-#     # robot_listener(line)  # line is type of bytes
-#     robot_listener_json(line)  # line is type of bytes
-#
-#
-#     # try:
-#     #     print(type(html), str(html))
-#     #     writer.write(html)
-#     #     yield from writer.drain()
-#     #
-#     # except Exception as e:
-#     #     print('Error while reading settings {}, {}'.format(type(e), e))
-#
-#     try:
-#         yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\nHello. Reply 17\r\n")
-#         print("After response write")
-#     except Exception as e:
-#         print('Error while reading settings {}, {}'.format(type(e), e))
-#     yield from writer.aclose()
-#
-#     # # end original _handler
-#
-#
-# # def run(host="127.0.0.1", port=8081, loop_forever=True, backlog=16): # orig
-# def run(host="192.168.4.1", port=80, loop_forever=True, backlog=16):
-#     loop = asyncio.get_event_loop()
-#     print("* Starting Server at {}:{}".format(host, port))
-#     loop.create_task(asyncio.start_server(_handler, host, port, backlog=backlog))
-#     if loop_forever:
-#         loop.run_forever()
-#         loop.close()
+def _handler(reader, writer):
 
-@asyncio.coroutine
-def serve(reader, writer):
+    # # orig _handler
 
+    # print('DBG _handler: New connection')
+    line = yield from reader.readline()
+    # print(line)
 
-    # print(reader, writer)
-    print("================")
-    # print((yield from reader.read()))  # orig
-    # print((yield from reader.read()))  # mod readline
-    # line = yield from reader.readline()
-    line = yield from reader.read()
-    robot_listener_json(line)
-    print('DBG line: {}, {}'.format(type(line), str(line)[:120]))  # mod readline
-    yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\nHello. ...\r\n more from v.17 (with limit 120)"
-                             + str(line)[:120] + "\r\n"
-                             + "Updated robot_settings" + str(robot_settings) + "\r\n")
-    print("After response write")
+    # robot_listener(line)  # line is type of bytes
+    robot_listener_json(line)  # line is type of bytes
+
+    yield from writer.awrite('Gotcha!')
     yield from writer.aclose()
-    print("Finished processing request")
+
+    # # end original _handler
 
 
-# import logging
-#logging.basicConfig(level=logging.INFO)
-# logging.basicConfig(level=logging.DEBUG)
-loop = asyncio.get_event_loop()
-# loop.call_soon(asyncio.start_server(serve, "127.0.0.1", 8081))
-loop.call_soon(asyncio.start_server(serve, "192.168.4.1", 80))
-loop.run_forever()
-loop.close()
+# def run(host="127.0.0.1", port=8081, loop_forever=True, backlog=16): # orig
+def run(host="192.168.4.1", port=80, loop_forever=True, backlog=16):
+    loop = asyncio.get_event_loop()
+    print("* Starting Server at {}:{}".format(host, port))
+    loop.create_task(asyncio.start_server(_handler, host, port, backlog=backlog))
+    if loop_forever:
+        loop.run_forever()
+        loop.close()
 
-# if __name__ == '__main__':
-#     update_settings(settings_to_update=None, file=robot_settings_file)
-#     run()
 
-# # if __name__ == '__main__':
-# print('DBG: __name__ : {}'.format(str(__name__)))
-# update_settings(settings_to_update=None, file=robot_settings_file)
-# run()
+if __name__ == '__main__':
+    update_settings(settings_to_update=None, file=robot_settings_file)
+    run()
