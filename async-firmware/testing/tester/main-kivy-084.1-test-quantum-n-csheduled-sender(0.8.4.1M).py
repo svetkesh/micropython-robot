@@ -59,7 +59,6 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.slider import Slider
-from kivy.uix.switch import Switch
 
 import socket
 import time
@@ -83,31 +82,31 @@ class RoboPad(FloatLayout):
         self.joystickhand = Joystick(size_hint=(.5, .5),
                                      pos_hint={'x': .0, 'y': .0},
                                      sticky=True)
-        # self.add_widget(self.joystickhand)
+        self.add_widget(self.joystickhand)
         self.joystickrun = Joystick(size_hint=(.5, .5),
                                     pos_hint={'x': .5, 'y': .0})
         self.joystickhand.bind(pad=self.update_coordinates_hand)
 
-        # self.add_widget(self.joystickrun)
+        self.add_widget(self.joystickrun)
         self.joystickrun.bind(pad=self.update_coordinates_run)
 
         # add some buttons
         self.catchbutton = Button(size_hint=(.3, .1),
                                   pos_hint={'x': .7, 'y': .9},
                                   text='Catch me!')
-        # self.add_widget(self.catchbutton)
+        self.add_widget(self.catchbutton)
         self.catchbutton.bind(on_press=self.update_catch_release)
 
         self.dance_button = Button(size_hint=(.2, .1),
                                   pos_hint={'x': .4, 'y': .9},
                                   text='Dance!')
-        # self.add_widget(self.dance_button)
+        self.add_widget(self.dance_button)
         self.dance_button.bind(on_press=self.update_dance)
 
         self.hiphop_dance = Button(size_hint=(.2, .1),
                                   pos_hint={'x': .1, 'y': .9},
                                   text='hip-hop!')
-        # self.add_widget(self.hiphop_dance)
+        self.add_widget(self.hiphop_dance)
         self.hiphop_dance.bind(on_press=self.update_hiphop)
 
         # self.reset_stat_button = Button(size_hint=(.05, .05),
@@ -169,55 +168,24 @@ class RoboPad(FloatLayout):
 
         self.slider_timeout_timer_start.bind(value=self.OnSliderTimeoutTimerStartValueChange)
 
-        ####  ####
-
-        self.slider_gear_factor = Slider(size_hint=(.5, .03),
+        self.slider_gear_factor = Slider(size_hint=(.4, .03),
                                                     pos_hint={'x': .1,
-                                                              'y': .9},
+                                                              'y': .8},
                                                     min=1,
                                                     max=5,
                                                     value=3)
         self.add_widget(self.slider_gear_factor)
         self.slider_gear_factor.bind(value=self.OnSliderGearFactorValueChange)
 
-        self.slider_turnx = Slider(size_hint=(.6, .1),
-                                   pos_hint={'x': .05,
-                                             'y': .3},
-                                   min=40,
-                                   max=115,
-                                   value=77)
-        self.add_widget(self.slider_turnx)
-        self.slider_turnx.bind(value=self.OnSliderTurnxValueChange)
-
-        self.slider_runy = Slider(size_hint=(.1, .9),
-                                  pos_hint={'x': .8,
-                                            'y': .05},
-                                  orientation='vertical',
-                                  min=40,
-                                  max=115,
-                                  value=77)
-        self.add_widget(self.slider_runy)
-        self.slider_runy.bind(value=self.OnSliderRunyValueChange)
-
-        self.switch_invert_runy = Switch(size_hint=(.2, .1),
-                                         pos_hint={'x': .4,
-                                                   'y': .7},)
-        self.add_widget(self.switch_invert_runy)
-
-        self.switch_invert_turnx = Switch(size_hint=(.2, .1),
-                                          pos_hint={'x': .1,
-                                                    'y': .7},)
-        self.add_widget(self.switch_invert_turnx)
-
-        # self.slider_ineturnx = Slider(size_hint=(.4, .03),
-        #                                             pos_hint={'x': .1,
-        #                                                       'y': .3},
-        #                                             min=1,
-        #                                             max=5,
-        #                                             value=3)
-        # self.add_widget(self.slider_turnx)
-        # self.slider_gear_factor.bind(value=self.OnSliderTurnxValueChange)
-
+        ####
+        self.slider_gear_factor = Slider(size_hint=(.4, .03),
+                                                    pos_hint={'x': .1,
+                                                              'y': .8},
+                                                    min=1,
+                                                    max=5,
+                                                    value=3)
+        self.add_widget(self.slider_gear_factor)
+        self.slider_gear_factor.bind(value=self.OnSliderGearFactorValueChange)
 
         self.accept_command_timeout = 0.05  # 0.6 is too short, broke app!
                             #
@@ -317,62 +285,6 @@ class RoboPad(FloatLayout):
         # self.send_command_data_with_saved_params(self.current_command)
 
         print('DBG end OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
-
-
-
-    #### ####
-    def OnSliderRunyValueChange(self, instance, value):
-        # self.command_sent = False
-        # self.stored_command = {}   # updated storage for commands
-        # self.delayed_command = {}  # updated storage for commands
-        # print(type(value), value, self.gear)
-
-        # self.send_command_data(gear=self.gear)
-        # self.saved_command['gear'] = self.gear
-
-        print('DBG start OnSliderRunyValueChange self.current_command: {}'.format(self.current_command))
-
-        self.current_command = {}
-
-        # y = self.squaredround(round(value))
-        # y = round(value)
-        #
-        #  imitate stop
-        y = round(value) if abs(round(value)-77) > 4 else 77
-
-        # self.current_command['runy'] = self.recalculate_dc_position(y)
-
-        self.current_command['runy'] = y
-
-        print('DBG start update_coordinates_run self.current_command: {}'.format(self.current_command))
-
-        if self.accept_command_with_saved_params(self.current_command):
-            # self.command_sent = False
-            print('DBG update_coordinates_run calls send_command_data_({}): '.format(self.current_command))
-            self.send_command_data_with_saved_params(self.current_command)
-        else:
-            print('DBG update_coordinates_run not allowed to call send_command: {}'.format(self.current_command))
-            # pass
-
-    def OnSliderTurnxValueChange(self, instance, value):
-        print('DBG start OnSliderTurnxValueChange self.current_command: {}'.format(self.current_command))
-
-        self.current_command = {}
-
-        # x = self.squaredround(round(value))
-        x = round(value)
-
-        self.current_command['turnx'] = x
-
-        print('DBG start update_coordinates_run self.current_command: {}'.format(self.current_command))
-
-        if self.accept_command_with_saved_params(self.current_command):
-            # self.command_sent = False
-            print('DBG update_coordinates_run calls send_command_data_({}): '.format(self.current_command))
-            self.send_command_data_with_saved_params(self.current_command)
-        else:
-            print('DBG update_coordinates_run not allowed to call send_command: {}'.format(self.current_command))
-            # pass
 
     def OnSliderTimeoutTimerStartValueChange(self, instance, value):
         # self.command_sent = False
