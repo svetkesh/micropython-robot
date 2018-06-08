@@ -44,7 +44,7 @@ ver 0.8.2 test version with smooth joystik run
              (for accept JSON)
 
 0.8.4.1(084.1)  - send JSON -formatted command
-0.8.4.1M(084.1)  - changed controls, added invertions
+0.8.4.1M(084.1MD)  - changed controls, added invertions, no gear_factor
 
 '''
 
@@ -175,16 +175,16 @@ class RoboPad(FloatLayout):
                                                     pos_hint={'x': .1,
                                                               'y': .9},
                                                     min=1,
-                                                    max=5,
-                                                    value=3)
-        self.add_widget(self.slider_gear_factor)
-        self.slider_gear_factor.bind(value=self.OnSliderGearFactorValueChange)
+                                                    max=7,
+                                                    value=4)
+        # self.add_widget(self.slider_gear_factor)
+        # self.slider_gear_factor.bind(value=self.OnSliderGearFactorValueChange)
 
         self.slider_turnx = Slider(size_hint=(.6, .1),
                                    pos_hint={'x': .05,
                                              'y': .3},
-                                   min=40,
-                                   max=115,
+                                   min=45,
+                                   max=105,
                                    value=77)
         self.add_widget(self.slider_turnx)
         self.slider_turnx.bind(value=self.OnSliderTurnxValueChange)
@@ -203,11 +203,13 @@ class RoboPad(FloatLayout):
                                          pos_hint={'x': .4,
                                                    'y': .7},)
         self.add_widget(self.switch_invert_runy)
+        self.switch_invert_runy.bind(active=self.OnActiveInvertRuny)
 
         self.switch_invert_turnx = Switch(size_hint=(.2, .1),
                                           pos_hint={'x': .1,
                                                     'y': .7},)
         self.add_widget(self.switch_invert_turnx)
+        self.switch_invert_turnx.bind(active=self.OnActiveInvertTurnx)
 
         # self.slider_ineturnx = Slider(size_hint=(.4, .03),
         #                                             pos_hint={'x': .1,
@@ -251,6 +253,11 @@ class RoboPad(FloatLayout):
         self.hiphop = 1
 
         self.gear = 3
+        self.turnx = 77
+        self.runy = 77
+
+        self.invert_runy = False
+        self.invert_turnx = False
 
         self.robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
         self.robot_port = 80
@@ -337,12 +344,16 @@ class RoboPad(FloatLayout):
         # y = self.squaredround(round(value))
         # y = round(value)
         #
-        #  imitate stop
+        #  imitate stop and get inverted if inverted
         y = round(value) if abs(round(value)-77) > 4 else 77
+        y = (155 - y) if self.invert_runy else y
 
         # self.current_command['runy'] = self.recalculate_dc_position(y)
 
         self.current_command['runy'] = y
+
+        # add display info message
+        self.runy = y
 
         print('DBG start update_coordinates_run self.current_command: {}'.format(self.current_command))
 
@@ -361,8 +372,12 @@ class RoboPad(FloatLayout):
 
         # x = self.squaredround(round(value))
         x = round(value)
+        x = (155 - x) if self.invert_turnx else x
 
         self.current_command['turnx'] = x
+
+        # add display info message
+        self.turnx = x
 
         print('DBG start update_coordinates_run self.current_command: {}'.format(self.current_command))
 
@@ -373,6 +388,12 @@ class RoboPad(FloatLayout):
         else:
             print('DBG update_coordinates_run not allowed to call send_command: {}'.format(self.current_command))
             # pass
+
+    def OnActiveInvertRuny(self, instance, value):
+        self.invert_runy = not self.invert_runy
+
+    def OnActiveInvertTurnx(self, instance, value):
+        self.invert_turnx = not self.invert_turnx
 
     def OnSliderTimeoutTimerStartValueChange(self, instance, value):
         # self.command_sent = False
@@ -901,12 +922,16 @@ class RoboPad(FloatLayout):
         # self.stored_command = {}   # updated storage for commands
         # self.delayed_command = {}  # updated storage for commands
 
+        # add display info message
+
         debug_text = "commands counter: {} sent: {}\n" \
                      "mean timeout sending commands: {}\n" \
                      "self.slider_accept_command_timeout: {}\n" \
                      "self.slider_velocity_factor: {}\n" \
                      "self.slider_timeout_timer_start: {}\n" \
-                     "self.gear: {}\n" \
+                     "self.gear: {} | " \
+                     "self.turnx: {} | " \
+                     "self.runy: {} | " \
 
         self.debug_label.text = debug_text.format(self.counter_commands,
                                                   str((self.counter_send_command_data / self.counter_commands))[0:5],
@@ -914,7 +939,10 @@ class RoboPad(FloatLayout):
                                                   str(self.accept_command_timeout)[0:5],
                                                   str(self.velocity_factor)[0:5],
                                                   str(self.timeout_timer_start)[0:5],
-                                                  str(self.gear))
+                                                  str(self.gear),
+                                                  str(self.turnx),
+                                                  str(self.runy),
+                                                  )
 
         # if self.command_sent:
         #     print('DBG timer_with_saved_params saved_command "len":{},'

@@ -1,7 +1,5 @@
 """
-0.8.1 -using uasyncio
-      suits firmware versions 2018 04 +
-      this uses custom firmware with added uasyncio
+suits firmware versions 2018 04 +
 0.8.4.1 - uses JSON for commands and settings
 """
 
@@ -58,9 +56,11 @@ robot_settings_defaults = {
     'servo_min': 40,
     'servo_max': 115,
     'servo_center': 77,
-    'gear_factor': 3,
+    'gear_factor': 5,
     'HOLD_LOOSE_TIMEOUT': 5,
 }
+
+robot_busy = False
 
 # # compile regex
 # # compile re number
@@ -81,11 +81,6 @@ def give_up():
 
 
 def move_servo(servo, duty='77', forward=True, speed=1):
-
-    # servo_start_pos = 40
-    # servo_end_pos = 115
-    # servo_center_pos = 77
-
     # servo_start_pos = robot_settings['servo_min']
     # servo_end_pos = robot_settings['servo_max']
     # servo_center_pos = robot_settings['servo_center']
@@ -109,23 +104,18 @@ def move_servo(servo, duty='77', forward=True, speed=1):
 
 
 def headx(key):  # straight
-    print('DBG runing: {} key: {}'.format('headx', key))
     move_servo(servo_head_x, duty=key)
 
 
 def handy(key):  # inverted
-    print('DBG runing: {} key: {}'.format('handy', key))
     move_servo(servo_hand_y, duty=key, forward=False)
 
 
 def turnx(key):  # inverted
-    print('DBG runing: {} key: {}'.format('turnx', key))
     move_servo(servo_turn_x, duty=key, forward=False)
 
 
 def runy(key):  # straight
-    print('DBG runing: {} key: {}'.format('runy', key))
-
     try:
         i_runy = int(key)
 
@@ -138,8 +128,6 @@ def runy(key):  # straight
             m_duty = 0
             p_duty = 0
         else:
-            # m_duty = int((i_runy - 70) * 5 * robot_settings['gear_factor'])
-            # p_duty = int((i_runy - 70) * 5 * robot_settings['gear_factor'])
             m_duty = int((i_runy - 70) * 5 * robot_settings_defaults['gear_factor'])  # robot_settings_defaults
             p_duty = int((i_runy - 70) * 5 * robot_settings_defaults['gear_factor'])  # robot_settings_defaults
 
@@ -150,8 +138,6 @@ def runy(key):  # straight
 
 
 def catch(key):
-    print('DBG runing: {} key: {}'.format('catch', key))
-
     if servo_catch.duty() < 75:
         servo_catch.duty(110)
     else:
@@ -166,7 +152,6 @@ def read_settings(file):
     try:
         with open(file, 'r') as f:
             j = json.load(f)
-            print('DBG read_settings seems to be OK')
             return j
     except Exception as e:
         print('ERR read_settings from file: {}, '
@@ -200,31 +185,23 @@ def update_settings(settings_to_update=None, file=robot_settings_file):
 
     global robot_settings
 
-    print('DBG update_settings settings_to_update: {}, {}'.format(type(settings_to_update), settings_to_update))
-    print('DBG update_settings robot_settings: {}, {}'.format(type(robot_settings), robot_settings))
-    print('DBG update_settings file: {}'.format(file))
-    print('DBG update_settings (if settings_to_update): ...')
-    print('DBG update_settings (if settings_to_update): {}'.format(True if settings_to_update else False))
-
     if settings_to_update:
         try:
             write_settings(settings_to_update, file)
             robot_settings = {}
             robot_settings = read_settings(file)
-
-            print('DBG robot_settings after upd: {}, {}'.format(type(robot_settings), robot_settings))
         except Exception as e:
             print('Error while updating settings {}, {}'.format(type(e), e))
     else:
         try:
             robot_settings = read_settings(file)
-            print('DBG robot_settings read: {}, {}'.format(type(robot_settings), robot_settings))
-
         except Exception as e:
             print('Error while reading settings {}, {}'.format(type(e), e))
 
 
 def robot_listener_json(request):
+    global robot_busy
+    robot_busy = True
     global html
     start = time.ticks_ms()
     print('DBG robot_listener_json got: {}... first 120 can workout.'.format(str(request)[:120]))
@@ -239,18 +216,9 @@ def robot_listener_json(request):
     if r_run.search(formatted_request) is not None:
         try:  # gonna test - try not to search one more time
             m_run = r_run.search(formatted_request)
-
-            print('DBG processing json commands in run, request: {}, {}'.format(
-                type(request), formatted_request))
             s_run = m_run.group(1)
-            print('DBG processing json commands in run, s_run: {}, {}'.format(type(s_run), s_run))
-
             j_run = json.loads(s_run)
-            print('DBG json.loads() commands in run, j_settings: {}, {}'.format(type(j_run), j_run))
-
             for js_run in j_run:
-                print('DBG json.loads() command in run: {}:{}'.format(js_run, j_run[js_run]))
-
                 try:
                     function_to_call = tokens[js_run]
                     function_to_call(j_run[js_run])
@@ -261,18 +229,13 @@ def robot_listener_json(request):
             print('Error while processing run json.loads()  {}, {}'.format(type(e), e))
         finally:
             html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot not Groot\r\n    ms: " + str(time.ticks_ms() - start) + "\r\n"
+            robot_busy = False
 
     if r_settings.search(formatted_request) is not None:
         try:
             m_settings = r_settings.search(formatted_request)
-            print('DBG processing json commands for settings, request: {}, {}'.format(
-                type(request), formatted_request))
             s_settings = m_settings.group(1)
-            print('DBG processing json commands, s_settings: {}, {}'.format(type(s_settings), s_settings))
-
             j_settings = json.loads(s_settings)
-            print('DBG json.loads() commands, j_settings: {}, {}'.format(type(j_settings), j_settings))
-
             update_settings(settings_to_update=j_settings, file=robot_settings_file)
         except Exception as e:
             print('Error while processing settings json.loads()  {}, {}'.format(type(e), e))
@@ -280,6 +243,7 @@ def robot_listener_json(request):
             html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot not Groot\r\n    ms: " + \
                    str(time.ticks_ms() - start) + "\r\n    settings: " + \
                    str(robot_settings) + "\r\n"
+            robot_busy = False
 
 
 tokens = {
@@ -297,26 +261,23 @@ tokens = {
 
 @asyncio.coroutine
 def serve(reader, writer):
-    # print(reader, writer)
-    print("================")
-    # print((yield from reader.read()))  # orig
-    # print((yield from reader.read()))  # mod readline
-    # line = yield from reader.readline()
-    line = yield from reader.read()
-    robot_listener_json(line)
-    print('DBG line: {}, {}'.format(type(line), str(line)[:120]))  # mod readline
-    # yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\nHello. ...\r\n more from v.17 (with limit 120)"
-    #                          + str(line)[:120] + "\r\n"
-    #                          + "Updated robot_settings" + str(robot_settings) + "\r\n")
-    yield from writer.awrite(html)
-    # print("After response write")
-    yield from writer.aclose()
-    print("Finished processing request")
+    try:
+        line = yield from reader.read()
+
+        if robot_busy:
+            print('DBG serve robot_busy: {}'.format(robot_busy))
+        else:
+            robot_listener_json(line)
+            yield from writer.awrite(html)
+            yield from writer.aclose()
+    except Exception as e:
+        print('Error while serve: {}, {}'.format(type(e), e))
 
 
 def run():
+    global robot_busy
+    robot_busy = False
     loop = asyncio.get_event_loop()
-    # loop.call_soon(asyncio.start_server(serve, "127.0.0.1", 8081))
     loop.call_soon(asyncio.start_server(serve, "192.168.4.1", 80))
     loop.run_forever()
     loop.close()
