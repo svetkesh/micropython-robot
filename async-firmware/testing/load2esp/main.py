@@ -3,6 +3,7 @@
       suits firmware versions 2018 04 +
 0.8.4.1 - uses JSON for commands and settings
 0.8.4.3 - added settings listeners
+
 """
 
 try:
@@ -51,16 +52,17 @@ hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
 
 robot_settings = {}
 robot_settings_file = 'settings.txt'
+robot_default_settings_file = 'defsett.txt'
 
-robot_settings_defaults = {
-    'DEBUG_ENABLE': True,
-    'robot_ip': '192.168.4.1',
-    'servo_min': 40,
-    'servo_max': 115,
-    'servo_center': 77,
-    'gear_factor': 5,
-    'HOLD_LOOSE_TIMEOUT': 5,
-}
+# robot_settings_defaults = {
+#     'DEBUG_ENABLE': True,
+#     'robot_ip': '192.168.4.1',
+#     'servo_min': 40,
+#     'servo_max': 115,
+#     'servo_center': 77,
+#     'gear_factor': 5,
+#     'HOLD_LOOSE_TIMEOUT': 5,
+# }
 
 robot_busy = False
 
@@ -89,10 +91,9 @@ def move_servo(servo, duty='77', forward=True, speed=1):
     # servo_end_pos = robot_settings['servo_max']
     # servo_center_pos = robot_settings['servo_center']
 
-    # # use for while robot_settings_defaults
-    servo_start_pos = robot_settings_defaults['servo_min']
-    servo_end_pos = robot_settings_defaults['servo_max']
-    servo_center_pos = robot_settings_defaults['servo_center']
+    servo_start_pos = robot_settings['servo_min']
+    servo_end_pos = robot_settings['servo_max']
+    servo_center_pos = robot_settings['servo_center']
 
     print('DBG move_servo: {}, duty: {}, forward: {}, speed: {}'
           ''.format(str(servo), str(duty), str(forward), str(speed)))
@@ -124,15 +125,15 @@ def runy(key):  # straight
         i_runy = int(key)
 
         if i_runy < 77:
-            m_duty = -70 * robot_settings_defaults['gear_factor']  # robot_settings_defaults
+            m_duty = -70 * robot_settings['gear_factor']
             p_duty = int((924 - 12 * i_runy))
 
         elif i_runy == 77:
             m_duty = 0
             p_duty = 0
         else:
-            m_duty = int((i_runy - 70) * 5 * robot_settings_defaults['gear_factor'])  # robot_settings_defaults
-            p_duty = int((i_runy - 70) * 5 * robot_settings_defaults['gear_factor'])  # robot_settings_defaults
+            m_duty = int((i_runy - 70) * 5 * robot_settings['gear_factor'])
+            p_duty = int((i_runy - 70) * 5 * robot_settings['gear_factor'])
 
         motor_a_p.duty(p_duty)
         motor_a_m.duty(m_duty)
@@ -276,11 +277,13 @@ def robot_listener_json(request):
             robot_busy = False
 
     elif r_load_default.search(formatted_request):
+
+
         html = """<html>
 <head>
     <title>RoboSettings</title>
 </head>
-<body>Def: """ + str(robot_settings_defaults) + """<p> Curr: """ + str(robot_settings) + """<p>
+<body>Curr: """ + str(robot_settings) + """<p>
 <form class="" action="http://""" + robot_ip + """/" method="get">
     <input type="text" name="settings" id="settings" value="" placeholder="{'':''}">
     <input type="submit" value="submit">
@@ -288,6 +291,7 @@ def robot_listener_json(request):
 </body>
 </html>
 """
+        # Def: """ + str(robot_settings_defaults) + """<p>
         robot_busy = False
 
     else:
@@ -346,7 +350,7 @@ if __name__ == '__main__':
     if read_settings(robot_settings_file):
         robot_settings = read_settings(robot_settings_file)
     else:
-        robot_settings = robot_settings_defaults
+        robot_settings = read_settings(robot_default_settings_file)
     # main loop
     run()
 
