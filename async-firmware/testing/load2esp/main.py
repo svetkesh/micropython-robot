@@ -2,6 +2,8 @@
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
 0.8.4.3 - added settings listeners
+        to load settings:
+        http://192.168.4.1/?load=default
 
 """
 
@@ -121,8 +123,13 @@ def catch(key):
 
 
 def gear(key):
-    print('DBG runing: {} key: {}'.format('gear', key))
-
+    print('DBG running: {} key: {}'.format('gear', key))
+    try:
+        robot_settings['gear_factor'] = int(key)
+    except Exception as e:
+        robot_settings['gear_factor'] = 4
+        print('ERR: could not set gear: () use default "4". {}, {}, {}'.format(str(key), type(e), e))
+    
 
 def read_settings(file):
     try:
