@@ -1,7 +1,6 @@
 """
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
-0.8.4.1 - uses JSON for commands and settings
 0.8.4.3 - added settings listeners
 
 """
@@ -12,9 +11,9 @@ try:
     import ure as re
     import ujson as json
     import utime as time
-    import sys
+    # import sys
     import network
-    print('DBG: import microlibs libraries successful')
+    print('DBG: import micro libraries successful')
 except ImportError:
     raise SystemExit
 
@@ -34,9 +33,8 @@ if sta_if.active():
 print('Robot IP robot_ip: {}'. format(robot_ip))
 
 # HTML to send to browsers
-# hardcoded ip address html reply
 
-html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot not Groot\r\n"
+html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n"
 
 # Setup drives
 motor_a_p = machine.PWM(machine.Pin(5), freq=50)
@@ -49,27 +47,10 @@ network_pin = machine.Pin(2, machine.Pin.OUT)
 # headlight = machine.Pin(16, machine.Pin.OUT)
 hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
 
-
 robot_settings = {}
 robot_settings_file = 'settings.txt'
-robot_default_settings_file = 'defsett.txt'
-
-# robot_settings_defaults = {
-#     'DEBUG_ENABLE': True,
-#     'robot_ip': '192.168.4.1',
-#     'servo_min': 40,
-#     'servo_max': 115,
-#     'servo_center': 77,
-#     'gear_factor': 5,
-#     'HOLD_LOOSE_TIMEOUT': 5,
-# }
 
 robot_busy = False
-
-# # compile regex
-# # compile re number
-# float_number = re.compile("0\.(\d+)")
-# r_number = re.compile("(\d+)")
 
 # compile regex for commands
 r_settings = re.compile("settings=({.*})")
@@ -87,16 +68,9 @@ def give_up():
 
 
 def move_servo(servo, duty='77', forward=True, speed=1):
-    # servo_start_pos = robot_settings['servo_min']
-    # servo_end_pos = robot_settings['servo_max']
-    # servo_center_pos = robot_settings['servo_center']
-
     servo_start_pos = robot_settings['servo_min']
     servo_end_pos = robot_settings['servo_max']
     servo_center_pos = robot_settings['servo_center']
-
-    print('DBG move_servo: {}, duty: {}, forward: {}, speed: {}'
-          ''.format(str(servo), str(duty), str(forward), str(speed)))
 
     try:
         duty_int = int(duty)
@@ -123,11 +97,9 @@ def turnx(key):  # inverted
 def runy(key):  # straight
     try:
         i_runy = int(key)
-
         if i_runy < 77:
             m_duty = -70 * robot_settings['gear_factor']
             p_duty = int((924 - 12 * i_runy))
-
         elif i_runy == 77:
             m_duty = 0
             p_duty = 0
@@ -166,22 +138,16 @@ def read_settings(file):
 
 def write_settings(j, file='settings.txt'):
     try:
-        for item in j:
-            print('DBG: json items: {}:{}'.format(item, j[item]))
-
         j_str = json.dumps(j)
         print('DBG: JSON data loaded OK')
-    except json.JSONDecodeError as e:
-        print(type(e), e)
-        print('ERR: data not valid JSON:{}'.format(str(j)))
-
-    try:
         with open(file, 'w') as f:
             f.write(str(j_str))
             print('DBG: data: {} written to: {}, OK'.format(file, j_str))
         return True
+    except json.JSONDecodeError as e:
+        print('ERR: data not valid JSON: {}, {}, {}'.format(type(e), e, str(j)))
     except Exception as e:
-        print('ERR: given data could not be written {}, {}\n    {}'.format(type(e), e, j_str))
+        print('ERR: given data could not be written {}, {}\n    {}'.format(type(e), e, str(j)))
         return False
 
 
@@ -191,60 +157,60 @@ def update_settings(settings_to_update=None, file=robot_settings_file):
         try:
             for item in settings_to_update:
                 try:
-                    print('DBG update_settings {} -> {}'.format(
+                    print('DBG update {} -> {}'.format(
                         robot_settings[item],
                         settings_to_update[item]
                     ))
                 except Exception as e:
-                    print('ERR-DBG update_settings for: "{}": "{}" '
-                          ' {}, {}'.format(item, settings_to_update[item], type(e), e))
+                    print('ERR-DBG update_settings for: {}, {}, {}'.format(item, settings_to_update[item], e))
 
-                robot_settings[item] = settings_to_update[item]
+                if settings_to_update[item] in ('True', 'TRUE', 'true', 'T', 't',
+                                                'Yes', 'YES', 'yes', 'Y', 'y'):
+                    robot_settings[item] = True
+                elif settings_to_update[item] in ('False', 'FALSE', 'false', 'F', 'F',
+                                                  'No', 'NO', 'no', 'N', 'n'):
+                    robot_settings[item] = False
+                else:
+                    try:
+                        setting_i = int(settings_to_update[item])
+                        robot_settings[item] = setting_i
+                    except ValueError:
+                        robot_settings[item] = settings_to_update[item]
 
             write_settings(robot_settings, file)
             return True
-
-            # write_settings(settings_to_update, file)
-            # robot_settings = {}
-            # robot_settings = read_settings(file)
-
-            print('DBG robot_settings after upd: {}, {}'.format(type(robot_settings), robot_settings))
         except Exception as e:
-            print('Error while updating settings {}, {}'.format(type(e), e)) # return  what ???
+            print('Error while updating settings {}, {}'.format(type(e), e))
             return False
+        finally:
+            print('DBG after robot_settings: {}, {}'.format(type(robot_settings), robot_settings))
     else:
-        try:
-            # robot_settings = read_settings(file)
-            print('DBG robot_settings nothing to update, '
-                  'current settings: {}, {}'.format(type(robot_settings),
-                                                    robot_settings))
-            return True
-
-        except Exception as e:
-            print('Error while reading settings {}, {}'.format(type(e), e))  # return  what ???
-            return False
+        print('DBG nothing to update, '
+              'current settings: {}, {}'.format(type(robot_settings),
+                                                robot_settings))
+        return True
 
 
-def robot_listener_json(request):
+def robot_listener_json(mess):
     global robot_settings
     global robot_busy
     robot_busy = True
     global html
     start = time.ticks_ms()
-    print('DBG robot_listener_json got: {}'.format(str(request)[:120]))
 
-    request = str(request)[:128]
-    formatted_request = request.replace('%22', '\"')
-    formatted_request = formatted_request.replace('%27', '\"')
-    formatted_request = formatted_request.replace('%20', ' ')
-    formatted_request = formatted_request.replace('%7B', '{')
-    formatted_request = formatted_request.replace('%7D', '}')
+    mess = mess.replace('%22', '\"')
+    mess = mess.replace('%27', '\"')
+    mess = mess.replace('%20', ' ')
+    mess = mess.replace('%7B', '{')
+    mess = mess.replace('%7D', '}')
+    mess = mess.replace('%2C', ',')
+    mess = mess.replace('%3A+', ': ')
+    mess = mess.replace('%3A', ':')
 
     # processing json commands
-
-    if r_run.search(formatted_request) is not None:
-        try:  # gonna test - try not to search one more time
-            m_run = r_run.search(formatted_request)
+    if r_run.search(mess) is not None:
+        try:
+            m_run = r_run.search(mess)
             s_run = m_run.group(1)
             j_run = json.loads(s_run)
             for js_run in j_run:
@@ -252,36 +218,34 @@ def robot_listener_json(request):
                     function_to_call = tokens[js_run]
                     function_to_call(j_run[js_run])
                 except Exception as e:
-                    print('SKIP while dispatching run commands with function_to_call: {}, {}'.format(type(e), e))
+                    print('SKIP dispatching  unknown command: {}, {}, {}'.format(j_run, type(e), e))
         except Exception as e:
-            print('Error while processing run json.loads()  {}, {}'.format(type(e), e))
+            print('ERR while dispatching command: {}, {}'.format(type(e), e))
         finally:
-            html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot not Groot\r\n    ms: " + str(time.ticks_ms() - start) + "\r\n"
+            html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n    ms: " + str(time.ticks_ms() - start) + "\r\n"
+            #          robot busy: {}:
+            print('DBG robot run in: {}ms'.format(str(time.ticks_ms() - start)))
             robot_busy = False
 
-    elif r_settings.search(formatted_request) is not None:
+    elif r_settings.search(mess) is not None:
         try:
-            m_settings = r_settings.search(formatted_request)
+            m_settings = r_settings.search(mess)
             s_settings = m_settings.group(1)
             j_settings = json.loads(s_settings)
 
-            # update_settings(settings_to_update=j_settings, file=robot_settings_file)
             update_settings(settings_to_update=j_settings, file=robot_settings_file)
-            print('DBG r_settings.search after update: {}'.format(robot_settings))
         except Exception as e:
             print('Error while processing settings json.loads()  {}, {}'.format(type(e), e))
         finally:
-            html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot not Groot\r\n    ms: " + \
+            html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n    ms: " + \
                    str(time.ticks_ms() - start) + "\r\n    settings: " + \
                    str(robot_settings) + "\r\n"
             robot_busy = False
 
-    elif r_load_default.search(formatted_request):
-
-
+    elif r_load_default.search(mess):
         html = """<html>
 <head>
-    <title>RoboSettings</title>
+<title>RoboSettings</title>
 </head>
 <body>Curr: """ + str(robot_settings) + """<p>
 <form class="" action="http://""" + robot_ip + """/" method="get">
@@ -291,14 +255,12 @@ def robot_listener_json(request):
 </body>
 </html>
 """
-        # Def: """ + str(robot_settings_defaults) + """<p>
         robot_busy = False
-
     else:
-        html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot not Groot\r\n    ms: " + \
+        html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n    ms: " + \
                str(time.ticks_ms() - start) + "\r\n    settings: " + \
                str(robot_settings) + "\r\n"
-        robot_busy = False
+        robot_busy = False  # 4 times could be overrun by try-finally
 
 
 tokens = {
@@ -319,14 +281,14 @@ def serve(reader, writer):
     global robot_busy
     try:
         line = yield from reader.read()
+        mess = str(line)[:min(120, len(str(line)))]
 
         if robot_busy:
-            print('DBG serve robot_busy: {}'.format(robot_busy))
-            print('DBG line: {}, {}'.format(type(line), str(line)[:40]))
+            print('DBG serve robot is busy: {}'.format(robot_busy))
+            print('DBG mess: {}, {}'.format(type(mess), mess))
         else:
-            print('DBG serve robot_busy: {}'.format(robot_busy))
-            robot_listener_json(line)
-            print('DBG line: {}, {}'.format(type(line), str(line)[:120]))  # mod readline
+            print('DBG robot busy: {} it\'s OK'.format(robot_busy))
+            robot_listener_json(mess)
             yield from writer.awrite(html)
             yield from writer.aclose()
 
@@ -350,7 +312,7 @@ if __name__ == '__main__':
     if read_settings(robot_settings_file):
         robot_settings = read_settings(robot_settings_file)
     else:
-        robot_settings = read_settings(robot_default_settings_file)
+        raise SystemExit
     # main loop
     run()
 
