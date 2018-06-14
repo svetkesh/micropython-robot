@@ -70,9 +70,10 @@ def give_up():
 
 
 def move_servo(servo, duty='77', forward=True, speed=1):
+    # placeholder for speed switching operating servo
     servo_start_pos = robot_settings['servo_min']
     servo_end_pos = robot_settings['servo_max']
-    servo_center_pos = robot_settings['servo_center']
+    servo_center_pos = robot_settings['servo_center']  # placeholder servo center positioning
 
     try:
         duty_int = int(duty)
@@ -116,6 +117,7 @@ def runy(key):  # straight
 
 
 def catch(key):
+    # placeholder for smooth catch operation
     if servo_catch.duty() < 75:
         servo_catch.duty(110)
     else:
@@ -322,5 +324,3 @@ if __name__ == '__main__':
         raise SystemExit
     # main loop
     run()
-
-

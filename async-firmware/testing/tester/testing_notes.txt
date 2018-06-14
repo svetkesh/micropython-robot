@@ -582,3 +582,94 @@ OSError: stream operation not supported
 >>> type(j2)
 <class 'dict'>
 >>>
+
+
+----
+SIZE TESTING
+11539 bytes - too big
+
+
+11944 bytes - too big
+
+
+10984 bytes  - too big
+10859 bytes  - too big
+10645 bytes
+10870 bytes  - too big
+10712 bytes  - too big
+
+10746 bytes - OK
+11608 bytes - OK
+
+10571 bytes  - too big ????
+10516 bytes
+
+
+
+
+
+Auto-detected Flash size: 4MB
+Flash params set to 0x0040
+Compressed 592512 bytes to 387896...
+Wrote 592512 bytes (387896 compressed) at 0x00000000 in 8.7 seconds (effective 542.5 kbit/s)...
+Hash of data verified.
++
+147 'defsett.txt'
+
++
+147
+'settings.txt'
+
+
+--
+
+
+>>> defset_str = robot_settings_defaults = {
+'DEBUG_ENABLE': True,
+'robot_ip': '192.168.4.1',
+'servo_min': 40,
+'servo_max': 115,
+'servo_center': 77,
+'gear_factor': 5,
+'HOLD_LOOSE_TIMEOUT': 5,
+}
+
+>>> defset_str
+{'servo_max': 115, 'servo_center': 77, 'gear_factor': 5, 'robot_ip': '192.168.4.1', 'DEBUG_ENABLE': True, 'servo_min': 40, 'HOLD_LOOSE_TIMEOUT': 5}
+>>> type(defset_str)
+<class 'dict'>
+>>> import ujson
+>>> import ujson as json
+>>> defset_str = json.dumps(defset_str)
+>>> defset_str
+'{"servo_max": 115, "servo_center": 77, "gear_factor": 5, "robot_ip": "192.168.4.1", "DEBUG_ENABLE": true, "servo_min": 40, "HOLD_LOOSE_TIMEOUT": 5}'
+>>> type(defset_str)
+<class 'str'>
+>>> with open('defsett.txt', 'w') as f:
+...     f.write(defset_str)
+...
+...
+...
+147
+>>> with open('defsett.txt', 'r') as f:
+...     f.read()
+...
+...
+...
+'{"servo_max": 115, "servo_center": 77, "gear_factor": 5, "robot_ip": "192.168.4.1", "DEBUG_ENABLE": true, "servo_min": 40, "HOLD_LOOSE_TIMEOUT": 5}'
+
+
+# robot_settings_defaults
+import ujson as json
+defset = {
+'DEBUG_ENABLE': True,
+'robot_ip': '192.168.4.1',
+'servo_min': 40,
+'servo_max': 115,
+'servo_center': 77,
+'gear_factor': 5,
+'HOLD_LOOSE_TIMEOUT': 5,
+}
+defset_str = json.dumps(defset)
+with open('settings.txt', 'w') as f:
+     f.write(defset_str)
