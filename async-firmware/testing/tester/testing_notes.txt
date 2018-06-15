@@ -686,3 +686,40 @@ defset = {
 defset_str = json.dumps(defset)
 with open('settings.txt', 'w') as f:
      f.write(defset_str)
+
+
+
+----
+
+
+
+
+>>>
+bug deploy run
+# Check configuration tokens
+# Ensure build layout
+# Check configuration tokens
+# Preparing build
+# Check requirements for android
+# Install platform
+# Apache ANT found at /home/arkadii/.buildozer/android/platform/apache-ant-1.9.4
+# Android SDK found at /home/arkadii/.buildozer/android/platform/android-sdk-20
+# Android NDK found at /home/arkadii/Documents/projects/Buildozer/buildozer/buildozer/crystax-ndk/crystax-ndk-10.3.2
+# Check application requirements
+# Check garden requirements
+# Compile platform
+# Build the application #52
+# Package the application
+# Gradle project detected, copy files /home/arkadii/Documents/projects/micropython-robot/demo-app/robot-mobile-app-test-novenv-002/.buildozer/android/platform/build/dists/RoboJoystick/src/main/java
+# Android packaging done!
+# APK RoboJoystick-0.1-debug.apk available in the bin directory
+# Application pushed.
+# Application started.
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-robot/demo-app/robot-mobile-app-test-novenv-002$
+
+
+--
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/micropython-ciy/esp-open-sdk$ chmod +x bnf.sh
+
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/micropython-ciy/esp-open-sdk$ ./bnf.sh
+
