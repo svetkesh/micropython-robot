@@ -4,7 +4,7 @@ to load settings:
 
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
-0.8.4.5 - remove manual parameters
+0.8.4.5 - remove manual parameters, changed runy math
 
 """
 
@@ -189,15 +189,12 @@ def turnx(key):  # inverted
 def runy(key):  # straight
     try:
         i_runy = int(key)
-        if i_runy < robot_settings['servo_center']:
-            m_duty = -70 * robot_settings['gear_factor']
-            p_duty = int((924 - 12 * i_runy))
-        elif i_runy == 77:
+        if abs(i_runy - 50) < 3:
             m_duty = 0
             p_duty = 0
         else:
-            m_duty = int((i_runy - 70) * 5 * robot_settings['gear_factor'])
-            p_duty = int((i_runy - 70) * 5 * robot_settings['gear_factor'])
+            p_duty = int(robot_settings['gear_factor'] * 100)
+            m_duty = int(robot_settings['gear_factor'] * 2 * i_runy)
 
         motor_a_p.duty(p_duty)
         motor_a_m.duty(m_duty)
