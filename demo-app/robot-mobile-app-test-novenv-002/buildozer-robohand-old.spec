@@ -1,12 +1,12 @@
 [app]
 
 # (str) Title of your application
-title = RoboHand
-title = RoboHand
+title = RoboJoystick
+title = RoboJoystick
 
 # (str) Package name
-#package.name = RoboHand
-package.name = RoboHand
+#package.name = myapp
+package.name = RoboJoystick
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
@@ -31,7 +31,7 @@ source.include_patterns = assets/*,images/*.png
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.845
+version = 0.1
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]

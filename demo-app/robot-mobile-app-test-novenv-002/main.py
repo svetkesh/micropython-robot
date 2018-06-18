@@ -44,6 +44,8 @@ ver 0.8.2 test version with smooth joystik run
              (for accept JSON)
 
 0.8.4.1(084.1)  - send JSON -formatted command
+0.8.4.5(084.1)  - run command sends value integer 0..99, changed runy math, gear limited 1..5
+
 '''
 
 from kivy.app import App
@@ -900,16 +902,43 @@ class RoboPad(FloatLayout):
 
     def recalculate_dc_position(self, x):
         import math
+        #
+        # max_x = 0.99
+        # multiply_factor = 1.1
+        # near_zero = 0.03
+        #
+        # dc_min = self.SERVO_MIN
+        # dc_max = self.SERVO_MAX
+        # dc_center = self.servo_center
+        #
+        # sign = lambda y: math.copysign(1, y)
+        # aligned_x = x * multiply_factor
+        #
+        # if abs(aligned_x) < near_zero:
+        #     # normalized_x = 0.0
+        #     return dc_center
+        # elif abs(aligned_x) > 0.99:
+        #     normalized_x = max_x * sign(aligned_x)
+        #     return int((normalized_x + 1) / 2 * dc_center + dc_min)
+        # else:
+        #     # normalized_x = float(str(aligned_x)[0:4])
+        #     normalized_x = aligned_x
+        #     return int((normalized_x + 1) / 2 * dc_center + dc_min)
 
+        print('DBG recalculate_dc_position x: {}, {}'.format(type(x), x))
+
+        dc_min = 1  # dc accepts integer values 1..99
+        dc_max = 99
+        dc_center = 50  # pre-set center value
+
+        min_x = -0.99
         max_x = 0.99
-        multiply_factor = 1.1
-        near_zero = 0.03
+        near_zero = 0.03  # 3 % of joystik run near center count as center
 
-        dc_min = self.SERVO_MIN
-        dc_max = self.SERVO_MAX
-        dc_center = self.servo_center
+        multiply_factor = 1.0  # stracht joystick
 
         sign = lambda y: math.copysign(1, y)
+        print('DBG recalculate_dc_position sign: {}, {}'.format(type(sign(x)), sign(x)))
         aligned_x = x * multiply_factor
 
         if abs(aligned_x) < near_zero:
@@ -917,11 +946,14 @@ class RoboPad(FloatLayout):
             return dc_center
         elif abs(aligned_x) > 0.99:
             normalized_x = max_x * sign(aligned_x)
-            return int((normalized_x + 1) / 2 * dc_center + dc_min)
+            return int(normalized_x * dc_max)
         else:
             # normalized_x = float(str(aligned_x)[0:4])
-            normalized_x = aligned_x
-            return int((normalized_x + 1) / 2 * dc_center + dc_min)
+            normalized_x = aligned_x ** 2 * sign(aligned_x)
+            print('DBG recalculate_dc_position x- > x: {}>> {}'.format(aligned_x, normalized_x))
+            print('DBG recalculate_dc_position value: {}'.format(
+                int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))))
+            return int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))
 
     # def accept_command(self, pos):
     #

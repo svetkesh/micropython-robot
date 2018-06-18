@@ -695,7 +695,8 @@ with open('settings.txt', 'w') as f:
 
 
 >>>
-bug deploy run
+buildozer android debug deploy run
+
 # Check configuration tokens
 # Ensure build layout
 # Check configuration tokens
@@ -716,6 +717,8 @@ bug deploy run
 # Application pushed.
 # Application started.
 arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-robot/demo-app/robot-mobile-app-test-novenv-002$
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-robot/demo-app/robot-mobile-app-test-novenv-002$ buildozer android debug deploy run
+
 
 
 --
@@ -728,7 +731,6 @@ arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/espt
 
 arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/esptool-master$ sudo python3 esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 firmware-combined.bin
 
-arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/esptool-master$ sudo python3 esptool.py --port /dev/ttyUSB0 erase_flash
-
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/esptool-master$ sudo picocom /dev/ttyUSB0 -b115200
 
 --
