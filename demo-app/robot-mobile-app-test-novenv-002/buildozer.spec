@@ -1,12 +1,12 @@
 [app]
 
 # (str) Title of your application
-title = RoboHand
-title = RoboHand
+title = SuberBuggy
+title = SuberBuggy
 
 # (str) Package name
-#package.name = RoboHand
-package.name = RoboHand
+#package.name = SuberBuggy
+package.name = SuberBuggy
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
@@ -31,7 +31,7 @@ source.include_patterns = assets/*,images/*.png
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.845
+version = 0.841
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -50,12 +50,12 @@ garden_requirements = joystick
 
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/data/presplash.png
-presplash.filename = %(source.dir)s/data/robot256.png
+presplash.filename = %(source.dir)s/data/superbuggy1024.png
 
 # (str) Icon of the application
 #icon.filename = %(source.dir)s/data/icon.png
-self.icon =  %(source.dir)s/data/robot256.png
-self.icon =  robot256.png
+self.icon =  %(source.dir)s/data/superbuggy256.png
+self.icon =  superbuggy256.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = landscape
@@ -89,7 +89,7 @@ fullscreen = 0
 # darkgray, grey, lightgrey, darkgrey, aqua, fuchsia, lime, maroon, navy,
 # olive, purple, silver, teal.
 #android.presplash_color = #FFFFFF
-android.presplash_color = #00FF00
+android.presplash_color = #0000FF
 
 # (list) Permissions
 android.permissions = INTERNET
@@ -232,7 +232,7 @@ android.arch = armeabi-v7a
 [buildozer]
 
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
-log_level = 1
+log_level = 2
 
 # (int) Display warning if buildozer is run as root (0 = False, 1 = True)
 warn_on_root = 1
