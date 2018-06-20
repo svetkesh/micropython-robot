@@ -45,6 +45,8 @@ ver 0.8.2 test version with smooth joystik run
 
 0.8.4.1(084.1)  - send JSON -formatted command
 0.8.4.5(084.1)  - run command sends value integer 0..99, changed runy math, gear limited 1..5
+0.8.4.7(084.7) - re-entered "AFTERBURNER", clock scheduled to issue "delayed commands"
+
 
 '''
 
@@ -179,10 +181,7 @@ class RoboPad(FloatLayout):
 
         self.slider_gear_factor.bind(value=self.OnSliderGearFactorValueChange)
 
-        self.accept_command_timeout = 0.05  # 0.6 is too short, broke app!
-                            #
-                            # for slow motion 0.1 ok ok
-                            # for fast motiion 0.0.25 is not enough
+        self.accept_command_timeout = 0.05  # timeout after last_command_sent_at before accepting next command
 
         # self.timeout_slow = 0.14
         self.timeout_timer_start = 0.14
@@ -256,7 +255,7 @@ class RoboPad(FloatLayout):
         # self.send_command_data(gear=self.gear)
         # self.saved_command['gear'] = self.gear
 
-        self.current_command = {}
+        # self.current_command = {}
 
         self.gear = round(value)
 
@@ -264,17 +263,18 @@ class RoboPad(FloatLayout):
 
         print('DBG start OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
 
-        if self.accept_command_with_saved_params(self.current_command):
-            # self.command_sent = False
-            print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
-            self.send_command_data_with_saved_params(self.current_command)
-        else:
-            print('DBG OnSliderGearFactorValueChange not allowed to call send_command: {}'.format(self.current_command))
-            # pass
+        # if self.accept_command_with_saved_params(self.current_command):
+        #     # self.command_sent = False
+        #     print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
+        #     self.send_command_data_with_saved_params(self.current_command)
+        # else:
+        #     print('DBG OnSliderGearFactorValueChange not allowed to call send_command: {}'.format(self.current_command))
+        #     # pass
+        #
+        # # print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
+        # # self.send_command_data_with_saved_params(self.current_command)
 
-        # print('DBG OnSliderGearFactorValueChange calls send_command_data_({}): '.format(self.current_command))
-        # self.send_command_data_with_saved_params(self.current_command)
-
+        self.accept_command_with_saved_params(self.current_command)
         print('DBG end OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
 
     def OnSliderTimeoutTimerStartValueChange(self, instance, value):
@@ -360,7 +360,7 @@ class RoboPad(FloatLayout):
         #     pass
 
         # recreate self.current_command
-        self.current_command = {}
+        # self.current_command = {}
 
         x = self.squaredround(pad[0])
         y = self.squaredround(pad[1])
@@ -369,15 +369,16 @@ class RoboPad(FloatLayout):
         self.current_command['runy'] = self.recalculate_dc_position(y)
 
         print('DBG start update_coordinates_run self.current_command: {}'.format(self.current_command))
+        self.accept_command_with_saved_params(self.current_command)
+        print('DBG end update_coordinates_run self.current_command: {}'.format(self.current_command))
 
-        if self.accept_command_with_saved_params(self.current_command):
-            # self.command_sent = False
-            print('DBG update_coordinates_run calls send_command_data_({}): '.format(self.current_command))
-            self.send_command_data_with_saved_params(self.current_command)
-        else:
-            print('DBG update_coordinates_run not allowed to call send_command: {}'.format(self.current_command))
-            # pass
-
+        # if self.accept_command_with_saved_params(self.current_command):
+        #     # self.command_sent = False
+        #     print('DBG update_coordinates_run calls send_command_data_({}): '.format(self.current_command))
+        #     self.send_command_data_with_saved_params(self.current_command)
+        # else:
+        #     print('DBG update_coordinates_run not allowed to call send_command: {}'.format(self.current_command))
+        #     # pass
 
         # # smooth run stepper (
         #
@@ -412,23 +413,15 @@ class RoboPad(FloatLayout):
         # self.command_sent = False
         # self.stored_command = {}   # updated storage for commands
         # self.delayed_command = {}  # updated storage for commands
-
-        self.current_command = {}
+        # self.current_command = {}
 
         x = self.squaredround(pad[0])
         y = self.squaredround(pad[1])
 
         self.current_command['headx'] = self.recalculate_servo_position(x)
         self.current_command['handy'] = self.recalculate_servo_position(y)
-        print('DBG start update_coordinates_hand self.current_command: {}'.format(self.current_command))
 
-        if self.accept_command_with_saved_params(self.current_command):
-            # self.command_sent = False
-            print('DBG update_coordinates_hand calls send_command_data_({}): '.format(self.current_command))
-            self.send_command_data_with_saved_params(self.current_command)
-        else:
-            print('DBG update_coordinates_hand not allowed to call send_command: {}'.format(self.current_command))
-            # pass
+        self.accept_command_with_saved_params(self.current_command)
 
     def update_catch_release(self, instance):
         # self.command_sent = False
@@ -438,11 +431,12 @@ class RoboPad(FloatLayout):
         # # print('DBG: button pressed!')
         # catch = catch
 
-        self.current_command = {}
-
-        self.current_command['catch'] = 'catch'
+        # self.current_command = {}
 
         print('DBG start update_catch_release self.current_command: {}'.format(self.current_command))
+        self.current_command['catch'] = 'catch'
+        self.accept_command_with_saved_params(self.current_command)
+        print('DBG end update_catch_release self.current_command: {}'.format(self.current_command))
 
         # if self.accept_command_with_saved_params(self.current_command):
         #     # self.command_sent = False
@@ -452,9 +446,9 @@ class RoboPad(FloatLayout):
         #     print('DBG update_catch_release not allowed to call send_command: {}'.format(self.current_command))
         #     # pass
 
-        print('DBG update_catch_release calls send_command_data_({}): '.format(self.current_command))
-        self.send_command_data_with_saved_params(self.current_command)
-        print('DBG end update_catch_release self.current_command: {}'.format(self.current_command))
+        # print('DBG update_catch_release calls send_command_data_({}): '.format(self.current_command))
+        # self.send_command_data_with_saved_params(self.current_command)
+        # print('DBG end update_catch_release self.current_command: {}'.format(self.current_command))
 
     def update_hiphop(self, instance):
         self.hiphop = 50
@@ -858,6 +852,10 @@ class RoboPad(FloatLayout):
         #
         #     # return True
 
+        # AFTERBURNER
+
+        self.accept_command_with_saved_params(self.delayed_command)
+
     def squaredround(self, x):
         import math
 
@@ -1101,14 +1099,14 @@ class RoboPad(FloatLayout):
 
         # stored_commands = self.stored_command
 
-        print('DBG start accept_command_with_saved_params: {}'.format(current_command))
-        print('DBG accept_command_with_saved_params CHECK EQUAL? current {} {}\n'
-              '                                                    saved {} {}\n'
-              '                                                    equal {}\n'
-              '                                                         ------'.format(
-               id(current_command), current_command,
-               id(self.stored_command), self.stored_command,
-               self.stored_command == current_command))
+        # print('DBG start accept_command_with_saved_params: {}'.format(current_command))
+        # print('DBG accept_command_with_saved_params CHECK EQUAL? current {} {}\n'
+        #       '                                                    saved {} {}\n'
+        #       '                                                    equal {}\n'
+        #       '                                                         ------'.format(
+        #        id(current_command), current_command,
+        #        id(self.stored_command), self.stored_command,
+        #        self.stored_command == current_command))
 
         try:
             # if self.command_sent:
@@ -1137,49 +1135,57 @@ class RoboPad(FloatLayout):
 
             if current_command != self.stored_command:
                 # new command
-                print('DBG accept_command_with_saved_params NOT EQ current {}\n'
-                      '                                              saved {}\n'
-                      '                                              equal {}'. format(
-                       current_command,
-                       self.stored_command,
-                       self.stored_command == current_command))
+                # print('DBG accept_command_with_saved_params NOT EQ current {}\n'
+                #       '                                              saved {}\n'
+                #       '                                              equal {}'. format(
+                #        current_command,
+                #        self.stored_command,
+                #        self.stored_command == current_command))
 
-                # save this command to ignore same future runs
+                if time.time() > self.last_command_sent_at + self.accept_command_timeout:  # warning!!!!! DELAY!!!!
+                    if self.current_command:
 
-                self.stored_command = current_command
-
-                # if self.command_sent:
-
-                #  check for possible delays
-
-                if time.time() > self.last_command_sent_at + 0.05:    #####  warning!!!!! DELAY!!!!
-                    print(
-                        'DBG accept_command_with_saved_params'
-                        ' sender ready for new command: {}'.format(self.current_command))
-                    return True
+                        print(
+                            'DBG accept_command_with_saved_params'
+                            ' sender ready for new command: {}'.format(self.current_command))
+                        # nothing to delay , run now new command
+                        self.send_command_data_with_saved_params(self.current_command)
+                        self.current_command = {}
+                        self.stored_command = current_command  # save this command to ignore same future runs
+                        self.delayed_command = {}
+                        return True
+                    else:
+                        return False
                 else:
                     print('DBG accept_command_with_saved_params'
                           ' sender NOT READY for new command: {}'.format(self.current_command))
-                return False
+
+                    # delay command for later run in dictionary self.delayed_command
+                    self.stored_command = {}
+                    for key in current_command:
+                        self.delayed_command[key] = current_command[key]
+                    print(
+                        'DBG accept_command_with_saved_params append command to delayed: {}'.format(
+                            self.delayed_command))
+                    return False
             else:
                 # same command
-                print('DBG accept_command_with_saved_params EQUAL current {}\n'
-                      '                                              saved {}\n'
-                      '                                              equal {}'. format(
-                       current_command,
-                       self.stored_command,
-                       self.stored_command == current_command))
-
-                print(
-                    'DBG accept_command_with_saved_params same command, delayed: {}'.format(self.delayed_command))
-                self.delayed_command = current_command
+                # print('DBG accept_command_with_saved_params EQUAL current {}\n'
+                #       '                                              saved {}\n'
+                #       '                                              equal {}'. format(
+                #        current_command,
+                #        self.stored_command,
+                #        self.stored_command == current_command))
+                #
+                # print(
+                #     'DBG accept_command_with_saved_params same command, delayed: {}'.format(self.delayed_command))
                 return False
 
         except Exception as e:
             print('ERR accept_command_with_saved_params {} {}'.format(type(e), e))
 
-        finally:
-            print('DBG end accept_command_with_saved_params self.stored_command: {}'.format(self.stored_command))
+        # finally:
+        #     print('DBG end accept_command_with_saved_params self.stored_command: {}'.format(self.stored_command))
 
     def send_command_data_with_saved_params(self, commands):
         # self.command_sent = False
