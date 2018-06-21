@@ -4,7 +4,9 @@ to load settings:
 
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
-0.8.4.7 - save gear factor
+0.8.5.1 - add additive servo mode servo_mode='direct' / 'additive'
+        todo: too overloaded network
+            to slow movement
 
 """
 
@@ -37,20 +39,16 @@ html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n"
 motor_a_p = machine.PWM(machine.Pin(5), freq=50)
 motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 servo_turn_x = machine.PWM(machine.Pin(12), freq=50)
-# servo_head_x = machine.PWM(machine.Pin(14), freq=50)
-# servo_hand_y = machine.PWM(machine.Pin(13), freq=50)
-# servo_catch = machine.PWM(machine.Pin(15), freq=50)
+servo_head_x = machine.PWM(machine.Pin(14), freq=50)
+servo_hand_y = machine.PWM(machine.Pin(13), freq=50)
+servo_catch = machine.PWM(machine.Pin(15), freq=50)
 network_pin = machine.Pin(2, machine.Pin.OUT)
 # headlight = machine.Pin(16, machine.Pin.OUT)
-# hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
-
-forward_led7 = machine.PWM(machine.Pin(13), freq=50)
-forward_led8 = machine.PWM(machine.Pin(15), freq=50)
+hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
 
 robot_settings = {}
 robot_settings_file = 'settings.txt'
 
-leds_on = False
 
 def read_settings(file):
     try:
@@ -158,34 +156,52 @@ def move_servo(servo,
                servo_min=robot_settings['servo_min'],
                servo_max=robot_settings['servo_max'],
                servo_speed=1,
-               servo_type='direct'):
+               servo_direction='direct',
+               servo_mode='direct'):
     # # servo_speed is placeholder for speed switching operating servo
-    # # servo_type = 'direct' / additive  placeholder for type of servo command
+    # # servo_direction = 'direct' / additive  placeholder for direction of servo command
     # #
     # servo_start_pos = robot_settings['servo_min']
     # servo_end_pos = robot_settings['servo_max']
     # servo_center_pos = robot_settings['servo_center']  # placeholder servo center positioning
+    # add additive servo mode servo_mode='direct' / 'additive'
+
+    additive_factor = 1
+
     try:
-        duty_int = int(duty)
-        if duty_int in range(servo_min, servo_max):
-            duty_int = limit_min_max(duty_int, servo_min, servo_max)
-        if forward:
-            servo.duty(duty_int)
+        if servo_mode == 'direct':
+            # move servo to position of duty
+            duty_int = int(duty)
+            if duty_int in range(servo_min, servo_max):
+                duty_int = limit_min_max(duty_int, servo_min, servo_max)
+            if forward:
+                servo.duty(duty_int)
+            else:
+                # servo.duty(servo_start_pos + servo_end_pos - duty_int)
+                servo.duty(servo_min + servo_max - duty_int)
         else:
-            # servo.duty(servo_start_pos + servo_end_pos - duty_int)
-            servo.duty(servo_min + servo_max - duty_int)
+            # move servo to position of duty
+            print('DBG move_servo current servo position: {}'.format(servo.duty()))
+            duty_int = int(duty)
+            current_duty = servo.duty()
+            next_duty = current_duty + additive_factor * round((duty_int-41.5)/9 - 4)
+            next_duty = limit_min_max(next_duty,
+                                      robot_settings['servo_min'],
+                                      robot_settings['servo_max'])
+            servo.duty(next_duty)
+            print('DBG move_servo {} next servo position: {}'.format(additive_factor * round((duty_int-42)/5 - 7),
+                                                                     servo.duty()))
+
     except Exception as e:
         print('Error while move_servo {}, {}'.format(type(e), e))
 
 
 def headx(key):  # straight
-    # move_servo(servo_head_x, duty=key)
-    pass
+    move_servo(servo_head_x, duty=key, servo_mode='additive')
 
 
 def handy(key):  # inverted
-    # move_servo(servo_hand_y, duty=key, forward=False)
-    pass
+    move_servo(servo_hand_y, duty=key, forward=False, servo_mode='additive')
 
 
 def turnx(key):  # inverted
@@ -210,22 +226,11 @@ def runy(key):  # straight
 
 
 def catch(key):
-    # # placeholder for smooth catch operation
-    # if servo_catch.duty() < robot_settings['servo_center']:
-    #     servo_catch.duty(robot_settings['servo_max'])
-    # else:
-    #     servo_catch.duty(robot_settings['servo_min'])
-
-    global leds_on
-    leds_on = not leds_on
-    if leds_on:
-        network_pin.on()
-        forward_led7.duty(100 + robot_settings['gear_factor'] * 100)
-        forward_led8.duty(100 + robot_settings['gear_factor'] * 100)
+    # placeholder for smooth catch operation
+    if servo_catch.duty() < robot_settings['servo_center']:
+        servo_catch.duty(robot_settings['servo_max'])
     else:
-        network_pin.off()
-        forward_led7.duty(10)
-        forward_led8.duty(10)
+        servo_catch.duty(robot_settings['servo_min'])
 
 
 def gear(key):
@@ -248,6 +253,11 @@ tokens = {
     'update_settings': update_settings,
     'give_up': give_up,
 }
+
+
+
+
+
 
 
 def robot_listener_json(mess):

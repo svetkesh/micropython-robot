@@ -5,6 +5,7 @@ to load settings:
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
 0.8.4.7 - save gear factor
+.1 for trike/quadro
 
 """
 

@@ -46,6 +46,9 @@ ver 0.8.2 test version with smooth joystik run
 0.8.4.1(084.1)  - send JSON -formatted command
 0.8.4.5(084.1)  - run command sends value integer 0..99, changed runy math, gear limited 1..5
 0.8.4.7(084.7) - re-entered "AFTERBURNER", clock scheduled to issue "delayed commands"
+0.8.5.1(085.1) - implementation of "additive" servos # additive servo mode servo_mode='direct' / 'additive'
+    todo: too overloaded network
+        to slow movement
 
 
 '''
@@ -421,7 +424,7 @@ class RoboPad(FloatLayout):
         self.current_command['headx'] = self.recalculate_servo_position(x)
         self.current_command['handy'] = self.recalculate_servo_position(y)
 
-        self.accept_command_with_saved_params(self.current_command)
+        self.accept_command_with_saved_params(self.current_command, servo_mode='additive')
 
     def update_catch_release(self, instance):
         # self.command_sent = False
@@ -854,7 +857,8 @@ class RoboPad(FloatLayout):
 
         # AFTERBURNER
 
-        self.accept_command_with_saved_params(self.delayed_command)
+        self.accept_command_with_saved_params(self.delayed_command, servo_mode='additive')
+        print('DBG timer calls accept_ command: {}'.format(self.delayed_command))
 
     def squaredround(self, x):
         import math
@@ -1091,11 +1095,12 @@ class RoboPad(FloatLayout):
     #     else:
     #         return True
 
-    def accept_command_with_saved_params(self, current_command):
+    def accept_command_with_saved_params(self, current_command, servo_mode='direct'):
         # # self.stored_command = {}   # updated storage for commands
         # # self.delayed_command = {}  # updated storage for commands
-        #
+        # # additive servo mode servo_mode='direct' / 'additive'
         self.counter_commands += 1
+        command_timeout = self.accept_command_timeout if servo_mode == 'direct' else self.accept_command_timeout * 3
 
         # stored_commands = self.stored_command
 
@@ -1142,7 +1147,7 @@ class RoboPad(FloatLayout):
                 #        self.stored_command,
                 #        self.stored_command == current_command))
 
-                if time.time() > self.last_command_sent_at + self.accept_command_timeout:  # warning!!!!! DELAY!!!!
+                if time.time() > self.last_command_sent_at + command_timeout:  # warning!!!!! DELAY!!!!
                     if self.current_command:
 
                         print(
@@ -1150,9 +1155,18 @@ class RoboPad(FloatLayout):
                             ' sender ready for new command: {}'.format(self.current_command))
                         # nothing to delay , run now new command
                         self.send_command_data_with_saved_params(self.current_command)
-                        self.current_command = {}
-                        self.stored_command = current_command  # save this command to ignore same future runs
                         self.delayed_command = {}
+                        # processing additive servo mode servo_mode='direct' / 'additive'
+                        if servo_mode == 'direct':
+                            self.stored_command = current_command  # save this command to ignore same future runs
+                            self.current_command = {}              # cleare command dir after run
+
+                        else:
+                            self.stored_command = {}  # allow same commands in addaptive servo mode
+                            # save self.current_command for next run in addaptive servo mode
+                            for key in current_command:
+                                self.delayed_command[key] = current_command[key]
+
                         return True
                     else:
                         return False
