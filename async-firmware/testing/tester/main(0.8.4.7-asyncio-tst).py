@@ -1,9 +1,11 @@
 """
 to load settings:
         http://192.168.4.1/?load=default
+
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
-0.8.4.7-3 - w hallsensor
+0.8.4.7 - save gear factor
+
 """
 
 try:
@@ -26,6 +28,9 @@ else:
     robot_ip = ap_if.ifconfig()[0]
 
 print('Robot IP robot_ip: {}'. format(robot_ip))
+
+# HTML to send to browsers
+
 html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n"
 
 # Setup drives
@@ -41,7 +46,6 @@ hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
 
 robot_settings = {}
 robot_settings_file = 'settings.txt'
-network_pin.on()
 
 
 def read_settings(file):
@@ -125,23 +129,11 @@ r_reset = re.compile("reset=reset")
 
 
 def give_up():
-    choks = 3
-    choksleep = 0.3
-    network_pin.off()
-    runy(50)
-    headx(77)
-    handy(40)
-    for chock in range(0, choks):
-        turnx(110)
-        time.sleep(choksleep)
-        handy(80)
-        turnx(40)
-        time.sleep(choksleep)
-        choksleep += 0.3
-    handy(115)
-    turnx(77)
-    catch(115)
+    servo_head_x.duty(77)
+    servo_hand_y.duty(40)
     network_pin.on()
+    motor_a_p.duty(0)
+    # print('DBG: # give_up')
 
 
 def limit_min_max(x, mini, maxi):
@@ -257,10 +249,6 @@ def robot_listener_json(mess):
     mess = mess.replace('%3A+', ': ')
     mess = mess.replace('%3A', ':')
 
-    if hall_sensor.value():
-        give_up()
-        robot_busy = False
-
     # processing json commands
     if r_run.search(mess) is not None:
         try:
@@ -316,6 +304,9 @@ def robot_listener_json(mess):
         robot_busy = False  # 4 times could be overrun by try-finally
 
 
+
+
+
 @asyncio.coroutine
 def serve(reader, writer):
     global robot_busy
@@ -325,7 +316,10 @@ def serve(reader, writer):
 
         if robot_busy:
             pass
+            # print('DBG serve robot is busy: {}'.format(robot_busy))
+            # print('DBG mess: {}, {}'.format(type(mess), mess))
         else:
+            # print('DBG robot busy: {} it\'s OK'.format(robot_busy))
             mess = str(line)[:min(120, len(str(line)))]
             robot_listener_json(mess)
             yield from writer.awrite(html)
@@ -347,6 +341,9 @@ def run():
 
 
 if __name__ == '__main__':
+
     robot_busy = False
+
+
     # main loop
     run()

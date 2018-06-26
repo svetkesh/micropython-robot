@@ -5,7 +5,6 @@ to load settings:
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
 0.8.4.7 - save gear factor
-
 """
 
 try:
@@ -129,11 +128,19 @@ r_reset = re.compile("reset=reset")
 
 
 def give_up():
-    servo_head_x.duty(77)
-    servo_hand_y.duty(40)
-    network_pin.on()
-    motor_a_p.duty(0)
-    # print('DBG: # give_up')
+    print('DBG: # give_up')
+    choks = 3
+    choksleep = 0.3
+
+    runy(50)
+
+    for chock in range(0, choks):
+
+        turnx(robot_settings['servo_max'])
+        time.sleep(choksleep)
+        turnx(robot_settings['servo_min'])
+        time.sleep(choksleep)
+    turnx(robot_settings['servo_center'])
 
 
 def limit_min_max(x, mini, maxi):

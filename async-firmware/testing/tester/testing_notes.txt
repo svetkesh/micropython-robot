@@ -734,3 +734,13 @@ arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/espt
 arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/esptool-master$ sudo picocom /dev/ttyUSB0 -b115200
 
 --
+import machine
+hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
+while True:
+print(hall_sensor.value())
+time.sleep(0.3)
+
+----
+
+
+
