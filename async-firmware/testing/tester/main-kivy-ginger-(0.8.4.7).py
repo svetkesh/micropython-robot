@@ -930,9 +930,9 @@ class RoboPad(FloatLayout):
 
         min_x = -0.99
         max_x = 0.99
-        near_zero = 0.03  # 3 % of joystik run near center count as center
+        near_zero = 0.03  # 3 % of joystick run near center count as center
 
-        multiply_factor = 1.0  # stracht joystick
+        multiply_factor = 1.0  # stretch joystick
 
         sign = lambda y: math.copysign(1, y)
         print('DBG recalculate_dc_position sign: {}, {}'.format(type(sign(x)), sign(x)))
