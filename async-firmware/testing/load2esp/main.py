@@ -1,9 +1,12 @@
 """
 to load settings:
         http://192.168.4.1/?load=default
+
 0.8.1 -using uasyncio
       suits firmware versions 2018 04 +
-0.8.4.7-3 - w hallsensor
+0.8.4.7 - save gear factor
+.7 for trike/quadro fixed forward move through zero
+
 """
 
 try:
@@ -26,22 +29,28 @@ else:
     robot_ip = ap_if.ifconfig()[0]
 
 print('Robot IP robot_ip: {}'. format(robot_ip))
+
+# HTML to send to browsers
+
 html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n"
 
 # Setup drives
 motor_a_p = machine.PWM(machine.Pin(5), freq=50)
 motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 servo_turn_x = machine.PWM(machine.Pin(12), freq=50)
-servo_head_x = machine.PWM(machine.Pin(14), freq=50)
-servo_hand_y = machine.PWM(machine.Pin(13), freq=50)
-servo_catch = machine.PWM(machine.Pin(15), freq=50)
+
+# Setup leds
 network_pin = machine.Pin(2, machine.Pin.OUT)
-# headlight = machine.Pin(16, machine.Pin.OUT)
-hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
+forward_led2 = machine.PWM(machine.Pin(4), freq=50)
+left_led7 = machine.PWM(machine.Pin(13), freq=50)
+right_led8 = machine.PWM(machine.Pin(15), freq=50)
+back_led5 = machine.PWM(machine.Pin(14), freq=50)
 
 robot_settings = {}
 robot_settings_file = 'settings.txt'
-network_pin.on()
+
+leds_on = False
+# DEBUG_ON = True
 
 
 def read_settings(file):
@@ -125,23 +134,7 @@ r_reset = re.compile("reset=reset")
 
 
 def give_up():
-    choks = 3
-    choksleep = 0.3
-    network_pin.off()
-    runy(50)
-    headx(77)
-    handy(40)
-    for chock in range(0, choks):
-        turnx(110)
-        time.sleep(choksleep)
-        handy(80)
-        turnx(40)
-        time.sleep(choksleep)
-        choksleep += 0.3
-    handy(115)
-    turnx(77)
-    catch(115)
-    network_pin.on()
+    pass
 
 
 def limit_min_max(x, mini, maxi):
@@ -161,50 +154,65 @@ def move_servo(servo,
                forward=True,
                servo_min=robot_settings['servo_min'],
                servo_max=robot_settings['servo_max'],
-               servo_speed=1,
-               servo_type='direct'):
+               servo_adj_zero=0,
+               servo_multiply_power=1,
+               # servo_speed=1,
+               # servo_type='direct'
+               ):
     # # servo_speed is placeholder for speed switching operating servo
     # # servo_type = 'direct' / additive  placeholder for type of servo command
-    # #
-    # servo_start_pos = robot_settings['servo_min']
-    # servo_end_pos = robot_settings['servo_max']
-    # servo_center_pos = robot_settings['servo_center']  # placeholder servo center positioning
     try:
         duty_int = int(duty)
         if duty_int in range(servo_min, servo_max):
             duty_int = limit_min_max(duty_int, servo_min, servo_max)
         if forward:
-            servo.duty(duty_int)
+            duty_int = duty_int + servo_adj_zero
+            servo.duty(duty_int * servo_multiply_power)
         else:
-            # servo.duty(servo_start_pos + servo_end_pos - duty_int)
-            servo.duty(servo_min + servo_max - duty_int)
+            duty_int = servo_min + servo_max - duty_int + servo_adj_zero
+            servo.duty(duty_int * servo_multiply_power)
     except Exception as e:
         print('Error while move_servo {}, {}'.format(type(e), e))
+    # finally:
+    #     print('DBG move_servo {} got duty: {}, {} -> {}'
+    #           ''.format(servo, type(duty), duty, duty_int))
 
 
 def headx(key):  # straight
-    move_servo(servo_head_x, duty=key)
+    pass
 
 
 def handy(key):  # inverted
-    move_servo(servo_hand_y, duty=key, forward=False)
+    pass
 
 
 def turnx(key):  # inverted
     move_servo(servo_turn_x, duty=key, forward=False)
+    move_servo(left_led7, duty=key, servo_adj_zero=-40, servo_multiply_power=8)
+    move_servo(right_led8, duty=key, servo_adj_zero=-39, forward=False, servo_multiply_power=8)
 
 
 def runy(key):  # straight
     try:
         i_runy = int(key)
-        if abs(i_runy - 50) < 3:
+        if abs(i_runy - 50) < 2:
             m_duty = 0
             p_duty = 0
+            move_servo(back_led5, duty=200)
+        elif i_runy < 50:
+            p_duty = int(robot_settings['gear_factor'] * (50 - i_runy) * 4)
+            m_duty = 0
+            move_servo(back_led5, duty=800)
+        elif i_runy > 50:
+            p_duty = int(robot_settings['gear_factor'] * (i_runy-50) * 4)
+            m_duty = int(robot_settings['gear_factor'] * (i_runy-50) * 4)
+            move_servo(back_led5, duty=100)
         else:
-            p_duty = int(robot_settings['gear_factor'] * 100 * 2)
-            m_duty = int(robot_settings['gear_factor'] * i_runy * 2)
-            print('DBG runy G: {}, P: {} , M: {}'.format(robot_settings['gear_factor'], p_duty, m_duty))
+            m_duty = 0
+            p_duty = 0
+            move_servo(back_led5, duty=0)
 
+        print('DBG runy G: {}, K: {}, P: {} , M: {}'.format(robot_settings['gear_factor'], key, p_duty, m_duty))
         motor_a_p.duty(p_duty)
         motor_a_m.duty(m_duty)
     except Exception as e:
@@ -212,11 +220,21 @@ def runy(key):  # straight
 
 
 def catch(key):
-    # placeholder for smooth catch operation
-    if servo_catch.duty() < robot_settings['servo_center']:
-        servo_catch.duty(robot_settings['servo_max'])
+    # # placeholder for smooth catch operation
+    global leds_on
+    leds_on = not leds_on
+    if leds_on:
+        network_pin.on()
+        forward_led2.duty(200)
+        back_led5.duty(200)
+        left_led7.duty(200)
+        right_led8.duty(200)
     else:
-        servo_catch.duty(robot_settings['servo_min'])
+        network_pin.off()
+        forward_led2.duty(5)
+        left_led7.duty(5)
+        right_led8.duty(5)
+        back_led5.duty(5)
 
 
 def gear(key):
@@ -256,10 +274,6 @@ def robot_listener_json(mess):
     mess = mess.replace('%2C', ',')
     mess = mess.replace('%3A+', ': ')
     mess = mess.replace('%3A', ':')
-
-    if hall_sensor.value():
-        give_up()
-        robot_busy = False
 
     # processing json commands
     if r_run.search(mess) is not None:
@@ -325,7 +339,10 @@ def serve(reader, writer):
 
         if robot_busy:
             pass
+            # print('DBG serve robot is busy: {}'.format(robot_busy))
+            # print('DBG mess: {}, {}'.format(type(mess), mess))
         else:
+            # print('DBG robot busy: {} it\'s OK'.format(robot_busy))
             mess = str(line)[:min(120, len(str(line)))]
             robot_listener_json(mess)
             yield from writer.awrite(html)
