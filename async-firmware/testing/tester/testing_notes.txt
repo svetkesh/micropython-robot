@@ -24,7 +24,8 @@ motor_a_p.duty(p)
 motor_a_m.duty(m)
 print(p, m)
 
-def testrangesquare(min,max,step):  # square
+# square
+def testrangesquare(min,max,step):
 for p in range(min,max,step):
 for m in range(min,max,step):
 drive(p, m)

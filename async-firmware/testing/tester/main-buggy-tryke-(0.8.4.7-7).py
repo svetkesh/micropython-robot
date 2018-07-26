@@ -6,7 +6,7 @@ to load settings:
       suits firmware versions 2018 04 +
 0.8.4.7 - save gear factor
 .7 for trike/quadro fixed forward move through zero
-0.8.6.1 - add smooth switch
+
 """
 
 try:
@@ -51,8 +51,6 @@ robot_settings_file = 'settings.txt'
 
 leds_on = False
 # DEBUG_ON = True
-
-last_runy = 50
 
 
 def read_settings(file):
@@ -180,54 +178,48 @@ def move_servo(servo,
     #           ''.format(servo, type(duty), duty, duty_int))
 
 
-# def headx(key):  # straight
-#     pass
-#
-#
-# def handy(key):  # inverted
-#     pass
+def headx(key):  # straight
+    pass
+
+
+def handy(key):  # inverted
+    pass
 
 
 def turnx(key):  # inverted for ginger, should be straight for trike and buggy
+    # move_servo(servo_turn_x, duty=key, forward=False)
+    # move_servo(left_led7, duty=key, servo_adj_zero=-40, servo_multiply_power=8)
+    # move_servo(right_led8, duty=key, servo_adj_zero=-39, forward=False, servo_multiply_power=8)
     move_servo(servo_turn_x, duty=key)
     move_servo(right_led8, duty=key, servo_adj_zero=-40, servo_multiply_power=8)
     move_servo(left_led7, duty=key, servo_adj_zero=-39, forward=False, servo_multiply_power=8)
 
 
 def runy(key):  # straight
-    global last_runy
     try:
-
         i_runy = int(key)
-
         if abs(i_runy - 50) < 2:
             m_duty = 0
             p_duty = 0
             move_servo(back_led5, duty=200)
-
+        elif i_runy < 50:
+            p_duty = int(robot_settings['gear_factor'] * (50 - i_runy) * 4)
+            m_duty = 0
+            move_servo(back_led5, duty=800)
+        elif i_runy > 50:
+            p_duty = int(robot_settings['gear_factor'] * (i_runy-50) * 4)
+            m_duty = int(robot_settings['gear_factor'] * (i_runy-50) * 4)
+            move_servo(back_led5, duty=100)
         else:
-            i_runy = int((i_runy + last_runy) / 2)
-            if i_runy < 50:
-                p_duty = int(robot_settings['gear_factor'] * (50 - i_runy) * 4)
-                m_duty = 0
-                move_servo(back_led5, duty=800)
-            elif i_runy > 50:
-                p_duty = int(robot_settings['gear_factor'] * (i_runy-50) * 4)
-                m_duty = int(robot_settings['gear_factor'] * (i_runy-50) * 4)
-                move_servo(back_led5, duty=100)
-            else:
-                m_duty = 0
-                p_duty = 0
-                move_servo(back_led5, duty=0)
+            m_duty = 0
+            p_duty = 0
+            move_servo(back_led5, duty=0)
 
-        print('DBG runy {} G: {}, K: {}->{}, P: {} , M: {}'.format(time.ticks_ms(), robot_settings['gear_factor'],
-                                                                key, i_runy, p_duty, m_duty))
+        print('DBG runy G: {}, K: {}, P: {} , M: {}'.format(robot_settings['gear_factor'], key, p_duty, m_duty))
         motor_a_p.duty(p_duty)
         motor_a_m.duty(m_duty)
     except Exception as e:
         print('Error while processing runy: {}, {}'.format(type(e), e))
-    finally:
-        last_runy = i_runy
 
 
 def catch(key):
@@ -258,15 +250,15 @@ def gear(key):
         print('ERR: could not set gear: () use default "4". {}, {}, {}'.format(str(key), type(e), e))
     
 tokens = {
-    # 'headx': headx,
-    # 'handy': handy,
+    'headx': headx,
+    'handy': handy,
     'turnx': turnx,
     'runy': runy,
     'catch': catch,
     'gear': gear,
     'read_settings': read_settings,
     'update_settings': update_settings,
-    # 'give_up': give_up,
+    'give_up': give_up,
 }
 
 

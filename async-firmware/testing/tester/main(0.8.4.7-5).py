@@ -201,7 +201,7 @@ def runy(key):  # straight
         else:
             p_duty = int(robot_settings['gear_factor'] * 100 * 2)
             m_duty = int(robot_settings['gear_factor'] * i_runy * 2)
-            # print('DBG runy G: {}, P: {} , M: {}'.format(robot_settings['gear_factor'], p_duty, m_duty))
+            # print('DBG runy G: {}, K: {}, P: {} , M: {}'.format(robot_settings['gear_factor'], key, p_duty, m_duty))
 
         motor_a_p.duty(p_duty)
         motor_a_m.duty(m_duty)

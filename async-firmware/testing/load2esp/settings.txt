@@ -1,1 +1,1 @@
-{"servo_max": 115, "servo_center": 77, "gear_factor": 5, "robot_ip": "192.168.4.1", "DEBUG_ENABLE": true, "servo_min": 40, "HOLD_LOOSE_TIMEOUT": 5}
+{"servo_max": 115, "servo_center": 77, "gear_factor": 4, "robot_ip": "192.168.4.1", "DEBUG_ENABLE": true, "servo_min": 40, "HOLD_LOOSE_TIMEOUT": 5}

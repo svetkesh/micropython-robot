@@ -6,7 +6,7 @@ to load settings:
       suits firmware versions 2018 04 +
 0.8.4.7 - save gear factor
 .7 for trike/quadro fixed forward move through zero
-0.8.6.1 - add smooth switch
+0.8.6.1 - add smooth runy
 """
 
 try:
