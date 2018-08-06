@@ -1,0 +1,747 @@
+async-firmware/testing/tester/main-kivy-0812-test-quantum-n-csheduled-sender(0.8.3.0.2).py
+
+timings
+
+mean timeout catch 0.05 99%
+mean timeout hand 0.2  65%
+mean timeout run 0.17 63%
+
+
+
+def drive(p, m):
+    import machine
+    motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+    motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+    motor_a_p.duty(p)
+    motor_a_m.duty(m)
+    print(p, m)
+
+def drive(p, m):
+import machine
+motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+motor_a_p.duty(p)
+motor_a_m.duty(m)
+print(p, m)
+
+# square
+def testrangesquare(min,max,step):
+for p in range(min,max,step):
+for m in range(min,max,step):
+drive(p, m)
+ok = input('ok, next?')
+
+# nonsquare
+def testrangeppmm(pmin,pmax,mmin=-1000,mmax=1001,step=50):
+for p in range(pmin,pmax,step):
+for m in range(mmin,mmax,step):
+drive(p, m)
+ok = input('ok, next?')
+
+
+def drive(p, m):
+
+#import machine
+motor_a_p = machine.PWM(machine.Pin(5), freq=50)
+motor_a_m = machine.PWM(machine.Pin(0), freq=50)
+motor_a_p.duty(p)
+motor_a_m.duty(m)
+print(p,m)
+
+
+>>> def run(r, t=2):
+...     print(r)
+...     for p in r:
+...         print(p)
+...         drive(p)
+...         time.sleep(t)
+
+
+def run(r):
+print(r)
+for p in r:
+print('----')
+time.sleep(3)
+print(p)
+drive(p[0], p[1])
+time.sleep(3)
+print('----')
+
+110,110
+115,125
+121,142
+128,161
+136,182
+145,205
+155,230
+166,257
+178,286
+191,317
+
+((110,110), (115,125))
+
+
+run(((), (), (), (), (), (), (), (), (), (), (), (), (), (), (), (), (), (0, 0)))
+
+run(((110,110), (115,125), (121,142), (128,161), (136,182), (145,205), (155,230), (166,257), (178,286), (191,317), (0, 0)))
+
+
+110,110
+115,125
+120,140
+125,155
+130,170
+135,185
+140,200
+140,200
+220,400
+300,600
+380,800
+
+
+run(((110,110), (115,125), (120,140), (125,155), (130,170), (135,185), (140,200), (220,400), (300,600), (380,800), (0, 0)))
+
+
+
+drive(0, 100)
+
+# could be inserted in WEB_REPL console:
+
+import utime as time
+for i_runy in range(40, 77, 4):
+#if i_runy < 77:
+m_duty = -100 # default -300, from -50
+p_duty = int(770 - 10 * i_runy)
+print('DBG i_runy {}, m_duty {}, p_duty {}'.format(i_runy, m_duty, p_duty))
+motor_a_p.duty(p_duty)
+motor_a_m.duty(m_duty)
+time.sleep(4)
+
+elif i_runy == 77:
+m_duty = 0
+p_duty = 0
+
+else:
+m_duty = int(i_runy * 10)
+p_duty = int(i_runy * 10)
+
+print('DBG i_runy {}, m_duty {}, p_duty {}'.format(i_runy, m_duty, p_duty))
+
+motor_a_p.duty(p_duty)
+motor_a_m.duty(m_duty)
+
+--
+b'http://192.168.4.1/?runy=77&turnx=77&headx=73&handy=114&'
+
+http://192.168.4.1/?runy=77&
+
+--
+int(770 - 20 * (i_runy-70))
+
+latest firmvare 1.9.3 uses
+>>> servo_head_x.duty(125)  max
+>>> servo_head_x.duty(35)  min
+>>> servo_head_x.duty(80) mid
+
+
+----
+# smooth servo running
+
+def smooth(a, b, s=1, t=30):
+import machine
+servo_direction = machine.PWM(machine.Pin(12), freq=50)
+servo_direction.duty(a)
+print('position start: {}\n           end: {}\n         steps: {}\n       timeout: {}\n'.format(a, b, s, t))
+time.sleep_ms(1000)
+for i in range(a, b, s):
+servo_direction.duty(i)
+time.sleep_ms(t)
+
+def test_smooth():
+for s in range(1, 12, 2):
+for t in range(10, 100, 20):
+smooth(40, 115, t=t)
+time.sleep_ms(2000)
+
+----
+>>> s='{"debug":"True"}'
+>>> s
+'{"debug":"True"}'
+>>> sw = SettingsWriter(s)
+DBG: json items: debug:True
+DBG: JSON data loaded OK
+>>> sw.write_settings()
+DBG: 186 j         :{'debug': 'True'}
+DBG: 187 self.j_str:{"debug":"True"}
+True
+
+>>>
+>>> from settingsreader import SettingsReader
+>>> sr = SettingsReader()
+>>> sr
+id: 1073684928, Settings from: settings.txt: {'debug': 'True'}
+
+>>> reader = sr
+>>> reader
+id: 1073684928, Settings from: settings.txt: {'debug': 'True'}
+
+>>> sr
+id: 1073684928, Settings from: settings.txt: {'debug': 'True'}
+>>> type(sr)
+<class 'SettingsReader'>
+>>> sr = SettingsReader()
+>>> sr.read_settings()
+{'debug': 'True'}
+>>> print(sr)
+id: 1073691936, Settings from: settings.txt: {'debug': 'True'}
+
+>>> print(type(sr))
+<class 'SettingsReader'>
+>>> print(type(sr.read_settings()))
+<class 'dict'>
+
+>>> print(type(sr.read_settings()))
+<class 'dict'>
+>>> r = sr.read_settings()
+>>> r
+{'debug': 'True'}
+>>> for key in sr.read_settings():
+...     print(key)
+...
+debug
+>>> for key in sr.read_settings():
+...     print(key, sr.read_settings()[key])
+
+debug True
+
+>>>
+>>> r['debug']
+'True'
+>>> type(r['debug'])
+<class 'str'>
+
+>>> s
+'{"debug":"True"}'
+>>>
+>>> sr = SettingsReader()
+>>> reader = sr.read_settings()
+>>> re
+re              reader
+>>> reader
+{'debug': 'True'}
+>>> val = sr.read_value('debug')
+>>> val
+'True'
+
+
+----
+>>> r_update_settings = re.compile("settings=(\.+)")
+>>>
+>>>
+>>> s
+'{"debug":"True"}'
+>>>
+>>> request = '&settings='+s+'&'
+>>>
+>>> request
+'&settings={"debug":"True"}&'
+>>>
+>>> m_update_settings = r_update_settings.search(request)
+>>>
+>>> m_update_settings
+>>> print(m_update_settings)
+None
+>>> r_update_settings
+<re 3fff37d0>
+>>> request
+'&settings={"debug":"True"}&'
+
+--
+>>> request = '&settings={"debug":"True"}&'
+>>> #r_update_settings = re.compile("{(.*)}")
+>>> #m_update_settings = r_update_settings.search(request)
+>>> #r_update_settings
+#<re 3fff38e0>
+#>>> print(m_update_settings.group(0))
+#{"debug":"True"}
+
+
+>>> request = '&settings={"debug":"True"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> m_update_settings = r_update_settings.search(request)
+
+>>> print(m_update_settings.group(0))
+settings={"debug":"True"}
+>>> print(m_update_settings.group(1))
+"debug":"True"
+
+--
+
+request = '&settings={"debug":"True"}&'
+r_update_settings = re.compile("settings={(.*)}")
+r_k = re.compile("\"(.*)\":")
+r_v = re.compile(":\"(.*)\"")
+m_update_settings = r_update_settings.search(request)
+print(m_update_settings.group(0))
+# settings={"debug":"True"}
+print(m_update_settings.group(1))
+# "debug":"True"
+m_k = r_k.search(m_update_settings.group(1))
+m_v = r_v.search(m_update_settings.group(1))
+print(m_k.group(0), m_k.group(1))
+
+>>>
+>>> request = '&settings={"debug":"True"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> r_k = re.compile("\"(.*)\":")
+>>> r_v = re.compile(":\"(.*)\"")
+>>> m_update_settings = r_update_settings.search(request)
+>>> print(m_update_settings.group(0))
+settings={"debug":"True"}
+>>> # settings={"debug":"True"}
+>>> print(m_update_settings.group(1))
+# "debug":"True"
+>>> # "debug":"True"
+>>> m_k = r_k.search(m_update_settings.group(1))
+>>> m_v = r_v.search(m_update_settings.group(1))
+>>> print(m_k.group(0), m_k.group(1))
+# "debug": debug
+>>> print(m_v.group(0), m_v.group(1))
+# :"True" True
+
+OK!!!
+--
+
+>>> request = '&settings={"debug":"True"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> r_k = re.compile("\"(.*)\":")
+>>> r_v = re.compile(":\"(.*)\"")
+>>> m_update_settings = r_update_settings.search(request)
+>>> print(m_update_settings.group(0))
+settings={"debug":"True"}
+>>> # settings={"debug":"True"}
+>>> print(m_update_settings.group(1))
+# "debug":"True"
+>>> # "debug":"True"
+>>> m_k = r_k.search(m_update_settings.group(1))
+>>> m_v = r_v.search(m_update_settings.group(1))
+>>> print(m_k.group(0), m_k.group(1))
+# "debug": debug
+>>> print(m_v.group(0), m_v.group(1))
+# :"True" True
+
+---
+request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+
+r_update_settings = re.compile("settings={(.*)}")
+r_j = re.compile("settings=({.*})")
+r_kv = re.compile("\"(.*?)\":\"(.*?)\"")
+r_k = re.compile("\"(.*?)\":")
+r_v = re.compile(":\"(.*?)\"")
+
+m_update_settings = r_update_settings.search(request)
+m_j = r_j.search(request)
+print(m_update_settings.group(0))
+
+print(m_update_settings.group(1))
+
+m_kv = r_kv.search(m_update_settings(1))
+print(m_kv.group(0), m_kv.group(1))
+
+
+m_k = r_k.search(m_update_settings.group(1))
+m_v = r_v.search(m_update_settings.group(1))
+print(m_k.group(0), m_k.group(1))
+# "debug": debug
+print(m_v.group(0), m_v.group(1))
+# :"True" True
+
+----
+>>> request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+>>> r_update_settings = re.compile("settings={(.*)}")
+>>> m_update_settings = r_update_settings.search(request)
+>>> print(m_update_settings.group(0))
+settings={"debug":"True","ssid":"Some SSID"}
+>>>
+>>> print(m_update_settings.group(1))
+"debug":"True","ssid":"Some SSID"
+>>> r_j = re.compile("settings=({.*})")
+>>> m_j = r_j.search(request)
+>>> m_j
+<match num=2>
+>>> m_j.group(0)
+'settings={"debug":"True","ssid":"Some SSID"}'
+>>> m_j.group(1)
+'{"debug":"True","ssid":"Some SSID"}'
+>>>
+
+
+--
+#JSON loading: yuhuuu!!!!!!
+
+>>> request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+
+>>> r_j = re.compile("settings=({.*})")
+>>> m_j = r_j.search(request)
+>>> m_j
+<match num=2>
+>>> m_j.group(0)
+'settings={"debug":"True","ssid":"Some SSID"}'
+>>> m_j.group(1)
+'{"debug":"True","ssid":"Some SSID"}'
+>>>
+>>>
+>>> s = m_j.group(1)
+>>> s
+'{"debug":"True","ssid":"Some SSID"}'
+>>> import ujson as json
+>>> j = json.loads(s)
+>>> j
+{'debug': 'True', 'ssid': 'Some SSID'}
+
+>>> for item in j:
+...     print(item, j[item])
+...
+...
+...
+debug True
+ssid Some SSID
+
+
+---- time masure and compare uRE vs uJSON----
+
+start_timer = start_timer = time.ticks_ms()
+for i in range(1, 10001):
+m_j = r_j.search(request)
+print((time.ticks_ms() - start_timer)/i)
+
+
+>>> ms:
+0.918392
+0.9184
+
+--
+start_timer = start_timer = time.time()
+for i in range(1, 10001):
+m_j = r_j.search(request)
+print((time.time() - start_timer)/i)
+
+>> s:
+0.00110022
+0.00110011
+0.0011
+
+--
+start_timer = start_timer = time.ticks_ms()
+for i in range(1, 10001):
+j = json.loads(s)
+print((time.ticks_ms() - start_timer)/i)
+
+>>> ms:
+4.13681
+4.1368
+
+--
+start_timer = start_timer = time.time()
+for i in range(1, 10001):
+j = json.loads(s)
+print((time.time() - start_timer)/i)
+
+>>> s:
+0.00410041
+0.0041
+
+
+-----
+http://192.168.4.1/?turnx=40&headx=40&runy=77&handy=40&
+http://192.168.4.1/?turnx=77&headx=71&runy=77&handy=73&
+
+request = '&settings={"debug":"True","ssid":"Some SSID"}&'
+bad_request = 'turnx=77&headx=71&runy=72&handy=73&'
+
+
+
+>>> r_j = re.compile("settings=({.*})")
+>>> m_j = r_j.search(request)
+>>> m_j
+<match num=2>
+>>> m_j.group(0)
+'settings={"debug":"True","ssid":"Some SSID"}'
+>>> m_j.group(1)
+'{"debug":"True","ssid":"Some SSID"}'
+>>>
+>>>
+>>> s = m_j.group(1)
+>>> s
+'{"debug":"True","ssid":"Some SSID"}'
+>>> import ujson as json
+>>> j = json.loads(s)
+>>> j
+{'debug': 'True', 'ssid': 'Some SSID'}
+
+>>> for item in j:
+...     print(item, j[item])
+...
+...
+...
+debug True
+ssid Some SSID
+
+
+----
+http://192.168.4.1/?&settings={"runy":"77","handy":"40"}&
+http://192.168.4.1/?&settings={"debug":"True","ssid":"Some SSID"}&
+http://192.168.4.1/?&run={"debug":"True","ssid":"Some SSID"}&
+
+http://192.168.4.1/?&settings={%22runy%22:%2277%22,%22handy%22:%2240%22}&
+http://192.168.4.1/?&settings={%22debug%22:%22True%22,%22ssid%22:%22Some%20SSID%22}&
+http://192.168.4.1/?&run={%22debug%22:%22True%22,%22ssid%22:%22Some%20SSID%22}&
+
+
+----
+
+>>> file = 'settings.txt'
+>>> j_str = '{"debug":"True","ssid":"Some SSID"}'
+>>> j_str
+'{"debug":"True","ssid":"Some SSID"}'
+
+>>> import ujson as json
+
+
+>>>
+>>>
+
+>>> for item in j_str:
+...     print('DBG: json items: {}:{}'.format(item, j_str[item]))
+...
+...
+...
+DBG: json items: debug:True
+DBG: json items: ssid:Some SSID
+>>>
+>>> file
+'settings.txt'
+
+
+>>> with open(file, 'w') as f:
+...     f.write(str(j_str))
+...
+...
+...
+38
+
+
+>>> j_str
+{'debug': 'True', 'ssid': 'Some SSID'}
+
+>>> True if j_str else False
+True
+>>> with open(file, 'r') as f:
+...     j = json.load(f)
+...
+...
+...
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+  File "<stdin>", line 2, in <module>
+ValueError: syntax error in JSON
+>>> with open(file, 'r') as f:
+...     print(f.read())
+...
+...
+...
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> j_str
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> type(j_str)
+<class 'dict'>
+>>> with open(file, 'w') as f:
+...     json.dump(j_str, file)
+...
+...
+...
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+  File "<stdin>", line 2, in <module>
+OSError: stream operation not supported
+>>> j = j_str
+>>> j
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> j_str = json.dumps(j)
+
+
+'{"debug": "True", "ssid": "Some SSID"}'
+
+
+>>> with open ('settings.txt', 'w') as f:
+...     f.write(j_str)
+...
+...
+...
+38
+>>> with open ('settings.txt', 'r') as f:
+...     print(f.read())
+...
+...
+...
+{"debug": "True", "ssid": "Some SSID"}
+>>> with open ('settings.txt', 'r') as f:
+...     j2 = json.load(f)
+...
+...
+...
+>>>
+>>> j2
+{'debug': 'True', 'ssid': 'Some SSID'}
+>>> type(j2)
+<class 'dict'>
+>>>
+
+
+----
+SIZE TESTING
+11539 bytes - too big
+
+
+11944 bytes - too big
+
+
+10984 bytes  - too big
+10859 bytes  - too big
+10645 bytes
+10870 bytes  - too big
+10712 bytes  - too big
+
+10746 bytes - OK
+11608 bytes - OK
+
+10571 bytes  - too big ????
+10516 bytes
+
+
+
+
+
+Auto-detected Flash size: 4MB
+Flash params set to 0x0040
+Compressed 592512 bytes to 387896...
+Wrote 592512 bytes (387896 compressed) at 0x00000000 in 8.7 seconds (effective 542.5 kbit/s)...
+Hash of data verified.
++
+147 'defsett.txt'
+
++
+147
+'settings.txt'
+
+
+--
+
+
+>>> defset_str = robot_settings_defaults = {
+'DEBUG_ENABLE': True,
+'robot_ip': '192.168.4.1',
+'servo_min': 40,
+'servo_max': 115,
+'servo_center': 77,
+'gear_factor': 5,
+'HOLD_LOOSE_TIMEOUT': 5,
+}
+
+>>> defset_str
+{'servo_max': 115, 'servo_center': 77, 'gear_factor': 5, 'robot_ip': '192.168.4.1', 'DEBUG_ENABLE': True, 'servo_min': 40, 'HOLD_LOOSE_TIMEOUT': 5}
+>>> type(defset_str)
+<class 'dict'>
+>>> import ujson
+>>> import ujson as json
+>>> defset_str = json.dumps(defset_str)
+>>> defset_str
+'{"servo_max": 115, "servo_center": 77, "gear_factor": 5, "robot_ip": "192.168.4.1", "DEBUG_ENABLE": true, "servo_min": 40, "HOLD_LOOSE_TIMEOUT": 5}'
+>>> type(defset_str)
+<class 'str'>
+>>> with open('defsett.txt', 'w') as f:
+...     f.write(defset_str)
+...
+...
+...
+147
+>>> with open('defsett.txt', 'r') as f:
+...     f.read()
+...
+...
+...
+'{"servo_max": 115, "servo_center": 77, "gear_factor": 5, "robot_ip": "192.168.4.1", "DEBUG_ENABLE": true, "servo_min": 40, "HOLD_LOOSE_TIMEOUT": 5}'
+
+
+# robot_settings_defaults
+import ujson as json
+defset = {
+'DEBUG_ENABLE': True,
+'robot_ip': '192.168.4.1',
+'servo_min': 40,
+'servo_max': 115,
+'servo_center': 77,
+'gear_factor': 5,
+'HOLD_LOOSE_TIMEOUT': 5,
+}
+defset_str = json.dumps(defset)
+with open('settings.txt', 'w') as f:
+     f.write(defset_str)
+
+
+
+----
+
+
+
+
+>>>
+buildozer android debug deploy run
+
+# Check configuration tokens
+# Ensure build layout
+# Check configuration tokens
+# Preparing build
+# Check requirements for android
+# Install platform
+# Apache ANT found at /home/arkadii/.buildozer/android/platform/apache-ant-1.9.4
+# Android SDK found at /home/arkadii/.buildozer/android/platform/android-sdk-20
+# Android NDK found at /home/arkadii/Documents/projects/Buildozer/buildozer/buildozer/crystax-ndk/crystax-ndk-10.3.2
+# Check application requirements
+# Check garden requirements
+# Compile platform
+# Build the application #52
+# Package the application
+# Gradle project detected, copy files /home/arkadii/Documents/projects/micropython-robot/demo-app/robot-mobile-app-test-novenv-002/.buildozer/android/platform/build/dists/RoboJoystick/src/main/java
+# Android packaging done!
+# APK RoboJoystick-0.1-debug.apk available in the bin directory
+# Application pushed.
+# Application started.
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-robot/demo-app/robot-mobile-app-test-novenv-002$
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-robot/demo-app/robot-mobile-app-test-novenv-002$ buildozer android debug deploy run
+
+
+
+--
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/micropython-ciy/esp-open-sdk$ chmod +x bnf.sh
+
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/micropython-ciy/esp-open-sdk$ ./bnf.sh
+
+--
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/esptool-master$ sudo python3 esptool.py --port /dev/ttyUSB0 erase_flash
+
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/esptool-master$ sudo python3 esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 firmware-combined.bin
+
+arkadii@arkadii-Inspiron-5558:~/Documents/projects/micropython-8266-install/esptool-master$ sudo picocom /dev/ttyUSB0 -b115200
+
+--
+import machine
+hall_sensor = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
+while True:
+print(hall_sensor.value())
+time.sleep(0.3)
+
+----
+
+
+

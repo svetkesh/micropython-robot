@@ -50,6 +50,9 @@ ver 0.8.2 test version with smooth joystik run
 0.8.4.7-5 (.5) - both joysticks are non-stick
                  fixed run now values from 1 to 98
                  turn uses square x**2 function
+0.8.4.7-5 (.5) - speed factor initiated with 4
+                initiated self.timeout_timer_start = 0.16
+0.8.6.1 - add "overdrive" button
 
 '''
 
@@ -170,7 +173,7 @@ class RoboPad(FloatLayout):
                                                               'y': .8},
                                                     min=0.02,
                                                     max=0.2,
-                                                    value=0.11)
+                                                    value=0.16)
         # self.add_widget(self.slider_timeout_timer_start)
 
         self.slider_timeout_timer_start.bind(value=self.OnSliderTimeoutTimerStartValueChange)
@@ -178,7 +181,7 @@ class RoboPad(FloatLayout):
         self.slider_gear_factor = Slider(size_hint=(.4, .03),
                                                     pos_hint={'x': .1,
                                                               'y': .95},
-                                                    min=1,
+                                                    min=2,
                                                     max=5,
                                                     value=3)
         self.add_widget(self.slider_gear_factor)
@@ -197,10 +200,25 @@ class RoboPad(FloatLayout):
         self.add_widget(self.switch_invert_turnx)
         self.switch_invert_turnx.bind(active=self.OnActiveInvertTurnx)
 
+        # OverDrive
+        self.overdrive_button = Button(size_hint=(.2, .1),
+                                  pos_hint={'x': .4, 'y': .9},
+                                  text='OverDrive!')
+        self.add_widget(self.overdrive_button)
+        self.overdrive_button.bind(on_press=self.switch_overdrive)
+
+        # StatusBar
+        self.statusbar_label = Label(size_hint=(.4, .0),
+                                     pos_hint={'x': .2, 'y': .2},
+                                     text='main-kivy-buggy-(0.8.6.1) ...',)  # multiline=True,)
+        self.add_widget(self.statusbar_label)
+
+
+
         self.accept_command_timeout = 0.05  # timeout after last_command_sent_at before accepting next command
 
         # self.timeout_slow = 0.14
-        self.timeout_timer_start = 0.14
+        self.timeout_timer_start = 0.16
         self.velocity_factor = 0.3
 
 
@@ -228,7 +246,9 @@ class RoboPad(FloatLayout):
         self.invert_runy = False
         self.invert_turnx = False
 
-        self.gear = 4
+        self.gear = 3
+        self.overdrive_switched_at = time.time()
+        self.overdrive_timeout = 5.0
 
         self.robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
         self.robot_port = 80
@@ -295,6 +315,31 @@ class RoboPad(FloatLayout):
 
         self.accept_command_with_saved_params(self.current_command)
         print('DBG end OnSliderGearFactorValueChange self.current_command: {}'.format(self.current_command))
+
+    def switch_overdrive(self, instance):
+
+
+        # self.gear = 3
+        # self.overdrive_switched_at = time.time()
+        # self.overdrive_timeout = 5.0
+
+        if time.time() > (self.overdrive_switched_at + self.overdrive_timeout):
+            # do
+            self.gear = 5
+            self.current_command['gear'] = self.gear
+            print('DBG start switch_overdrive self.current_command: {}'.format(self.current_command))
+
+            self.accept_command_with_saved_params(self.current_command)
+            print('DBG end switch_overdrive self.current_command: {}'.format(self.current_command))
+            self.overdrive_switched_at = time.time()
+        else:
+            print('DBG switch_overdrive timeout: {}'.format(
+                round(time.time() - (self.overdrive_switched_at + self.overdrive_timeout))
+            ))
+
+
+
+
 
     def OnSliderTimeoutTimerStartValueChange(self, instance, value):
         # self.command_sent = False
@@ -881,6 +926,18 @@ class RoboPad(FloatLayout):
         # AFTERBURNER
 
         self.accept_command_with_saved_params(self.delayed_command)
+
+        # set gear = 3 after timeout and reset gear timer
+        if time.time() > (self.overdrive_switched_at + self.overdrive_timeout):
+            # do
+            if self.gear != 3:
+                self.gear = 3
+                self.current_command['gear'] = self.gear
+                print('DBG start switch_overdrive self.current_command: {}'.format(self.current_command))
+
+                self.accept_command_with_saved_params(self.current_command)
+                print('DBG end switch_overdrive self.current_command: {}'.format(self.current_command))
+                self.overdrive_switched_at = time.time()
 
     def squaredround(self, x):
         import math

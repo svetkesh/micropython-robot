@@ -46,10 +46,7 @@ ver 0.8.2 test version with smooth joystik run
 0.8.4.1(084.1)  - send JSON -formatted command
 0.8.4.5(084.1)  - run command sends value integer 0..99, changed runy math, gear limited 1..5
 0.8.4.7(084.7) - re-entered "AFTERBURNER", clock scheduled to issue "delayed commands"
-.1 for trike/quadro
-0.8.4.7-5 (.5) - both joysticks are non-stick
-                 fixed run now values from 1 to 98
-                 turn uses square x**2 function
+
 
 '''
 
@@ -64,7 +61,6 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.slider import Slider
-from kivy.uix.switch import Switch
 
 import socket
 import time
@@ -86,12 +82,11 @@ class RoboPad(FloatLayout):
 
         # joystickhand and joystickrun
         self.joystickhand = Joystick(size_hint=(.5, .5),
-                                     pos_hint={'x': .0, 'y': .0})  #,
-                                     # sticky=True)
+                                     pos_hint={'x': .0, 'y': .0},
+                                     sticky=True)
         self.add_widget(self.joystickhand)
         self.joystickrun = Joystick(size_hint=(.5, .5),
-                                    pos_hint={'x': .5, 'y': .0})  #,
-                                    # sticky=True)
+                                    pos_hint={'x': .5, 'y': .0})
         self.joystickhand.bind(pad=self.update_coordinates_hand)
 
         self.add_widget(self.joystickrun)
@@ -99,21 +94,21 @@ class RoboPad(FloatLayout):
 
         # add some buttons
         self.catchbutton = Button(size_hint=(.3, .1),
-                                  pos_hint={'x': .7, 'y': .85},
-                                  text='Switch the lights!')
+                                  pos_hint={'x': .7, 'y': .9},
+                                  text='Catch me!')
         self.add_widget(self.catchbutton)
         self.catchbutton.bind(on_press=self.update_catch_release)
 
         self.dance_button = Button(size_hint=(.2, .1),
                                   pos_hint={'x': .4, 'y': .9},
                                   text='Dance!')
-        # self.add_widget(self.dance_button)
+        self.add_widget(self.dance_button)
         self.dance_button.bind(on_press=self.update_dance)
 
         self.hiphop_dance = Button(size_hint=(.2, .1),
                                   pos_hint={'x': .1, 'y': .9},
                                   text='hip-hop!')
-        # self.add_widget(self.hiphop_dance)
+        self.add_widget(self.hiphop_dance)
         self.hiphop_dance.bind(on_press=self.update_hiphop)
 
         # self.reset_stat_button = Button(size_hint=(.05, .05),
@@ -126,7 +121,7 @@ class RoboPad(FloatLayout):
         self.debug_label = Label(size_hint=(.4, .0),
                                      pos_hint={'x': .2, 'y': .2},
                                      text='message ... ...',)  # multiline=True,)
-        # self.add_widget(self.debug_label)
+        self.add_widget(self.debug_label)
 
         # self.debug_label_hand = Label(size_hint=(.2, .2),
         #                               pos_hint={'x': .1, 'y': .8},
@@ -175,27 +170,16 @@ class RoboPad(FloatLayout):
 
         self.slider_timeout_timer_start.bind(value=self.OnSliderTimeoutTimerStartValueChange)
 
+
         self.slider_gear_factor = Slider(size_hint=(.4, .03),
                                                     pos_hint={'x': .1,
-                                                              'y': .95},
+                                                              'y': .8},
                                                     min=1,
                                                     max=5,
                                                     value=3)
         self.add_widget(self.slider_gear_factor)
 
         self.slider_gear_factor.bind(value=self.OnSliderGearFactorValueChange)
-
-        self.switch_invert_runy = Switch(size_hint=(.2, .1),
-                                         pos_hint={'x': .4,
-                                                   'y': .7},)
-        self.add_widget(self.switch_invert_runy)
-        self.switch_invert_runy.bind(active=self.OnActiveInvertRuny)
-
-        self.switch_invert_turnx = Switch(size_hint=(.2, .1),
-                                          pos_hint={'x': .1,
-                                                    'y': .7},)
-        self.add_widget(self.switch_invert_turnx)
-        self.switch_invert_turnx.bind(active=self.OnActiveInvertTurnx)
 
         self.accept_command_timeout = 0.05  # timeout after last_command_sent_at before accepting next command
 
@@ -225,10 +209,7 @@ class RoboPad(FloatLayout):
         self.dance = False
         self.hiphop = 1
 
-        self.invert_runy = False
-        self.invert_turnx = False
-
-        self.gear = 4
+        self.gear = 3
 
         self.robot_host = '192.168.4.1'  # hardcoded robot ip t4m net
         self.robot_port = 80
@@ -301,17 +282,11 @@ class RoboPad(FloatLayout):
         # print(type(value), value, self.timeout_timer_start)
         self.timeout_timer_start = value
 
-    def OnActiveInvertRuny(self, instance, value):
-        self.invert_runy = not self.invert_runy
-
-    def OnActiveInvertTurnx(self, instance, value):
-        self.invert_turnx = not self.invert_turnx
-
     def update_coordinates_run(self, joystick, pad):
         # self.stored_command = {}   # updated storage for commands
         # self.delayed_command = {}  # updated storage for commands
 
-        # print('DBG start update_coordinates_run : {}'.format('new move'))
+        print('DBG start update_coordinates_run : {}'.format('new move'))
 
         # self.command_sent = False
         # # test for joystickrun binding test
@@ -387,15 +362,15 @@ class RoboPad(FloatLayout):
         # recreate self.current_command
         # self.current_command = {}
 
-        # x = self.squaredround(pad[0])
+        x = self.squaredround(pad[0])
         y = self.squaredround(pad[1])
 
-        # self.current_command['turnx'] = self.recalculate_servo_position(x)
+        self.current_command['turnx'] = self.recalculate_servo_position(x)
         self.current_command['runy'] = self.recalculate_dc_position(y)
 
-        # print('DBG start update_coordinates_run self.current_command: {}'.format(self.current_command))
+        print('DBG start update_coordinates_run self.current_command: {}'.format(self.current_command))
         self.accept_command_with_saved_params(self.current_command)
-        # print('DBG end update_coordinates_run self.current_command: {}'.format(self.current_command))
+        print('DBG end update_coordinates_run self.current_command: {}'.format(self.current_command))
 
         # if self.accept_command_with_saved_params(self.current_command):
         #     # self.command_sent = False
@@ -440,13 +415,12 @@ class RoboPad(FloatLayout):
         # self.delayed_command = {}  # updated storage for commands
         # self.current_command = {}
 
-        x = self.squaredround(pad[0])     # orig 2-axes
-        # y = self.squaredround(pad[1])   # orig 2-axes
+        x = self.squaredround(pad[0])
+        y = self.squaredround(pad[1])
 
-        # self.current_command['headx'] = self.recalculate_servo_position(x)  # orig 2-axes
-        # self.current_command['handy'] = self.recalculate_servo_position(y)
+        self.current_command['headx'] = self.recalculate_servo_position(x)
+        self.current_command['handy'] = self.recalculate_servo_position(y)
 
-        self.current_command['turnx'] = self.recalculate_servo_position(x)
         self.accept_command_with_saved_params(self.current_command)
 
     def update_catch_release(self, instance):
@@ -887,26 +861,17 @@ class RoboPad(FloatLayout):
 
         # print('DBG squaredround x: {}'.format(x))
         max_x = 0.99
-        # multiply_factor = 1.3
-        multiply_factor = 0.99
+        multiply_factor = 1.3
 
         sign = lambda y: math.copysign(1, y)
-        aligned_x = x * multiply_factor if self.invert_turnx else x * multiply_factor * (-1)
+        aligned_x = x * multiply_factor
 
         if abs(aligned_x) < 0.05:
-            squaredround_x = 0.0
-            # return 0.0
-
+            return 0.0
         if abs(aligned_x) > 0.99:
-            # return max_x * sign(aligned_x)
-            squaredround_x = max_x * sign(aligned_x)
+            return max_x * sign(aligned_x)
         else:
-            # return float(str(aligned_x)[0:4])
-            # squaredround_x = float(str(aligned_x)[0:4])
-            squaredround_x = float(str(aligned_x)[0:6])
-
-        print('DBG squaredround x: {} -> {}, of: {} '.format(x, squaredround_x, str(aligned_x)[0:6]))
-        return squaredround_x
+            return float(str(aligned_x)[0:4])
 
     def recalculate_servo_position(self, x):
         import math
@@ -918,7 +883,7 @@ class RoboPad(FloatLayout):
         # self.SERVO_FACTOR = 1.3
 
         max_x = 0.99
-        multiply_factor = 1.01
+        multiply_factor = 1.4
 
         sign = lambda y: math.copysign(1, y)
         aligned_x = x * multiply_factor
@@ -928,13 +893,7 @@ class RoboPad(FloatLayout):
         elif abs(aligned_x) > 0.99:
             normalized_x = max_x * sign(aligned_x)
         else:
-            # linear function
-            # normalized_x = float(str(aligned_x)[0:6])
-        # return int((normalized_x + 1) / 2 * self.servo_center + self.SERVO_MIN)
-
-            # square function
-
-            normalized_x = aligned_x ** 2 * sign(aligned_x)
+            normalized_x = float(str(aligned_x)[0:4])
 
         return int((normalized_x + 1) / 2 * self.servo_center + self.SERVO_MIN)
 
@@ -963,7 +922,7 @@ class RoboPad(FloatLayout):
         #     normalized_x = aligned_x
         #     return int((normalized_x + 1) / 2 * dc_center + dc_min)
 
-        # print('DBG recalculate_dc_position x: {}, {}'.format(type(x), x))
+        print('DBG recalculate_dc_position x: {}, {}'.format(type(x), x))
 
         dc_min = 1  # dc accepts integer values 1..99
         dc_max = 99
@@ -971,72 +930,27 @@ class RoboPad(FloatLayout):
 
         min_x = -0.99
         max_x = 0.99
-        near_zero = 0.02  # 4% of joystick run near center count as center
+        near_zero = 0.03  # 3 % of joystick run near center count as center
 
         multiply_factor = 1.0  # stretch joystick
 
         sign = lambda y: math.copysign(1, y)
-        # print('DBG recalculate_dc_position sign: {}, {}'.format(type(sign(x)), sign(x)))
-
-        # invert forward and backward according to invert_runy self.invert_runy
-        aligned_x = x * multiply_factor if self.invert_runy else x * multiply_factor * (-1)
+        print('DBG recalculate_dc_position sign: {}, {}'.format(type(sign(x)), sign(x)))
+        aligned_x = x * multiply_factor
 
         if abs(aligned_x) < near_zero:
             # normalized_x = 0.0
-            recalculated_x = dc_center
-
+            return dc_center
         elif abs(aligned_x) > 0.99:
             normalized_x = max_x * sign(aligned_x)
-            recalculated_x = int(normalized_x * dc_max)
-
+            return int(normalized_x * dc_max)
         else:
             # normalized_x = float(str(aligned_x)[0:4])
             normalized_x = aligned_x ** 2 * sign(aligned_x)
-            # print('DBG recalculate_dc_position x- > x: {}>> {}'.format(aligned_x, normalized_x))
-            # print('DBG recalculate_dc_position value: {}'.format(
-            #     int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))))
-            recalculated_x = int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))
-        # print('DBG recalculate_dc_position x: {},\n'
-        #       '                    aligned_x: {},\n'
-        #       '                 normalized_x: {},\n'
-        #       '               recalculated_x: {} \
-        #         '.format(x,
-        #                  aligned_x,
-        #                  aligned_x ** 2 * sign(aligned_x),  # normalized_x if normalized_x else '',
-        #                  recalculated_x))
-        return recalculated_x
-
-        ## recalculate_dc_position from ginger
-        # print('DBG recalculate_dc_position x: {}, {}'.format(type(x), x))
-        #
-        # dc_min = 1  # dc accepts integer values 1..99
-        # dc_max = 99
-        # dc_center = 50  # pre-set center value
-        #
-        # min_x = -0.99
-        # max_x = 0.99
-        # near_zero = 0.03  # 3 % of joystick run near center count as center
-        #
-        # multiply_factor = 1.0  # stretch joystick
-        #
-        # sign = lambda y: math.copysign(1, y)
-        # print('DBG recalculate_dc_position sign: {}, {}'.format(type(sign(x)), sign(x)))
-        # aligned_x = x * multiply_factor
-        #
-        # if abs(aligned_x) < near_zero:
-        #     # normalized_x = 0.0
-        #     return dc_center
-        # elif abs(aligned_x) > 0.99:
-        #     normalized_x = max_x * sign(aligned_x)
-        #     return int(normalized_x * dc_max)
-        # else:
-        #     # normalized_x = float(str(aligned_x)[0:4])
-        #     normalized_x = aligned_x ** 2 * sign(aligned_x)
-        #     print('DBG recalculate_dc_position x- > x: {}>> {}'.format(aligned_x, normalized_x))
-        #     print('DBG recalculate_dc_position value: {}'.format(
-        #         int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))))
-        #     return int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))
-
+            print('DBG recalculate_dc_position x- > x: {}>> {}'.format(aligned_x, normalized_x))
+            print('DBG recalculate_dc_position value: {}'.format(
+                int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))))
+            return int(round(((normalized_x - min_x) / (max_x - min_x)) * dc_max))
 
     # def accept_command(self, pos):
     #
@@ -1298,7 +1212,7 @@ class RoboPad(FloatLayout):
             #     # str_commands += item + '=' + str(commands[item]) + '&'
             #     str_commands += item + '=' + str('{}'.format(commands[item])) + '&'
 
-            # print('DBG str_commands compiled send_command_data_with_saved_params: {}'.format(str_commands))
+            print('DBG str_commands compiled send_command_data_with_saved_params: {}'.format(str_commands))
 
             # self.stored_command = commands
             # print('DBG send_command_data_ store command : {} {}'.format(id(self.stored_command), self.stored_command))
@@ -1307,7 +1221,7 @@ class RoboPad(FloatLayout):
             try:
                 self.last_command_compiled_before_send = time.time()
 
-                # print('DBG start sending command send_command_data_with_saved_params: {}'.format(str_commands))
+                print('DBG start sending command send_command_data_with_saved_params: {}'.format(str_commands))
 
                 self.command_sent = False
 
