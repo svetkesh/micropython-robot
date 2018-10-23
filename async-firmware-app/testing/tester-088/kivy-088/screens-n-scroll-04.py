@@ -51,28 +51,38 @@ MicrorobotScreen:
         Button:
             halign: 'center'
             id: welcome_settings
-            size_hint: 1,.25
+            size_hint: 1,.2
             text: 'Settings'
             font_size: 30
             on_release: app.root.current = 'settings_screen'
         Button:
             id: welcome_play
-            size_hint: 1,.5
+            size_hint: 1,.6
             text: 'Play'
             font_size: 30
             on_release: app.root.current = 'play_screen'
         Button:
             id: welcome_exit
-            size_hint: 1,.25
+            size_hint: 1,.2
             text: 'Exit'
             font_size: 30
             on_release: app.stop()
 
 <SettingsScreen>:
-    name: 'settings_screen'
+    name: 'settings_screen'        
     BoxLayout:
         orientation: 'vertical'
+        spacing: 10
+        padding: 10
+        Button:
+            size_hint: 1,.2
+            text: 'Home'
+            font_size: 30
+            on_release: app.root.current = 'welcome_screen'
         ScrollView:
+            size_hint: 1,.8
+            spacing: 10
+            padding: 10
             GridLayout:
                 orientation: "vertical"
                 size_hint_y: None
@@ -80,23 +90,23 @@ MicrorobotScreen:
                 row_default_height: 60
                 cols:1
                 BoxLayout:                
-                    Button:
+                    Switch:
+                        id: allow_overdrive
                         size_hint: .3,1
-                        text: 'button36'
+                        text: 'allow_overdrive'
                     Label:
-                        text: 'label38'
+                        text: 'allow_overdrive'
                 BoxLayout:                
-                    Button:
-                        size_hint: .4,1
-                        text: 'button'
                     Label:
-                        text: 'label'
+                        text: 'set_gear'
                 BoxLayout:                
-                    Button:
-                        size_hint: .5,1
-                        text: 'button'
-                    Label:
-                        text: 'label'
+                    Slider:
+                        id: set_gear
+                        size_hint: .8, .8
+                        min: 1
+                        max: 4
+                        value: 2
+                        step: 1
                 BoxLayout:                
                     Button:
                         size_hint: .3,1
@@ -135,16 +145,6 @@ MicrorobotScreen:
                     text: 'button86'
                 Label:
                     text: 'label88'
-        BoxLayout:
-            size_hint: 1,.1
-            Button:
-                text: 'Home'
-                font_size: 30
-                on_release: app.root.current = 'welcome_screen'
-            Button:
-                text: 'Play'
-                font_size: 30
-                on_release: app.root.current = 'play_screen'
 
 <PlayScreen>:
     name: 'play_screen'
