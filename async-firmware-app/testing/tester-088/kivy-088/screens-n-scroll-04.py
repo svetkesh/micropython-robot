@@ -3,6 +3,7 @@ from kivy.base import runTouchApp
 from kivy.lang import Builder
 from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
+# from kivy.garden.joystick import Joystick
 
 from kivy.uix.screenmanager import ScreenManager, Screen  # , FadeTransition
 
@@ -37,6 +38,7 @@ class MicrorobotScreen(ScreenManager):
 
 root_widget = Builder.load_string('''
 #:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import Joystick kivy.garden.joystick
 MicrorobotScreen:
     transition: FadeTransition()
     WelcomeScreen:
@@ -93,9 +95,22 @@ MicrorobotScreen:
                     Switch:
                         id: allow_overdrive
                         size_hint: .3,1
-                        text: 'allow_overdrive'
                     Label:
                         text: 'allow_overdrive'
+                        
+                BoxLayout:                
+                    Switch:
+                        id: invert_turn
+                        size_hint: .3,1
+                    Label:
+                        text: 'invert_turn'
+                        
+                BoxLayout:                
+                    Switch:
+                        id: invert_run
+                        size_hint: .3,1
+                    Label:
+                        text: 'invert_run'
                 BoxLayout:                
                     Label:
                         text: 'set_gear'
@@ -107,6 +122,16 @@ MicrorobotScreen:
                         max: 4
                         value: 2
                         step: 1
+                BoxLayout:              
+                    Slider:
+                        id: set_gear_2
+                        size_hint: .8, .8
+                        min: 1
+                        max: 4
+                        value: 2
+                        step: 1
+                    Label:
+                        text: 'set_gear_2' 
                 BoxLayout:                
                     Button:
                         size_hint: .3,1
@@ -148,25 +173,42 @@ MicrorobotScreen:
 
 <PlayScreen>:
     name: 'play_screen'
-    BoxLayout:
+    FloatLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Play!'
-            font_size: 30
-        Image:
-            source: 'colours2.png'
-            allow_stretch: True
-            keep_ratio: False
-        BoxLayout:
-            size_hint: 1,.1
-            Button:
-                text: 'Home'
-                font_size: 30
-                on_release: app.root.current = 'welcome_screen'
-            Button:
-                text: 'Settings'
-                font_size: 30
-                on_release: app.root.current = 'settings_screen'
+        Joystick:
+            id: joystick_hand
+            size_hint: .4, .4
+            # pos_hint: {'x':.5, 'y':.5}
+            pos_hint: {'center_x':.2, 'center_y':.5}
+            sticky: True
+        Joystick:
+            id: joystick_run
+            size_hint: .4, .4
+            pos_hint: {'center_x':.8, 'center_y':.5}
+            # sticky: True
+
+    #     orientation: 'vertical'
+    #     FloatLayout:
+    #         Joystick:
+    #             id: joystick_hand
+    #             size_hint: .5, .5
+    #             pos_hint: .0, .0
+    #             # sticky: True
+    #         Joystick:
+    #             id: joystick_run
+    #             size_hint: .5, .5
+    #             pos_hint: .0, .0
+    #             # sticky: True
+    #     BoxLayout:
+    #         size_hint: 1,.1
+    #         Button:
+    #             text: 'Home'
+    #             font_size: 30
+    #             on_release: app.root.current = 'welcome_screen'
+    #         Button:
+    #             text: 'Settings'
+    #             font_size: 30
+    #             on_release: app.root.current = 'settings_screen'
 
 ''')
 
