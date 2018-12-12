@@ -122,6 +122,7 @@ class RoboPad(FloatLayout):
         # robot_port = 80
         robot_host = '127.0.0.1'  # hardcoded local ip
         robot_port = 8000         # hardcoded local port
+                                  # python3 -m http.server
         # print('send_command_data running')
         # self.debug_label.text = 'headx {}\nhandy {}\nturnx {}\nruny {}\ncatch {}'.format(headx,
         #                                                                                  handy,
