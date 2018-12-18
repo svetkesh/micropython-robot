@@ -20,6 +20,13 @@ class SettingsScreen(Screen):
     def out_pad(self):
         print('SettingsScreen says hello from button54')
 
+    def use_default_wifi_settings(self):
+        print("Use Default WiFi Settings pressed")
+
+
+class AdvancedSettingsScreen(Screen):
+    pass
+
 
 class PlayScreen(Screen):
     def out_pad(self):
@@ -35,8 +42,6 @@ class PlayScreen(Screen):
     def joy_run(self, caller):
         # print('hello from joystick', caller)  # caller returns name of event
         print('hello from joystick', caller, self.ids["joystick_run"].pad)
-
-
 
 
 class MicrorobotScreen(ScreenManager):
@@ -59,6 +64,7 @@ MicrorobotScreen:
     transition: FadeTransition()
     WelcomeScreen:
     SettingsScreen:
+    AdvancedSettingsScreen:
     PlayScreen:
 <WelcomeScreen>:
     name: 'welcome_screen'                                   
@@ -107,20 +113,42 @@ MicrorobotScreen:
                 height: self.minimum_height
                 row_default_height: 60
                 cols:1
+                spacing: 10
+                padding: 10
+                BoxLayout:
+                    Button:
+                        font_size: 30
+                        # padding: 10
+                        size_hint: 1,1
+                        text: 'Use Default WiFi Settings'
+                        on_release: root.use_default_wifi_settings()
+                
+                BoxLayout:
+                    Button:
+                        size_hint: .8,.4
+                        text: 'Use Default WiFi Settings'
+                        on_release: root.use_default_wifi_settings()
+                
+                BoxLayout:
+                
+                BoxLayout:
+                
+                BoxLayout:
+                
                 BoxLayout:                
                     Switch:
                         id: allow_overdrive
                         size_hint: .3,1
                     Label:
                         text: 'allow_overdrive'
-                        
+
                 BoxLayout:                
                     Switch:
                         id: invert_turn
                         size_hint: .3,1
                     Label:
                         text: 'invert_turn'
-                        
+
                 BoxLayout:                
                     Switch:
                         id: invert_run
@@ -152,9 +180,120 @@ MicrorobotScreen:
                     Button:
                         size_hint: .3,1
                         text: 'button54'
-                        
+
                         on_release: root.out_pad() # here root is pointed to class SettingsScreen
-                        
+
+                    Label:
+                        text: 'label56'
+                BoxLayout:                
+                    Button:
+                        size_hint: .3,1
+                        text: 'button'
+                    Label:
+                        text: 'label'
+                BoxLayout:                
+                    Button:
+                        size_hint: .3,1
+                        text: 'button'
+                    Label:
+                        text: 'label'
+                BoxLayout:                
+                    Button:
+                        size_hint: .3,1
+                        text: 'button'
+                    Label:
+                        text: 'label'
+                BoxLayout:                
+                    Button:
+                        size_hint: .4,1
+                        text: 'button78'
+                    Label:
+                        text: 'label80'
+                Button:
+                    text: 'button82'
+                Label:
+                    text: 'label84'
+                Button:
+                    text: 'button86'
+                Label:
+                    text: 'label88'
+                    
+                # Path to Advanced Settings
+                Button:
+                    size_hint: 1,.2
+                    text: 'Advanced Settings'
+                    font_size: 30
+                    on_release: app.root.current = 'advanced_settings_screen'  
+                     
+<AdvancedSettingsScreen>
+    name: 'advanced_settings_screen'        
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
+        Button:
+            size_hint: 1,.2
+            text: 'Back to Settings'
+            font_size: 30
+            on_release: app.root.current = 'settings_screen'
+        ScrollView:
+            size_hint: 1,.8
+            spacing: 10
+            padding: 10
+            GridLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                row_default_height: 60
+                cols:1
+                BoxLayout:                
+                    Switch:
+                        id: allow_overdrive
+                        size_hint: .3,1
+                    Label:
+                        text: 'allow_overdrive'
+
+                BoxLayout:                
+                    Switch:
+                        id: invert_turn
+                        size_hint: .3,1
+                    Label:
+                        text: 'invert_turn'
+
+                BoxLayout:                
+                    Switch:
+                        id: invert_run
+                        size_hint: .3,1
+                    Label:
+                        text: 'invert_run'
+                BoxLayout:                
+                    Label:
+                        text: 'set_gear'
+                BoxLayout:                
+                    Slider:
+                        id: set_gear
+                        size_hint: .8, .8
+                        min: 1
+                        max: 4
+                        value: 2
+                        step: 1
+                BoxLayout:              
+                    Slider:
+                        id: set_gear_2
+                        size_hint: .8, .8
+                        min: 1
+                        max: 4
+                        value: 2
+                        step: 1
+                    Label:
+                        text: 'set_gear_2' 
+                BoxLayout:                
+                    Button:
+                        size_hint: .3,1
+                        text: 'button54'
+
+                        on_release: root.out_pad() # here root is pointed to class SettingsScreen
+
                     Label:
                         text: 'label56'
                 BoxLayout:                
@@ -193,36 +332,36 @@ MicrorobotScreen:
 <PlayScreen>:
     name: 'play_screen'
     orientation: 'horizontal'
-    
+
     FloatLayout:
         # orientation: 'vertical'
         orientation: 'horizontal'
-        
+
         Button:
             size_hint: .3,1
             text: 'Play_button54'
-            
+
             on_release: root.out_pad() # here root is pointed to class SettingsScreen
-        
+
         Joystick:
             id: joystick_hand
             size_hint: .4, .4
             # pos_hint: {'x':.5, 'y':.5}
             pos_hint: {'center_x':.2, 'center_y':.5}
             sticky: True
-            
+
             # ##
             on_touch_down: root.joy_hand("joystick_hand on_touch_down")
             on_touch_move: root.joy_hand("joystick_hand on_touch_move")
             on_touch_up: root.joy_hand("joystick_hand on_touch_up")            
-            
-            
+
+
         Joystick:
             id: joystick_run
             size_hint: .4, .4
             pos_hint: {'center_x':.8, 'center_y':.5}
             # sticky: True
-            
+
 
             on_touch_down: root.joy_run("joystick_run on_touch_down")
             on_touch_move: root.joy_run("joystick_run on_touch_move")
