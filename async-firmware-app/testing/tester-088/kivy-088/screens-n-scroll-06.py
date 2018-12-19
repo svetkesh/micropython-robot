@@ -4,6 +4,8 @@ from kivy.lang import Builder
 from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
 # from kivy.garden.joystick import Joystick
+from kivy.uix.popup import Popup
+from kivy.uix.button import Button
 
 
 from kivy.uix.screenmanager import ScreenManager, Screen  # , FadeTransition
@@ -22,6 +24,37 @@ class SettingsScreen(Screen):
 
     def use_default_wifi_settings(self):
         print("Use Default WiFi Settings pressed")
+
+    def add_to_wifi_network(self):
+        print("Add to WiFi Network pressed")
+        print(self.ids["wifissid"].text , self.ids["wifipass"].text)
+
+    def fire_popup(self):
+        print("Fire PopUp from SettingsScreen")
+        pops=SimplePopup()
+        pops.open()
+
+    def fire_color_popup(self):
+        print("Fire Color PopUp from SettingsScreen")
+        pops=ColorPopup()
+        pops.open()
+
+
+class SimplePopup(Popup):
+    pass
+
+
+class ColorPopup(Popup):
+    def color_popup(self):
+        print(self.ids["colorpopup"].hex_color)
+
+
+# class SimpleButton(Button):
+#     text = "Fire Popup !"
+#
+#     def fire_popup(self):
+#         pops=SimplePopup()
+#         pops.open()
 
 
 class AdvancedSettingsScreen(Screen):
@@ -60,6 +93,8 @@ class MicrorobotScreen(ScreenManager):
 root_widget = Builder.load_string('''
 #:import FadeTransition kivy.uix.screenmanager.FadeTransition
 #:import Joystick kivy.garden.joystick
+#:import TextInput kivy.uix.textinput
+#:import ColorPicker kivy.uix.colorpicker
 MicrorobotScreen:
     transition: FadeTransition()
     WelcomeScreen:
@@ -122,101 +157,55 @@ MicrorobotScreen:
                         size_hint: 1,1
                         text: 'Use Default WiFi Settings'
                         on_release: root.use_default_wifi_settings()
-                
-                BoxLayout:
-                    Button:
-                        size_hint: .8,.4
-                        text: 'Use Default WiFi Settings'
-                        on_release: root.use_default_wifi_settings()
-                
-                BoxLayout:
-                
-                BoxLayout:
-                
-                BoxLayout:
-                
-                BoxLayout:                
-                    Switch:
-                        id: allow_overdrive
-                        size_hint: .3,1
-                    Label:
-                        text: 'allow_overdrive'
 
-                BoxLayout:                
-                    Switch:
-                        id: invert_turn
-                        size_hint: .3,1
-                    Label:
-                        text: 'invert_turn'
 
-                BoxLayout:                
-                    Switch:
-                        id: invert_run
-                        size_hint: .3,1
-                    Label:
-                        text: 'invert_run'
-                BoxLayout:                
-                    Label:
-                        text: 'set_gear'
-                BoxLayout:                
-                    Slider:
-                        id: set_gear
-                        size_hint: .8, .8
-                        min: 1
-                        max: 4
-                        value: 2
-                        step: 1
-                BoxLayout:              
-                    Slider:
-                        id: set_gear_2
-                        size_hint: .8, .8
-                        min: 1
-                        max: 4
-                        value: 2
-                        step: 1
-                    Label:
-                        text: 'set_gear_2' 
-                BoxLayout:                
-                    Button:
-                        size_hint: .3,1
-                        text: 'button54'
 
-                        on_release: root.out_pad() # here root is pointed to class SettingsScreen
-
-                    Label:
-                        text: 'label56'
-                BoxLayout:                
-                    Button:
-                        size_hint: .3,1
-                        text: 'button'
-                    Label:
-                        text: 'label'
-                BoxLayout:                
-                    Button:
-                        size_hint: .3,1
-                        text: 'button'
-                    Label:
-                        text: 'label'
-                BoxLayout:                
-                    Button:
-                        size_hint: .3,1
-                        text: 'button'
-                    Label:
-                        text: 'label'
-                BoxLayout:                
-                    Button:
-                        size_hint: .4,1
-                        text: 'button78'
-                    Label:
-                        text: 'label80'
                 Button:
-                    text: 'button82'
-                Label:
-                    text: 'label84'
+                    font_size: 30
+                    # padding: 10
+                    size_hint: 1,1
+                    text: 'Add to WiFi Network'
+                    on_release: root.add_to_wifi_network()
+                TextInput:
+                    id: wifissid
+                    multiline: False
+                    
+                TextInput:
+                    id: wifipass
+                    password: True 
+                    multiline: False
+                        
+                        
                 Button:
-                    text: 'button86'
-                Label:
-                    text: 'label88'
+                    font_size: 30
+                    # padding: 10
+                    size_hint: 1,1
+                    text: 'root.fire_popup()'
+                    on_release: root.fire_popup()
+                    #self.fire_popup()
+                    
+                Button:
+                    font_size: 30
+                    # padding: 10
+                    size_hint: 1,1
+                    text: 'root.fire_popup()'
+                    on_release: root.fire_color_popup()
+                    #self.fire_popup()
+                
+                BoxLayout:
+                    Button:
+                        font_size: 30
+                        # padding: 10
+                        size_hint: 1,1
+                        text: 'Add to WiFi Network'
+                        on_release: root.add_to_wifi_network()
+                
+                BoxLayout:
+                
+                BoxLayout:
+                
+                BoxLayout:
+                
                     
                 # Path to Advanced Settings
                 Button:
@@ -366,6 +355,29 @@ MicrorobotScreen:
             on_touch_down: root.joy_run("joystick_run on_touch_down")
             on_touch_move: root.joy_run("joystick_run on_touch_move")
             on_touch_up: root.joy_run("joystick_run on_touch_up")
+
+
+# Popup machine customization        
+<SimpleButton>:
+    on_press: self.fire_popup()
+<SimplePopup>:
+    id:pop
+    size_hint: .4, .4
+    auto_dismiss: False
+    title: 'Hello world!!'
+    Button:
+        text: 'Click here to dismiss'
+        on_press: pop.dismiss()
+        
+<ColorPopup>:
+    id:pop
+    size_hint: .4, .4
+    auto_dismiss: False
+    title: 'Hello world!!'
+    ColorPicker:
+        id: colorpopup
+        on_touch_up: color_popup()   # #######
+        on_touch_up: pop.dismiss()
 
     #     orientation: 'vertical'
     #     FloatLayout:
