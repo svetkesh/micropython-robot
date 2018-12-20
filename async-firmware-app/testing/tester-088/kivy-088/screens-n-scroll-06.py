@@ -45,7 +45,10 @@ class SimplePopup(Popup):
 
 
 class ColorPopup(Popup):
-    def color_popup(self):
+    # def color_popup(self):
+    #     print(self.ids["colorpopup"].hex_color)
+
+    def color_show(self):
         print(self.ids["colorpopup"].hex_color)
 
 
@@ -180,7 +183,7 @@ MicrorobotScreen:
                     font_size: 30
                     # padding: 10
                     size_hint: 1,1
-                    text: 'root.fire_popup()'
+                    text: ' Test PopUp root.fire_popup()'
                     on_release: root.fire_popup()
                     #self.fire_popup()
                     
@@ -188,7 +191,7 @@ MicrorobotScreen:
                     font_size: 30
                     # padding: 10
                     size_hint: 1,1
-                    text: 'root.fire_popup()'
+                    text: 'Select Color root.fire_color_popup()'
                     on_release: root.fire_color_popup()
                     #self.fire_popup()
                 
@@ -369,15 +372,27 @@ MicrorobotScreen:
         text: 'Click here to dismiss'
         on_press: pop.dismiss()
         
-<ColorPopup>:
-    id:pop
-    size_hint: .4, .4
-    auto_dismiss: False
-    title: 'Hello world!!'
-    ColorPicker:
-        id: colorpopup
-        on_touch_up: color_popup()   # #######
-        on_touch_up: pop.dismiss()
+
+# it's OK
+# <ColorPopup>:
+#     id:pop
+#     size_hint: .4, .4
+#     auto_dismiss: False
+#     title: 'Hello world!!'
+#     ColorPicker:
+#         id: colorpopup
+#         on_color: root.color_show()   # #######
+#         on_touch_up: pop.dismiss()
+
+# <ColorPopup>:
+#     id:pop
+#     size_hint: .4, .4
+#     auto_dismiss: False
+#     title: 'Select Color'
+#     ColorPicker:
+#         id: colorpopup
+#         on_color: root.color_show()   # #######
+#         on_touch_up: pop.dismiss()
 
     #     orientation: 'vertical'
     #     FloatLayout:
