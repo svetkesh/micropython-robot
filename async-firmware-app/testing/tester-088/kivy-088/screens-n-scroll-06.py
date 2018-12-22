@@ -6,6 +6,8 @@ from kivy.uix.boxlayout import BoxLayout
 # from kivy.garden.joystick import Joystick
 from kivy.uix.popup import Popup
 from kivy.uix.button import Button
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.image import Image
 
 
 from kivy.uix.screenmanager import ScreenManager, Screen  # , FadeTransition
@@ -49,7 +51,15 @@ class ColorPopup(Popup):
     #     print(self.ids["colorpopup"].hex_color)
 
     def color_show(self):
+        # print(self.ids["colorpopup"])
+        print(self.ids["colorpopup"].hsv)
         print(self.ids["colorpopup"].hex_color)
+        self.ids["use_this_color"].background_color = self.ids["colorpopup"].color
+        self.ids["use_this_color"].text = str(self.ids["colorpopup"].hex_color) + "\nUse this color"
+
+
+class RoundButton(ButtonBehavior, Image):
+    pass
 
 
 # class SimpleButton(Button):
@@ -330,10 +340,109 @@ MicrorobotScreen:
         orientation: 'horizontal'
 
         Button:
-            size_hint: .3,1
+            size_hint: .2, .2
+            # pos_hint: {'x':.5, 'y':.5}
+            pos_hint: {'center_x':.5, 'center_y':.1}
             text: 'Play_button54'
+            background_normal: 'circle-32-2.png'
+            background_down: 'circle-32.png'
+            # height: 10
+            # border: 30,30,30,30
 
             on_release: root.out_pad() # here root is pointed to class SettingsScreen
+            
+        Button:
+            size_hint: .2, .2
+            # pos_hint: {'x':.5, 'y':.5}
+            pos_hint: {'center_x':.1, 'center_y':.9}
+            background_color: 0,0,0,0  # the last zero is the critical on, make invisible
+            canvas.before:
+                Color:
+                    rgba: (.4,.4,.4,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press 
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [50,]
+
+            on_release: root.out_pad() # here root is pointed to class SettingsScreen
+            
+        Button:
+            size_hint: .1, .1
+            # pos_hint: {'x':.5, 'y':.5}
+            pos_hint: {'center_x':.8, 'center_y':.9}
+            background_color: 0,0,0,0  # the last zero is the critical on, make invisible
+            canvas.before:
+                Color:
+                    rgba: (.4,.4,.4,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press 
+                Ellipse:
+                    pos: self.pos
+                    size: self.size
+                    # size: 50,50
+                    source: 'circle-32-2.png'
+                    # background_normal: 'circle-32-2.png'
+                    # background_down: 'circle-32.png'
+
+            on_release: root.out_pad() # here root is pointed to class SettingsScreen
+            
+        Button:
+            size_hint: .1, .1
+            # size: .1, .1
+            # pos_hint: {'x':.5, 'y':.5}
+            pos_hint: {'center_x':.6, 'center_y':.9}
+            background_color: 0,0,0,0  # the last zero is the critical on, make invisible
+            background_down: 'circle-32.png'
+            canvas.before:
+                # Color:
+                #     rgba: (.4,.4,.4,.1) if self.state=='normal' else (0,.7,.7,.8)  # visual feedback of press 
+                Ellipse:
+                    pos: self.pos
+                    size: self.size
+                    # size: 50,50
+                    source: 'circle-32-2.png'
+                    # background_normal: 'circle-32-2.png'
+                    # background_down: 'circle-32.png'
+
+            on_release: root.out_pad() # here root is pointed to class SettingsScreen
+            
+        # Button:
+            # size_hint: .1, .1
+            # pos_hint: {'center_x':.8, 'center_y':.2}
+        RoundButton:
+            size_hint: .1, .1
+            pos_hint: {'center_x':.9, 'center_y':.3}
+            source: 'circle-32.png'
+            # background_down: 'circle-32.png'
+            on_release: root.out_pad()
+            
+            
+        Button:
+            text: "B1"
+            pos_hint: {'center_x':.9, 'center_y':.9}
+            size_hint: .07, .1
+            on_release: root.out_pad()
+            # rgba: (.4,.4,.4,.2)
+            # background_color: (0.7, 0.5, 0.33, 0.8)  # it'OK
+            background_color: (.4,.4,.4,.1) if self.state=='normal' else (0,.7,.7,.8)
+            # background_down: 'circle-32.png'  # is' OK
+            
+            Image:
+                source: 'kivy-logo-black-64.png'
+                # y: self.parent.y + self.parent.height - 250
+                y: self.parent.y
+                # x: self.parent.x
+                x: self.parent.x
+                height: self.parent.height
+                width: self.parent.width
+                
+                # pos_hint: {'center_x':.5, 'center_y':.5}
+                # size_hint: .9, .9
+                # size: 250, 250
+                allow_stretch: True
+                # allow_stretch: False
+                
+        
+            
+        
 
         Joystick:
             id: joystick_hand
@@ -372,6 +481,20 @@ MicrorobotScreen:
         text: 'Click here to dismiss'
         on_press: pop.dismiss()
         
+# # Rounded Button
+<RoundButton>:
+    canvas:
+        Color:
+            rgba: 1, 0, 0, .3
+        Rectangle:
+            size: self.size
+            pos: self.pos
+        Color:
+            rgba: 0, 0, 1, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+        
 
 # it's OK
 # <ColorPopup>:
@@ -384,15 +507,27 @@ MicrorobotScreen:
 #         on_color: root.color_show()   # #######
 #         on_touch_up: pop.dismiss()
 
-# <ColorPopup>:
-#     id:pop
-#     size_hint: .4, .4
-#     auto_dismiss: False
-#     title: 'Select Color'
-#     ColorPicker:
-#         id: colorpopup
-#         on_color: root.color_show()   # #######
-#         on_touch_up: pop.dismiss()
+<ColorPopup>:
+    id:pop
+    size_hint: .8, .8
+    auto_dismiss: False
+    title: 'Select Color'
+    GridLayout:
+        orientation: "vertical"
+        # size_hint_y: None
+        # height: self.minimum_height
+        # row_default_height: 60
+        cols:1
+        ColorPicker:
+            id: colorpopup
+            on_color: root.color_show()   # #######
+            # on_touch_up: pop.dismiss()
+            
+        Button:
+            id: use_this_color
+            text: 'Click here to dismiss'
+            on_press: pop.dismiss()
+        
 
     #     orientation: 'vertical'
     #     FloatLayout:
