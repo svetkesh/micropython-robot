@@ -1,5 +1,7 @@
 '''
-Some drafts for buttons
+Add buttons to Play Screen
+
+draft v7 with FloatLayout
 '''
 
 from kivy.app import App
@@ -343,85 +345,35 @@ MicrorobotScreen:
         # orientation: 'vertical'
         orientation: 'horizontal'
 
-        Button:
-            size_hint: .2, .2
-            # pos_hint: {'x':.5, 'y':.5}
-            pos_hint: {'center_x':.5, 'center_y':.1}
-            text: 'Play_button54'
-            background_normal: 'circle-32-2.png'
-            background_down: 'circle-32.png'
-            # height: 10
-            # border: 30,30,30,30
 
-            on_release: root.out_pad() # here root is pointed to class SettingsScreen
+
+        Joystick:
+            id: joystick_hand
+            size_hint: .5, .5
+            # pos_hint: {'x':.5, 'y':.5}
+            pos_hint: {'center_x':.2, 'center_y':.4}
+            sticky: True
+
+            # ##
+            on_touch_down: root.joy_hand("joystick_hand on_touch_down")
+            on_touch_move: root.joy_hand("joystick_hand on_touch_move")
+            on_touch_up: root.joy_hand("joystick_hand on_touch_up")            
+
+
+        Joystick:
+            id: joystick_run
+            size_hint: .5, .5
+            pos_hint: {'center_x':.8, 'center_y':.4}
+            # sticky: True
+
+            on_touch_down: root.joy_run("joystick_run on_touch_down")
+            on_touch_move: root.joy_run("joystick_run on_touch_move")
+            on_touch_up: root.joy_run("joystick_run on_touch_up")
             
         Button:
-            size_hint: .2, .2
-            # pos_hint: {'x':.5, 'y':.5}
+            id: btn_lights
+            text: "L"
             pos_hint: {'center_x':.1, 'center_y':.9}
-            background_color: 0,0,0,0  # the last zero is the critical on, make invisible
-            canvas.before:
-                Color:
-                    rgba: (.4,.4,.4,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press 
-                RoundedRectangle:
-                    pos: self.pos
-                    size: self.size
-                    radius: [50,]
-
-            on_release: root.out_pad() # here root is pointed to class SettingsScreen
-            
-        Button:
-            size_hint: .1, .1
-            # pos_hint: {'x':.5, 'y':.5}
-            pos_hint: {'center_x':.8, 'center_y':.9}
-            background_color: 0,0,0,0  # the last zero is the critical on, make invisible
-            canvas.before:
-                Color:
-                    rgba: (.4,.4,.4,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press 
-                Ellipse:
-                    pos: self.pos
-                    size: self.size
-                    # size: 50,50
-                    source: 'circle-32-2.png'
-                    # background_normal: 'circle-32-2.png'
-                    # background_down: 'circle-32.png'
-
-            on_release: root.out_pad() # here root is pointed to class SettingsScreen
-            
-        Button:
-            size_hint: .1, .1
-            # size: .1, .1
-            # pos_hint: {'x':.5, 'y':.5}
-            pos_hint: {'center_x':.6, 'center_y':.9}
-            background_color: 0,0,0,0  # the last zero is the critical on, make invisible
-            background_down: 'circle-32.png'
-            canvas.before:
-                # Color:
-                #     rgba: (.4,.4,.4,.1) if self.state=='normal' else (0,.7,.7,.8)  # visual feedback of press 
-                Ellipse:
-                    pos: self.pos
-                    size: self.size
-                    # size: 50,50
-                    source: 'circle-32-2.png'
-                    # background_normal: 'circle-32-2.png'
-                    # background_down: 'circle-32.png'
-
-            on_release: root.out_pad() # here root is pointed to class SettingsScreen
-            
-        # Button:
-            # size_hint: .1, .1
-            # pos_hint: {'center_x':.8, 'center_y':.2}
-        RoundButton:
-            size_hint: .1, .1
-            pos_hint: {'center_x':.9, 'center_y':.3}
-            source: 'circle-32.png'
-            # background_down: 'circle-32.png'
-            on_release: root.out_pad()
-            
-            
-        Button:
-            text: "ButX"
-            pos_hint: {'center_x':.9, 'center_y':.9}
             size_hint: .07, .1
             on_release: root.out_pad()
             # rgba: (.4,.4,.4,.2)
@@ -437,40 +389,46 @@ MicrorobotScreen:
                 x: self.parent.x
                 height: self.parent.height
                 width: self.parent.width
-                
                 # pos_hint: {'center_x':.5, 'center_y':.5}
                 # size_hint: .9, .9
                 # size: 250, 250
                 allow_stretch: True
                 # allow_stretch: False
                 
-        
+                
+        Button:
+            id: btn_home
+            text: "H"
+            pos_hint: {'center_x':.5, 'center_y':.9}
+            size_hint: .07, .1
+            on_release: root.out_pad()
+            background_color: (.4,.4,.4,.1) if self.state=='normal' else (0,.7,.7,.8)
             
-        
-
-        Joystick:
-            id: joystick_hand
-            size_hint: .4, .4
-            # pos_hint: {'x':.5, 'y':.5}
-            pos_hint: {'center_x':.2, 'center_y':.5}
-            sticky: True
-
-            # ##
-            on_touch_down: root.joy_hand("joystick_hand on_touch_down")
-            on_touch_move: root.joy_hand("joystick_hand on_touch_move")
-            on_touch_up: root.joy_hand("joystick_hand on_touch_up")            
-
-
-        Joystick:
-            id: joystick_run
-            size_hint: .4, .4
-            pos_hint: {'center_x':.8, 'center_y':.5}
-            # sticky: True
-
-
-            on_touch_down: root.joy_run("joystick_run on_touch_down")
-            on_touch_move: root.joy_run("joystick_run on_touch_move")
-            on_touch_up: root.joy_run("joystick_run on_touch_up")
+            Image:
+                source: 'kivy-logo-black-64.png'
+                # y: self.parent.y + self.parent.height - 250
+                y: self.parent.y
+                # x: self.parent.x
+                x: self.parent.x
+                height: self.parent.height
+                width: self.parent.width
+                allow_stretch: True
+                              
+        Button:
+            id: btn_fast
+            text: "F"
+            pos_hint: {'center_x':.9, 'center_y':.9}
+            size_hint: .07, .1
+            on_release: root.out_pad()
+            background_color: (.4,.4,.4,.1) if self.state=='normal' else (0,.7,.7,.8)
+            
+            Image:
+                source: 'kivy-logo-black-64.png'
+                y: self.parent.y
+                x: self.parent.x
+                height: self.parent.height
+                width: self.parent.width
+                allow_stretch: True
 
 
 # Popup machine customization        
