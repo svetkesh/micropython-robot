@@ -2,11 +2,6 @@
 to load settings:
         http://192.168.4.1/?load=default
 
-0.8.1 -using uasyncio
-      suits firmware versions 2018 04 +
-0.8.4.7 - save gear factor
-.7 for trike/quadro fixed forward move through zero
-0.8.6.1 - add smooth runy
 0.8.6.1 - start 'objecting'...
 main-tank(0.8.7.1.1) tank version
 
@@ -43,16 +38,10 @@ motor_a_m = machine.PWM(machine.Pin(0), freq=50)
 motor_b_p = machine.PWM(machine.Pin(4), freq=50)
 motor_b_m = machine.PWM(machine.Pin(2), freq=50)
 
-servo_headx = machine.PWM(machine.Pin(12), freq=50)  # Pin 7
-servo_handy = machine.PWM(machine.Pin(12), freq=50)  # Pin 8
-
-# Setup leds
-# network_pin = machine.Pin(2, machine.Pin.OUT)
-# forward_led2 = machine.PWM(machine.Pin(4), freq=50)
-# left_led7 = machine.PWM(machine.Pin(13), freq=50)
-# right_led8 = machine.PWM(machine.Pin(15), freq=50)
-# back_led5 = machine.PWM(machine.Pin(14), freq=50)
-fire_led5 = machine.PWM(machine.Pin(14), freq=50) # Pin 5
+servo_headx = machine.PWM(machine.Pin(12), freq=50)  # Pin 6
+servo_handy = machine.PWM(machine.Pin(13), freq=50)  # Pin 7
+fire_led5 = machine.PWM(machine.Pin(14), freq=50)  # Pin 5
+# right_led8 = machine.PWM(machine.Pin(15), freq=50)  #pin 8
 
 robot_settings = {}
 robot_settings_file = 'settings.txt'
@@ -186,17 +175,18 @@ def move_servo(servo,
     #           ''.format(servo, type(duty), duty, duty_int))
 
 
-def headx(key):  # straight
+def headx(key):
     move_servo(servo_headx, duty=key)
 
 
-def handy(key):  # inverted
+def handy(key):
     move_servo(servo_handy, duty=key)
 
 
-def run(key):  #, power_driver, mode_drive):  # straight
+def run(duty):
+    print('Enter run({}, {})'.format(type(duty), duty))
     try:
-        i_run = int(key)
+        i_run = int(duty)
         if abs(i_run - 50) < 2:
             m_duty = 0
             p_duty = 0
@@ -212,9 +202,7 @@ def run(key):  #, power_driver, mode_drive):  # straight
                 p_duty = 0
 
         print('DBG i_runy {} G: {}, K: {}->{}, P: {} , M: {}'.format(time.ticks_ms(), robot_settings['gear_factor'],
-                                                                key, i_run, p_duty, m_duty))
-        # power_driver.duty(p_duty)
-        # mode_drive.duty(m_duty)
+                                                                     duty, i_run, p_duty, m_duty))
     except Exception as e:
         print('Error while processing run: {}, {}'.format(type(e), e))
     finally:
@@ -222,15 +210,19 @@ def run(key):  #, power_driver, mode_drive):  # straight
 
 
 def runa(key):
-    p, m = run(key)
-    print("run(key) {} ()".format(p, m))
-    motor_a_p.duty(p)
-    motor_a_m.duty(m)
+    print('Enter runa with arg: {}, {}'.format(type(key), key))
+    try:
+        # p, m = run(key)
+        run(key)
+        # print("run(key) {} ()".format(p, m))
+        # motor_a_p.duty(p)
+        # motor_a_m.duty(m)
+    except Exception as e:
+        print('Error while processing runa: {}, {}'.format(type(e), e))
 
 
 def runb(key):
     p, m = run(key)
-    print("run(key) {} ()".format(p, m))
     motor_b_p.duty(p)
     motor_b_m.duty(m)
 
@@ -253,7 +245,6 @@ def gear(key):
 tokens = {
     'headx': headx,
     'handy': handy,
-    # 'turnx': turnx,
     'runa': runa,
     'runb': runb,
     'fire': fire,
@@ -289,9 +280,11 @@ def robot_listener_json(mess):
             for js_run in j_run:
                 try:
                     function_to_call = tokens[js_run]
+                    print('Dispatching command: {} for {}'.format(function_to_call, j_run[js_run]))
                     function_to_call(j_run[js_run])
+
                 except Exception as e:
-                    print('SKIP dispatching  unknown command: {}, {}, {}'.format(j_run, type(e), e))
+                    print('SKIP dispatching  unknown command: {}, {}, {}'.format(js_run, j_run, type(e), e))
         except Exception as e:
             print('ERR while dispatching command: {}, {}'.format(type(e), e))
         finally:
