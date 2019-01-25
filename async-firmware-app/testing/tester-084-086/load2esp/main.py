@@ -7,6 +7,7 @@ to load settings:
 0.8.4.7 - save gear factor
 .7 for trike/quadro fixed forward move through zero
 0.8.6.1 - add smooth switch
+          silent
 """
 
 try:
@@ -49,7 +50,7 @@ back_led5 = machine.PWM(machine.Pin(14), freq=50)
 robot_settings = {}
 robot_settings_file = 'settings.txt'
 
-leds_on = False
+leds_on = True
 # DEBUG_ON = True
 
 last_runy = 50
@@ -70,15 +71,14 @@ def read_settings(file):
 def write_settings(j, file='settings.txt'):
     try:
         j_str = json.dumps(j)
-        print('DBG: JSON data loaded OK')
         with open(file, 'w') as f:
             f.write(str(j_str))
-            print('DBG: data: {} written to: {}, OK'.format(file, j_str))
         return True
     except json.JSONDecodeError as e:
-        print('ERR: data not valid JSON: {}, {}, {}'.format(type(e), e, str(j)))
+        pass
+        # print('ERR: data not valid JSON: {}, {}, {}'.format(type(e), e, str(j)))
     except Exception as e:
-        print('ERR: given data could not be written {}, {}\n    {}'.format(type(e), e, str(j)))
+        # print('ERR: given data could not be written {}, {}\n    {}'.format(type(e), e, str(j)))
         return False
 
 
@@ -93,19 +93,10 @@ def update_settings(settings_to_update=None, file=robot_settings_file):
     if settings_to_update:
         try:
             for item in settings_to_update:
-                try:
-                    print('DBG update {} -> {}'.format(
-                        robot_settings[item],
-                        settings_to_update[item]
-                    ))
-                except Exception as e:
-                    print('ERR-DBG update_settings for: {}, {}, {}'.format(item, settings_to_update[item], e))
 
-                if settings_to_update[item] in ('True', 'TRUE', 'true', 'T', 't',
-                                                'Yes', 'YES', 'yes', 'Y', 'y'):
+                if settings_to_update[item] in ('True', 'TRUE', 'true', 'T', 't', 'Yes', 'YES', 'yes', 'Y', 'y'):
                     robot_settings[item] = True
-                elif settings_to_update[item] in ('False', 'FALSE', 'false', 'F', 'F',
-                                                  'No', 'NO', 'no', 'N', 'n'):
+                elif settings_to_update[item] in ('False', 'FALSE', 'false', 'F', 'F', 'No', 'NO', 'no', 'N', 'n'):
                     robot_settings[item] = False
                 else:
                     try:
@@ -117,14 +108,12 @@ def update_settings(settings_to_update=None, file=robot_settings_file):
             write_settings(robot_settings, file)
             return True
         except Exception as e:
-            print('Error while updating settings {}, {}'.format(type(e), e))
+            # print('Error while updating settings {}, {}'.format(type(e), e))
             return False
         finally:
-            print('DBG after robot_settings: {}, {}'.format(type(robot_settings), robot_settings))
+            # print('DBG after robot_settings: {}, {}'.format(type(robot_settings), robot_settings))
+            pass
     else:
-        print('DBG nothing to update, '
-              'current settings: {}, {}'.format(type(robot_settings),
-                                                robot_settings))
         return True
 
 
@@ -133,10 +122,6 @@ r_settings = re.compile("settings=({.*})")
 r_run = re.compile("run=({.*})")
 r_load_default = re.compile("load=default")
 r_reset = re.compile("reset=reset")
-
-
-def give_up():
-    pass
 
 
 def limit_min_max(x, mini, maxi):
@@ -158,11 +143,9 @@ def move_servo(servo,
                servo_max=robot_settings['servo_max'],
                servo_adj_zero=0,
                servo_multiply_power=1,
-               # servo_speed=1,
-               # servo_type='direct'
+               # servo_speed=1,      # servo_speed is placeholder for speed switching operating servo
+               # servo_type='direct' # servo_type = 'direct' / additive  placeholder for type of servo command
                ):
-    # # servo_speed is placeholder for speed switching operating servo
-    # # servo_type = 'direct' / additive  placeholder for type of servo command
     try:
         duty_int = int(duty)
         if duty_int in range(servo_min, servo_max):
@@ -174,18 +157,7 @@ def move_servo(servo,
             duty_int = servo_min + servo_max - duty_int + servo_adj_zero
             servo.duty(duty_int * servo_multiply_power)
     except Exception as e:
-        print('Error while move_servo {}, {}'.format(type(e), e))
-    # finally:
-    #     print('DBG move_servo {} got duty: {}, {} -> {}'
-    #           ''.format(servo, type(duty), duty, duty_int))
-
-
-# def headx(key):  # straight
-#     pass
-#
-#
-# def handy(key):  # inverted
-#     pass
+        pass
 
 
 def turnx(key):  # inverted for ginger, should be straight for trike and buggy
@@ -197,14 +169,11 @@ def turnx(key):  # inverted for ginger, should be straight for trike and buggy
 def runy(key):  # straight
     global last_runy
     try:
-
         i_runy = int(key)
-
         if abs(i_runy - 50) < 2:
             m_duty = 0
             p_duty = 0
             move_servo(back_led5, duty=200)
-
         else:
             i_runy = int((i_runy + last_runy) / 2)
             if i_runy < 50:
@@ -219,13 +188,11 @@ def runy(key):  # straight
                 m_duty = 0
                 p_duty = 0
                 move_servo(back_led5, duty=0)
-
-        print('DBG runy {} G: {}, K: {}->{}, P: {} , M: {}'.format(time.ticks_ms(), robot_settings['gear_factor'],
-                                                                key, i_runy, p_duty, m_duty))
         motor_a_p.duty(p_duty)
         motor_a_m.duty(m_duty)
     except Exception as e:
-        print('Error while processing runy: {}, {}'.format(type(e), e))
+        pass
+        # print('Error while processing runy: {}, {}'.format(type(e), e))
     finally:
         last_runy = i_runy
 
@@ -249,14 +216,14 @@ def catch(key):
 
 
 def gear(key):
-    print('DBG running: {} key: {}'.format('gear', key))
     try:
         robot_settings['gear_factor'] = int(key)
         update_settings(settings_to_update=robot_settings, file=robot_settings_file)
     except Exception as e:
         robot_settings['gear_factor'] = 4
-        print('ERR: could not set gear: () use default "4". {}, {}, {}'.format(str(key), type(e), e))
-    
+        # print('ERR: could not set gear: () use default "4". {}, {}, {}'.format(str(key), type(e), e))
+
+
 tokens = {
     # 'headx': headx,
     # 'handy': handy,
@@ -297,9 +264,11 @@ def robot_listener_json(mess):
                     function_to_call = tokens[js_run]
                     function_to_call(j_run[js_run])
                 except Exception as e:
-                    print('SKIP dispatching  unknown command: {}, {}, {}'.format(j_run, type(e), e))
+                    pass
+                    # print('SKIP dispatching  unknown command: {}, {}, {}'.format(j_run, type(e), e))
         except Exception as e:
-            print('ERR while dispatching command: {}, {}'.format(type(e), e))
+            pass
+            # print('ERR while dispatching command: {}, {}'.format(type(e), e))
         finally:
             html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n    ms: " + str(time.ticks_ms() - start) + "\r\n"
             # print('DBG robot run in: {}ms'.format(str(time.ticks_ms() - start)))
@@ -313,7 +282,8 @@ def robot_listener_json(mess):
 
             update_settings(settings_to_update=j_settings, file=robot_settings_file)
         except Exception as e:
-            print('Error while processing settings json.loads()  {}, {}'.format(type(e), e))
+            pass
+            # print('Error while processing settings json.loads()  {}, {}'.format(type(e), e))
         finally:
             html = "HTTP/1.0 200 OK\r\n\r\nI Am Robot\r\n    ms: " + \
                    str(time.ticks_ms() - start) + "\r\n    settings: " + \
@@ -350,17 +320,16 @@ def serve(reader, writer):
 
         if robot_busy:
             pass
-            # print('DBG serve robot is busy: {}'.format(robot_busy))
-            # print('DBG mess: {}, {}'.format(type(mess), mess))
+            # print('DBG serve robot is busy: {} for mess: {}'.format(robot_busy, mess))
         else:
-            # print('DBG robot busy: {} it\'s OK'.format(robot_busy))
             mess = str(line)[:min(120, len(str(line)))]
             robot_listener_json(mess)
             yield from writer.awrite(html)
             yield from writer.aclose()
 
     except Exception as e:
-        print('Error while serve: {}, {}'.format(type(e), e))
+        pass
+        # print('Error while serve: {}, {}'.format(type(e), e))
     finally:
         robot_busy = False
 
