@@ -50,7 +50,7 @@ back_led5 = machine.PWM(machine.Pin(14), freq=50)
 robot_settings = {}
 robot_settings_file = 'settings.txt'
 
-leds_on = True
+leds_on = False
 # DEBUG_ON = True
 
 last_runy = 50
@@ -197,7 +197,7 @@ def runy(key):  # straight
         last_runy = i_runy
 
 
-def catch(key):
+def catch(key='catch'):
     # # placeholder for smooth catch operation
     global leds_on
     leds_on = not leds_on
@@ -345,5 +345,6 @@ def run():
 
 if __name__ == '__main__':
     robot_busy = False
+    catch() # light up ! special for Misha)
     # main loop
     run()
