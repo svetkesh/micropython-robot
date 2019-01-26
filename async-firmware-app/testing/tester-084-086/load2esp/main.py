@@ -43,8 +43,8 @@ servo_turn_x = machine.PWM(machine.Pin(12), freq=50)
 # Setup leds
 network_pin = machine.Pin(2, machine.Pin.OUT)
 forward_led2 = machine.PWM(machine.Pin(4), freq=50)
-left_led7 = machine.PWM(machine.Pin(13), freq=50)
-right_led8 = machine.PWM(machine.Pin(15), freq=50)
+left_led8 = machine.PWM(machine.Pin(15), freq=50)
+right_led7 = machine.PWM(machine.Pin(13), freq=50)
 back_led5 = machine.PWM(machine.Pin(14), freq=50)
 
 robot_settings = {}
@@ -162,8 +162,8 @@ def move_servo(servo,
 
 def turnx(key):  # inverted for ginger, should be straight for trike and buggy
     move_servo(servo_turn_x, duty=key)
-    move_servo(right_led8, duty=key, servo_adj_zero=-40, servo_multiply_power=8)
-    move_servo(left_led7, duty=key, servo_adj_zero=-39, forward=False, servo_multiply_power=8)
+    move_servo(right_led7, duty=key, servo_adj_zero=-40, servo_multiply_power=8)
+    move_servo(left_led8, duty=key, servo_adj_zero=-39, forward=False, servo_multiply_power=8)
 
 
 def runy(key):  # straight
@@ -205,13 +205,13 @@ def catch(key):
         network_pin.on()
         forward_led2.duty(200)
         back_led5.duty(200)
-        left_led7.duty(200)
-        right_led8.duty(200)
+        left_led8.duty(200)
+        right_led7.duty(200)
     else:
         network_pin.off()
         forward_led2.duty(5)
-        left_led7.duty(5)
-        right_led8.duty(5)
+        left_led8.duty(5)
+        right_led7.duty(5)
         back_led5.duty(5)
 
 
