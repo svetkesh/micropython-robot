@@ -53,13 +53,28 @@ ver 0.8.2 test version with smooth joystik run
 0.8.4.7-5 (.5) - speed factor initiated with 4
                 initiated self.timeout_timer_start = 0.16
 0.8.6.1 - add "overdrive" button
+upd with local joystick package
 
 '''
+
+import sys
+sys.path.append("_applibs")
+sys.path.append(".")
 
 from kivy.app import App
 
 from kivy.uix.widget import Widget
-from kivy.garden.joystick import Joystick
+# from kivy.garden.joystick import Joystick
+# from jstk.joystick import Joystick
+# from joystick import Joystick
+# from jstk import JoystickPad
+# from jstk import Joystick
+from joystick import Joystick
+from joystickpad import JoystickPad
+# import jstk
+# from .libs.garden.garden import Joystick
+# from .libs.garden import Joystick  #  test me - bad
+# from .joystick import Joystick
 
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
