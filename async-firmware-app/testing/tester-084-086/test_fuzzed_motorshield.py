@@ -132,7 +132,7 @@ for i in range(100):
 
             sended = send_command(header, c, timeout_responce=1)
             sended = send_command(header, c, timeout_responce=1)
-            # sended = send_command(header, c, timeout_responce=1)
+            # sended = send_command(header, c, timeout_responce=1) #
             print(sended)
             if not sended:
                 fault_counter += 1
