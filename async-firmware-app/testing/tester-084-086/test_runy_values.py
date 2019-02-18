@@ -9,7 +9,7 @@ robot_port = 80
 
 
 def send_commands_runy(commands):
-    str_commands = 'http://192.168.4.1/?&run={"runy":"' + str(commands) + '"}\&'
+    str_commands = 'http://192.168.4.1/?&run={"turnx":"' + str(commands) + '"}\&'
     try:
         print('DBG start sending command send_command_data_with_saved_params: {}'.format(str_commands))
         client_socket = socket.socket()  # instantiate
@@ -25,7 +25,7 @@ def send_commands_runy(commands):
 
 def send_commands_headx(commands):
     #  self.current_command['headx'] = self.recalculate_servo_position(x)
-    str_commands = 'http://192.168.4.1/?&run={"headx":"' + str(commands) + '"}\&'
+    str_commands = 'http://192.168.4.1/?&run={"runy":"' + str(commands) + '"}\&'
     try:
         print('DBG start sending command send_command_data_with_saved_params: {}'.format(str_commands))
         client_socket = socket.socket()  # instantiate
