@@ -117,31 +117,47 @@ cycles = 10
 #         time.sleep(timeout)
 
 
-fault_counter = 0
-total_counter = 0
-sleep = 0.2
+# fault_counter = 0
+# total_counter = 0
+# sleep = 0.2
 
-for i in range(100):
-    try:
-        for header in command_heads:
+stats = {}
+sleeps = [0.99, 0.50, 0.30, 0.20, 0.15, 0.10, 0.05]
+test_quantity = 5
 
-            total_counter += 1
+for sleep in sleeps:
+    fault_counter = 0
+    total_counter = 0
+    # sleep = s / 100
+    # sleep = 0.05
 
-            c = generare_command_value(50, 49)
-            print('Command {}: {}'.format(total_counter, c))
+    for i in range(test_quantity):
+        try:
+            for header in command_heads:
+                total_counter += 1
 
-            sended = send_command(header, c, timeout_responce=1)
-            sended = send_command(header, c, timeout_responce=1)
-            # sended = send_command(header, c, timeout_responce=1) #
-            print(sended)
-            if not sended:
-                fault_counter += 1
-                print('Faulted {}: {} {}'.format(total_counter, sended, fault_counter))
+                c = generare_command_value(50, 49)
+                print('Command {}: {}'.format(total_counter, c))
 
-            time.sleep(sleep)
+                sended = send_command(header, c, timeout_responce=1)
+                sended = send_command(header, c, timeout_responce=1)
+                # sended = send_command(header, c, timeout_responce=1) #
+                print(sended)
+                if not sended:
+                    fault_counter += 1
+                    print('Faulted {}: {} {}'.format(total_counter, sended, fault_counter))
 
-    except Exception as e:
-        print('ERR: command not sent {} {}'.format(type(e), e))
+                time.sleep(sleep)
+                stats[sleep] = fault_counter / total_counter
 
-    finally:
-        print('Commands sent {} errors {} . Timeout {}'.format(total_counter, fault_counter, sleep))
+        except Exception as e:
+            print('ERR: command not sent {} {}'.format(type(e), e))
+
+        finally:
+            print('Commands sent {} errors {} . Timeout {}'.format(total_counter, fault_counter, sleep))
+
+
+print(stats)
+
+for k in stats:
+    print(k, '\t', stats[k])
