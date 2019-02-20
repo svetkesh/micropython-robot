@@ -123,7 +123,7 @@ cycles = 10
 
 stats = {}
 sleeps = [0.99, 0.50, 0.30, 0.20, 0.15, 0.10, 0.05]
-test_quantity = 5
+test_quantity = 10
 
 for sleep in sleeps:
     fault_counter = 0
