@@ -37,7 +37,7 @@ def send_command(command_head,
                  command_tail='"}',
                  center=50,
                  offset=49,
-                 recovery_timeout=12,
+                 recovery_timeout=8,
                  debug_msg=False
                  ):
     # str_commands = command_head + str(generare_command_value(center, offset)) + command_tail
@@ -148,25 +148,30 @@ def test_run(test_quantity=10,
 
         for i in range(test_quantity):
             try:
-                for header in command_heads:
-                    total_counter += 1
+                # for header in command_heads:
+                header =random.choice(command_heads)
+                total_counter += 1
 
-                    c = generare_command_value(50, 49)
+                c = generare_command_value(50, 49)
+                # if debug_msg:
+                #     print('Command {}: {}'.format(total_counter, c))
+
+                for hard in range(commands_hardness):
+                    sended = send_command(header, c, timeout_responce=1)
+                    #  repeat commands to override chips lazy command fulfilment
+
+                # print(sended)
+                if not sended:
+                    fault_counter += 1
+                    if debug_msg:
+                        print('Command {}: {} Faulted {}'.format(total_counter, c, fault_counter))
+
+                else:
                     if debug_msg:
                         print('Command {}: {}'.format(total_counter, c))
 
-                    for hard in range(commands_hardness):
-                        sended = send_command(header, c, timeout_responce=1)
-                        #  repeat commands to override chips lazy command fulfilment
-
-                    # print(sended)
-                    if not sended:
-                        fault_counter += 1
-                        if debug_msg:
-                            print('Faulted {}: {} {}'.format(total_counter, sended, fault_counter))
-
-                    time.sleep(sleep)
-                    stats[sleep] = fault_counter / total_counter
+                time.sleep(sleep)
+                # stats[sleep] = fault_counter / total_counter
 
             except Exception as e:
                 if debug_msg:
@@ -174,7 +179,10 @@ def test_run(test_quantity=10,
 
             finally:
                 if debug_msg:
-                    print('Commands sent {} errors {} . Timeout {}'.format(total_counter, fault_counter, sleep))
+                    print('Commands sent so far {} errors {} . Timeout {}'.format(total_counter, fault_counter, sleep))
+
+        stats[sleep] = fault_counter / total_counter
+
     print(stats)
 
     for k in stats:
@@ -187,8 +195,8 @@ def main():
 
     hardness = [1, 2, 3]  # repeat same command to override lazy esp
     gears = [2, 3, 4, 5]  # gear used for motor speed
-    sleep_timeouts = [0.99, 0.50, 0.30, 0.20, 0.15, 0.10, 0.05, 0.01]
-    butch_quantity = 2  # qty of tests in single butch, repeat for same settings
+    sleep_timeouts = [0.99, 0.50, 0.30, 0.20, 0.16, 0.12, 0.10, 0.05, 0.01]
+    butch_quantity = 3  # qty of tests in single butch, repeat for same settings
 
     for hard in hardness:
         print("Set hardness = {}".format(hard))
@@ -197,7 +205,8 @@ def main():
             print("... hardness = {}, Set gear = {}".format(hard, gear))
             test_run(test_quantity=butch_quantity,
                      sleeps=sleep_timeouts,
-                     commands_hardness=hard)
+                     commands_hardness=hard,
+                     debug_msg=True)
 
     print("Tests total:{}, elapsed: {}".format(len(hardness) * len(gears) * len(sleep_timeouts) * butch_quantity,
                                                time.time() - test_started))
