@@ -136,36 +136,30 @@ def send_commands_headx(commands):
 def test_run(test_quantity=10,
              sleeps=[0.99, 0.50, 0.30, 0.20, 0.15, 0.10, 0.05],
              commands_hardness=2,  # qty of same commands to be sent as ESP try to soften and can ignore/half the value
-             debug_msg=False
+             debug_msg=True
              ):
     stats = {}
 
     for sleep in sleeps:
         fault_counter = 0
         total_counter = 0
-        # sleep = s / 100
-        # sleep = 0.05
 
         for i in range(test_quantity):
             try:
-                # for header in command_heads:
-                header =random.choice(command_heads)
+
                 total_counter += 1
-
+                header = random.choice(command_heads)
                 c = generare_command_value(50, 49)
-                # if debug_msg:
-                #     print('Command {}: {}'.format(total_counter, c))
 
-                for hard in range(commands_hardness):
-                    sended = send_command(header, c, timeout_responce=1)
-                    #  repeat commands to override chips lazy command fulfilment
+                sent = send_command(header, c, timeout_responce=1)
 
-                # print(sended)
-                if not sended:
+                if not sent:
                     fault_counter += 1
                     if debug_msg:
-                        print('Command {}: {} Faulted {}'.format(total_counter, c, fault_counter))
-
+                        print('Command {}: {} Faulted {} at: {}ms'.format(total_counter,
+                                                                          c,
+                                                                          fault_counter,
+                                                                          sleep))
                 else:
                     if debug_msg:
                         print('Command {}: {}'.format(total_counter, c))
@@ -176,10 +170,9 @@ def test_run(test_quantity=10,
             except Exception as e:
                 if debug_msg:
                     print('ERR: command not sent {} {}'.format(type(e), e))
-
-            finally:
-                if debug_msg:
-                    print('Commands sent so far {} errors {} . Timeout {}'.format(total_counter, fault_counter, sleep))
+            # finally:
+            #     if debug_msg:
+            #         print('Commands sent so far {} errors {} . Timeout {}'.format(total_counter, fault_counter, sleep))
 
         stats[sleep] = fault_counter / total_counter
 
@@ -195,8 +188,8 @@ def main():
 
     hardness = [1, 2, 3]  # repeat same command to override lazy esp
     gears = [2, 3, 4, 5]  # gear used for motor speed
-    sleep_timeouts = [0.99, 0.50, 0.30, 0.20, 0.16, 0.12, 0.10, 0.05, 0.01]
-    butch_quantity = 3  # qty of tests in single butch, repeat for same settings
+    sleep_timeouts = [0.99, 0.50, 0.30, 0.24, 0.20, 0.16, 0.12, 0.10, 0.08, 0.04]
+    butch_quantity = 200  # qty of tests in single butch, repeat for same settings
 
     for hard in hardness:
         print("Set hardness = {}".format(hard))
@@ -206,7 +199,7 @@ def main():
             test_run(test_quantity=butch_quantity,
                      sleeps=sleep_timeouts,
                      commands_hardness=hard,
-                     debug_msg=True)
+                     debug_msg=False)
 
     print("Tests total:{}, elapsed: {}".format(len(hardness) * len(gears) * len(sleep_timeouts) * butch_quantity,
                                                time.time() - test_started))
