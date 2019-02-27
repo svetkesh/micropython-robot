@@ -27,6 +27,8 @@ def generare_command_value(center=50, offset=49):
     else:
         return random.randint(center - offset, center + offset)
 
+    # return random.choice([2, 10, 90, 98])
+
 
 def send_command(command_head,
                  command,
@@ -203,6 +205,14 @@ def main():
 
     print("Tests total:{}, elapsed: {}".format(len(hardness) * len(gears) * len(sleep_timeouts) * butch_quantity,
                                                time.time() - test_started))
+
+    # stopping commmands
+    for i in range(3):
+        for head in command_heads:
+            time.sleep(1)
+            print(send_command(command_head=head, command=50))
+
+    print('Drives stopped')
 
 
 if __name__ == "__main__":
