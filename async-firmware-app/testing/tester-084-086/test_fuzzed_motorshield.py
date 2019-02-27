@@ -191,7 +191,7 @@ def main():
     hardness = [1, 2, 3]  # repeat same command to override lazy esp
     gears = [2, 3, 4, 5]  # gear used for motor speed
     sleep_timeouts = [0.99, 0.50, 0.30, 0.24, 0.20, 0.16, 0.12, 0.10, 0.08, 0.04]
-    butch_quantity = 200  # qty of tests in single butch, repeat for same settings
+    butch_quantity = 200  # qty of tests in single butch, repeat for same  settings
 
     for hard in hardness:
         print("Set hardness = {}".format(hard))
