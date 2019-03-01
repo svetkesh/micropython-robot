@@ -22,10 +22,12 @@ gear_head = 'http://192.168.4.1/?&run={"gear":"'
 
 
 def generare_command_value(center=50, offset=49):
-    if (center - offset) < 1 or (center + offset) > 99:
-        return random.randint(1, 99)
-    else:
-        return random.randint(center - offset, center + offset)
+    # if (center - offset) < 1 or (center + offset) > 99:
+    #     return random.randint(1, 99)
+    # else:
+    #     return random.randint(center - offset, center + offset)
+
+    return random.choice([2, 10, 90, 98])
 
 
 def send_command(command_head,
@@ -189,7 +191,7 @@ def main():
     hardness = [1, 2, 3]  # repeat same command to override lazy esp
     gears = [2, 3, 4, 5]  # gear used for motor speed
     sleep_timeouts = [0.99, 0.50, 0.30, 0.24, 0.20, 0.16, 0.12, 0.10, 0.08, 0.04]
-    butch_quantity = 200  # qty of tests in single butch, repeat for same settings
+    butch_quantity = 50  # qty of tests in single butch, repeat for same  settings
 
     for hard in hardness:
         print("Set hardness = {}".format(hard))
@@ -203,6 +205,14 @@ def main():
 
     print("Tests total:{}, elapsed: {}".format(len(hardness) * len(gears) * len(sleep_timeouts) * butch_quantity,
                                                time.time() - test_started))
+
+    # stopping commmands
+    for i in range(3):
+        for head in command_heads:
+            time.sleep(1)
+            print(send_command(command_head=head, command=50))
+
+    print('Drives stopped')
 
 
 if __name__ == "__main__":
