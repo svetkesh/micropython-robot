@@ -54,6 +54,9 @@ ver 0.8.2 test version with smooth joystik run
                 initiated self.timeout_timer_start = 0.16
 0.8.6.1 - add "overdrive" button
 upd with local joystick package
+overdrive_button) # 0861003 - prep for AppStore - No Overdrive Button
+statusbar_label)  # 0861003 - prep for AppStore - No Overdrive Button
+
 
 '''
 
@@ -116,8 +119,8 @@ class RoboPad(FloatLayout):
         self.joystickrun.bind(pad=self.update_coordinates_run)
 
         # add some buttons
-        self.catchbutton = Button(size_hint=(.3, .1),
-                                  pos_hint={'x': .7, 'y': .85},
+        self.catchbutton = Button(size_hint=(.4, .2),
+                                  pos_hint={'x': .55, 'y': .75},
                                   text='Switch the lights!')
         self.add_widget(self.catchbutton)
         self.catchbutton.bind(on_press=self.update_catch_release)
@@ -193,9 +196,9 @@ class RoboPad(FloatLayout):
 
         self.slider_timeout_timer_start.bind(value=self.OnSliderTimeoutTimerStartValueChange)
 
-        self.slider_gear_factor = Slider(size_hint=(.4, .03),
-                                                    pos_hint={'x': .1,
-                                                              'y': .95},
+        self.slider_gear_factor = Slider(size_hint=(.4, .1),
+                                                    pos_hint={'x': .05,
+                                                              'y': .9},
                                                     min=2,
                                                     max=5,
                                                     value=3)
@@ -204,14 +207,14 @@ class RoboPad(FloatLayout):
         self.slider_gear_factor.bind(value=self.OnSliderGearFactorValueChange)
 
         self.switch_invert_runy = Switch(size_hint=(.2, .1),
-                                         pos_hint={'x': .4,
-                                                   'y': .7},)
+                                         pos_hint={'x': .25,
+                                                   'y': .75},)
         self.add_widget(self.switch_invert_runy)
         self.switch_invert_runy.bind(active=self.OnActiveInvertRuny)
 
         self.switch_invert_turnx = Switch(size_hint=(.2, .1),
-                                          pos_hint={'x': .1,
-                                                    'y': .7},)
+                                          pos_hint={'x': .05,
+                                                    'y': .75},)
         self.add_widget(self.switch_invert_turnx)
         self.switch_invert_turnx.bind(active=self.OnActiveInvertTurnx)
 
@@ -219,14 +222,14 @@ class RoboPad(FloatLayout):
         self.overdrive_button = Button(size_hint=(.2, .1),
                                   pos_hint={'x': .4, 'y': .9},
                                   text='OverDrive!')
-        self.add_widget(self.overdrive_button)
+        # self.add_widget(self.overdrive_button) # 0861003 - prep for AppStore
         self.overdrive_button.bind(on_press=self.switch_overdrive)
 
         # StatusBar
         self.statusbar_label = Label(size_hint=(.4, .0),
                                      pos_hint={'x': .2, 'y': .2},
                                      text='main-kivy-buggy-(0.8.6.1) ...',)  # multiline=True,)
-        self.add_widget(self.statusbar_label)
+        # self.add_widget(self.statusbar_label)
 
 
 
